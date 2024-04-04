@@ -29,7 +29,6 @@ function Agents() {
       (response) => {
         console.log("response", response);
         setAgents(response.data.data);
-        response.data.data;
         setAgentsAll(response.data.meta.total);
       }
     );
