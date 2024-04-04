@@ -6,8 +6,12 @@ function AgentDisp({ agent }: { agent: Agent }) {
     <div className={classes.agent}>
       <div>Symbol</div>
       <div>{agent.symbol}</div>
-      <div>Account Id</div>
-      <div>{agent.accountId}</div>
+      {agent.accountId && (
+        <>
+          <div>Account Id</div>
+          <div>{agent.accountId}</div>
+        </>
+      )}
       <div>Credits</div>
       <div>{agent.credits}</div>
       <div>Ship count</div>

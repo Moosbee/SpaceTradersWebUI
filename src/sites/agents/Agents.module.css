@@ -1,3 +1,17 @@
 .agents {
   /* background-color: green; */
 }
+
+.agentsList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.agentsListConfig {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+}
