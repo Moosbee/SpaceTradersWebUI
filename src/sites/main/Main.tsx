@@ -52,28 +52,48 @@ function Main() {
         Waypoints: {status?.stats.waypoints}
       </p>
       <h2>Leaderboards</h2>
-      <h3>Most Credits</h3>
-      <ol>
-        {status?.leaderboards.mostCredits.map((value) => {
-          return (
-            <li>
-              {value.agentSymbol} {value.credits}
-            </li>
-          );
-        })}
-      </ol>
-      <h3>Most Submitted Charts</h3>
-      <ol>
-        {status?.leaderboards.mostSubmittedCharts.map((value) => {
-          return (
-            <li>
-              {value.agentSymbol} {value.chartCount}
-            </li>
-          );
-        })}
-      </ol>
+      <div className={classes.leaderboards}>
+        <div>
+          <h3>Most Credits</h3>
+          <div className={classes.leaderboard}>
+            <div>
+              <b>Agent Symbol</b>
+            </div>
+            <div>
+              <b>Credits</b>
+            </div>
+            {status?.leaderboards.mostCredits.map((value) => {
+              return (
+                <>
+                  <div>{value.agentSymbol}</div>
+                  <div>{value.credits}</div>
+                </>
+              );
+            })}
+          </div>
+        </div>
+        <div>
+          <h3>Most Submitted Charts</h3>
+          <div className={classes.leaderboard}>
+            <div>
+              <b>Agent Symbol</b>
+            </div>
+            <div>
+              <b>Chart Count</b>
+            </div>
+            {status?.leaderboards.mostSubmittedCharts.map((value) => {
+              return (
+                <>
+                  <div>{value.agentSymbol}</div>
+                  <div>{value.chartCount}</div>
+                </>
+              );
+            })}
+          </div>
+        </div>
+      </div>
 
-      <nav>
+      <nav className={classes.linkMenu}>
         <ul>
           {status?.links.map((value) => {
             return (
