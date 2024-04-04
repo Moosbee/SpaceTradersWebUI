@@ -1,0 +1,10 @@
+.agent {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: fit-content;
+  column-gap: 1rem;
+  margin: 1rem;
+  padding: 0.5rem;
+  border: 5px solid #1a1a1a;
+  border-radius: 1rem;
+}
