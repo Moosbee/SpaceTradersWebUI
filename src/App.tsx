@@ -8,6 +8,7 @@ import Fleet from "./sites/fleet/Fleet";
 import Systems from "./sites/systems/Systems";
 import Factions from "./sites/factions/Factions";
 import Contracts from "./sites/contracts/Contracts";
+import NewAgent from "./sites/newAgent/NewAgent";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/systems" element={<Systems></Systems>} />
           <Route path="/factions" element={<Factions></Factions>} />
           <Route path="/contracts" element={<Contracts></Contracts>} />
+          <Route path="/newAgent" element={<NewAgent></NewAgent>} />
         </Routes>
       </main>
     </>

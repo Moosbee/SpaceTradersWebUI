@@ -24,6 +24,9 @@ function Header() {
           <li>
             <Link to="/contracts">Contracts overview</Link>
           </li>
+          <li>
+            <Link to="/newAgent">New Agent</Link>
+          </li>
         </ul>
       </nav>
     </header>
