@@ -1,7 +1,5 @@
-import classes from "./Systems.module.css";
-
 function Systems() {
-  return <div className={classes.systems}>Systems</div>;
+  return <div>Systems</div>;
 }
 
 export default Systems;

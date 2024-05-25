@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import spaceTraderClient from "../../spaceTraderClient";
-import classes from "./Main.module.css";
 import { GetStatus200Response } from "../../components/api";
 
 function Main() {
@@ -14,9 +13,9 @@ function Main() {
   }, []);
 
   return (
-    <div className={classes.main}>
+    <div>
       <h2>Announcements</h2>
-      <ul className={classes.announcements}>
+      <ul>
         {status?.announcements.map((value) => {
           return (
             <li key={value.title}>
@@ -52,10 +51,10 @@ function Main() {
         Waypoints: {status?.stats.waypoints}
       </p>
       <h2>Leaderboards</h2>
-      <div className={classes.leaderboards}>
+      <div>
         <div>
           <h3>Most Credits</h3>
-          <div className={classes.leaderboard}>
+          <div>
             <div>
               <b>Agent Symbol</b>
             </div>
@@ -74,7 +73,7 @@ function Main() {
         </div>
         <div>
           <h3>Most Submitted Charts</h3>
-          <div className={classes.leaderboard}>
+          <div>
             <div>
               <b>Agent Symbol</b>
             </div>
@@ -93,7 +92,7 @@ function Main() {
         </div>
       </div>
 
-      <nav className={classes.linkMenu}>
+      <nav>
         <ul>
           {status?.links.map((value) => {
             return (

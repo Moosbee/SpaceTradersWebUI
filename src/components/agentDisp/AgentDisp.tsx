@@ -1,9 +1,8 @@
 import { Agent } from "../api";
-import classes from "./AgentDisp.module.css";
 
 function AgentDisp({ agent }: { agent: Agent }) {
   return (
-    <div className={classes.agent}>
+    <div>
       <div>Symbol</div>
       <div>{agent.symbol}</div>
       {agent.accountId && (

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Agent } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
-import classes from "./Agents.module.css";
 import AgentDisp from "../../components/agentDisp/AgentDisp";
 
 function Agents() {
@@ -36,12 +35,12 @@ function Agents() {
   }, [agentsPage]);
 
   return (
-    <div className={classes.agents}>
+    <div>
       <h2>My Agents</h2>
       <AgentDisp agent={myAgent}></AgentDisp>
       <hr />
       <h2>All Agents</h2>
-      <div className={classes.agentsListConfig}>
+      <div>
         <button
           onClick={(e) => {
             setAgentsPage(
@@ -77,7 +76,7 @@ function Agents() {
           Next
         </button>
       </div>
-      <div className={classes.agentsList}>
+      <div>
         {agents.map((value) => {
           return <AgentDisp agent={value} key={value.symbol}></AgentDisp>;
         })}

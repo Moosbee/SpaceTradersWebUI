@@ -1,7 +1,5 @@
-import classes from "./Contracts.module.css";
-
 function Contracts() {
-  return <div className={classes.contracts}>Contracts</div>;
+  return <div>Contracts</div>;
 }
 
 export default Contracts;

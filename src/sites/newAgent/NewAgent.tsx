@@ -1,6 +1,5 @@
 import { useId, useState } from "react";
 import spaceTraderClient from "../../spaceTraderClient";
-import classes from "./NewAgent.module.css";
 import { FactionSymbol, Register201ResponseData } from "../../components/api";
 import AgentDisp from "../../components/agentDisp/AgentDisp";
 
@@ -44,7 +43,7 @@ function NewAgent() {
   const factionID = useId();
 
   return (
-    <div className={classes.NewAgent}>
+    <div>
       <h2>Create NewAgent</h2>
       <form onSubmit={handleSubmit}>
         <label htmlFor={callsignID}>CALLSIGN</label>

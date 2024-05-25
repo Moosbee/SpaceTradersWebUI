@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import spaceTraderClient from "../../spaceTraderClient";
-import classes from "./Fleet.module.css";
 import { Ship } from "../../components/api";
 
 function Fleet() {
@@ -18,9 +17,9 @@ function Fleet() {
   }, []);
 
   return (
-    <div className={classes.fleet}>
+    <div>
       <h2>All Ships</h2>
-      <div className={classes.shipsListConfig}>
+      <div>
         <button
           onClick={(e) => {
             setShipsPage(
@@ -56,10 +55,10 @@ function Fleet() {
           Next
         </button>
       </div>
-      <div className={classes.shipsList}>
+      <div>
         {ships.map((value) => {
           return (
-            <div key={value.symbol} className={classes.shipItem}>
+            <div key={value.symbol}>
               <div>Symbol:</div>
               <div>{value.symbol}</div>
               <div>Role:</div>
