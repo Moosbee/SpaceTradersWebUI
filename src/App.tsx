@@ -15,7 +15,7 @@ const { Header, Content, Sider } = Layout;
 
 function App() {
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { borderRadiusLG },
   } = theme.useToken();
 
   const { defaultAlgorithm, darkAlgorithm } = theme;
@@ -66,7 +66,6 @@ function App() {
                 padding: 24,
                 margin: 0,
                 minHeight: 280,
-                background: colorBgContainer,
                 borderRadius: borderRadiusLG,
               }}
             >
