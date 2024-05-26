@@ -7,38 +7,87 @@ import Systems from "./sites/systems/Systems";
 import Factions from "./sites/factions/Factions";
 import Contracts from "./sites/contracts/Contracts";
 import NewAgent from "./sites/newAgent/NewAgent";
-import { Menu, Layout } from "antd";
+import { Menu, Layout, theme, ConfigProvider, Button } from "antd";
 import MyHeader from "./components/myHeader/myHeader";
+import { useState } from "react";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content, Sider } = Layout;
 
 function App() {
+  const {
+    token: { colorBgContainer, borderRadiusLG },
+  } = theme.useToken();
+
+  const { defaultAlgorithm, darkAlgorithm } = theme;
+  const [isDarkMode, setIsDarkMode] = useState(false);
   return (
-    <>
+    <ConfigProvider
+      theme={{
+        algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
+      }}
+    >
       <Layout>
-        <Header style={{ display: "flex", alignItems: "center" }}>
+        <Header
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 1,
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <MyHeader></MyHeader>
         </Header>
-        <Content>
-          <Routes>
-            <Route
-              path="/"
-              element={<Main></Main>}
-              errorElement={<ErrorPage />}
+        <Layout>
+          <Sider width={200}>
+            <Menu
+              mode="inline"
+              style={{ height: "100%", borderRight: 0 }}
+              items={[
+                {
+                  key: "1",
+                  label: (
+                    <Button
+                      onClick={() => {
+                        setIsDarkMode(!isDarkMode);
+                      }}
+                    >
+                      {isDarkMode ? "Light" : "Dark"}-Mode
+                    </Button>
+                  ),
+                },
+              ]}
             />
-            <Route path="/agents" element={<Agents></Agents>} />
-            <Route path="/fleet" element={<Fleet></Fleet>} />
-            <Route path="/systems" element={<Systems></Systems>} />
-            <Route path="/factions" element={<Factions></Factions>} />
-            <Route path="/contracts" element={<Contracts></Contracts>} />
-            <Route path="/newAgent" element={<NewAgent></NewAgent>} />
-          </Routes>
-        </Content>
-        <Footer style={{ textAlign: "center" }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+          </Sider>
+          <Layout style={{ padding: "24px 24px" }}>
+            <Content
+              style={{
+                padding: 24,
+                margin: 0,
+                minHeight: 280,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              <Routes>
+                <Route
+                  path="/"
+                  element={<Main></Main>}
+                  errorElement={<ErrorPage />}
+                />
+                <Route path="/agents" element={<Agents></Agents>} />
+                <Route path="/fleet" element={<Fleet></Fleet>} />
+                <Route path="/systems" element={<Systems></Systems>} />
+                <Route path="/factions" element={<Factions></Factions>} />
+                <Route path="/contracts" element={<Contracts></Contracts>} />
+                <Route path="/newAgent" element={<NewAgent></NewAgent>} />
+              </Routes>
+            </Content>
+          </Layout>
+        </Layout>
       </Layout>
-    </>
+    </ConfigProvider>
   );
 }
 

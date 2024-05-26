@@ -1,24 +1,57 @@
+import { Card, Descriptions, DescriptionsProps } from "antd";
 import { Agent } from "../api";
 
 function AgentDisp({ agent }: { agent: Agent }) {
+  const items: DescriptionsProps["items"] = [
+    {
+      key: "1",
+      label: "Symbol",
+      children: <p>{agent.symbol}</p>,
+    },
+  ];
+
+  if (agent.accountId) {
+    items.push({
+      key: "2",
+      label: "Account Id",
+      children: <p>{agent.accountId}</p>,
+    });
+  }
+  items.push(
+    ...[
+      {
+        key: "3",
+        label: "Credits",
+        children: <p>{agent.credits}</p>,
+      },
+      {
+        key: "4",
+        label: "Ship count",
+        children: <p>{agent.shipCount}</p>,
+      },
+      {
+        key: "5",
+        label: "Headquarters",
+        children: <p>{agent.headquarters}</p>,
+      },
+      {
+        key: "6",
+        label: "Starting Faction",
+        children: <p>{agent.startingFaction}</p>,
+      },
+    ]
+  );
+
   return (
     <div>
-      <div>Symbol</div>
-      <div>{agent.symbol}</div>
-      {agent.accountId && (
-        <>
-          <div>Account Id</div>
-          <div>{agent.accountId}</div>
-        </>
-      )}
-      <div>Credits</div>
-      <div>{agent.credits}</div>
-      <div>Ship count</div>
-      <div>{agent.shipCount}</div>
-      <div>Headquarters</div>
-      <div>{agent.headquarters}</div>
-      <div>Starting Faction</div>
-      <div>{agent.startingFaction}</div>
+      <Card style={{ width: "fit-content" }}>
+        <Descriptions
+          title="Agent Info"
+          bordered
+          items={items}
+          layout="vertical"
+        />
+      </Card>
     </div>
   );
 }
