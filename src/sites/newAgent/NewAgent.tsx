@@ -1,31 +1,55 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import spaceTraderClient from "../../spaceTraderClient";
 import { FactionSymbol, Register201ResponseData } from "../../components/api";
-import AgentDisp from "../../components/agentDisp/AgentDisp";
+import AgentDisp from "../../components/disp/AgentDisp";
+import {
+  Button,
+  Card,
+  Divider,
+  Flex,
+  Form,
+  FormProps,
+  Input,
+  Select,
+  Space,
+  Typography,
+} from "antd";
+import ShipDisp from "../../components/disp/ShipDisp";
+import FactionDisp from "../../components/disp/FactionDisp";
+import ContractDisp from "../../components/disp/ContractDisp";
+
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+
+const tailLayout = {
+  wrapperCol: { offset: 8, span: 16 },
+};
 
 function NewAgent() {
   const [newAgent, setNewAgent] = useState<Register201ResponseData | null>(
     null
   );
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  type FieldType = {
+    callsign: string;
+    email?: string;
+    faction: FactionSymbol;
+  };
 
-    const data = new FormData(e.target as HTMLFormElement);
+  const { Text } = Typography;
 
-    console.log(e, data);
+  const [form] = Form.useForm();
 
-    const callsign = data.get("callsign");
-    const faction = data.get("faction");
-
-    if (!callsign || !faction) {
-      return;
-    }
+  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
+    console.log("Success:", values);
 
     spaceTraderClient.DefaultClient.register(
       {
-        symbol: callsign?.toString(),
-        faction: faction.toString() as FactionSymbol,
+        symbol: values.callsign,
+        faction: values.faction,
+        email: values.email,
       },
       {
         transformRequest: (data, headers) => {
@@ -39,50 +63,89 @@ function NewAgent() {
     });
   };
 
-  const callsignID = useId();
-  const factionID = useId();
-
   return (
     <div>
       <h2>Create NewAgent</h2>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor={callsignID}>CALLSIGN</label>
-        <br />
-        <input type="text" name="callsign" id={callsignID} />
-        <br />
-        <label htmlFor={factionID}>Faction</label>
-        <br />
-        <select name="faction" id={factionID}>
-          <option value="COSMIC">COSMIC</option>
-          <option value="VOID">VOID</option>
-          <option value="GALACTIC">GALACTIC</option>
-          <option value="QUANTUM">QUANTUM</option>
-          <option value="DOMINION">DOMINION</option>
-          <option value="ASTRO">ASTRO</option>
-          <option value="CORSAIRS">CORSAIRS</option>
-          <option value="OBSIDIAN">OBSIDIAN</option>
-          <option value="AEGIS">AEGIS</option>
-          <option value="UNITED">UNITED</option>
-          <option value="SOLITARY">SOLITARY</option>
-          <option value="COBALT">COBALT</option>
-          <option value="OMEGA">OMEGA</option>
-          <option value="ECHO">ECHO</option>
-          <option value="LORDS">LORDS</option>
-          <option value="CULT">CULT</option>
-          <option value="ANCIENTS">ANCIENTS</option>
-          <option value="SHADOW">SHADOW</option>
-          <option value="ETHEREAL">ETHEREAL</option>
-        </select>
-        <button type="submit">Log</button>
-      </form>
+      <Form
+        {...layout}
+        form={form}
+        onFinish={onFinish}
+        name="control-hooks"
+        style={{ maxWidth: 600 }}
+      >
+        <Form.Item
+          name="callsign"
+          label="Callsign"
+          rules={[{ required: true }]}
+        >
+          <Input placeholder="Enter a Callsign" />
+        </Form.Item>
+        <Form.Item
+          name="email"
+          label="E-Mail"
+          rules={[
+            {
+              type: "email",
+              message: "The input is not valid E-mail!",
+            },
+          ]}
+        >
+          <Input placeholder="Enter a E-Mail" />
+        </Form.Item>
+        <Form.Item name="faction" label="Faction" rules={[{ required: true }]}>
+          <Select
+            placeholder="Select a faction"
+            allowClear
+            options={[
+              { value: "COSMIC", label: "COSMIC" },
+              { value: "VOID", label: "VOID" },
+              { value: "GALACTIC", label: "GALACTIC" },
+              { value: "QUANTUM", label: "QUANTUM" },
+              { value: "DOMINION", label: "DOMINION" },
+              { value: "ASTRO", label: "ASTRO" },
+              { value: "CORSAIRS", label: "CORSAIRS" },
+              { value: "OBSIDIAN", label: "OBSIDIAN" },
+              { value: "AEGIS", label: "AEGIS" },
+              { value: "UNITED", label: "UNITED" },
+              { value: "SOLITARY", label: "SOLITARY" },
+              { value: "COBALT", label: "COBALT" },
+              { value: "OMEGA", label: "OMEGA" },
+              { value: "ECHO", label: "ECHO" },
+              { value: "LORDS", label: "LORDS" },
+              { value: "CULT", label: "CULT" },
+              { value: "ANCIENTS", label: "ANCIENTS" },
+              { value: "SHADOW", label: "SHADOW" },
+              { value: "ETHEREAL", label: "ETHEREAL" },
+            ]}
+          ></Select>
+        </Form.Item>
+        <Form.Item {...tailLayout}>
+          <Space>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+            <Button htmlType="button">Reset</Button>
+          </Space>
+        </Form.Item>
+      </Form>
       {newAgent == null ? (
         ""
       ) : (
-        <div>
-          <h2>New Agent</h2>
-          {newAgent.token}
-          <AgentDisp agent={newAgent.agent}></AgentDisp>
-        </div>
+        <Card title="New Agent">
+          <Space>
+            <Text>Token:</Text>
+            <Text copyable code>
+              {newAgent.token}
+            </Text>
+          </Space>
+          <Divider></Divider>
+          <Flex wrap gap="middle" align="center" justify="space-evenly">
+            <AgentDisp agent={newAgent.agent}></AgentDisp>
+            <FactionDisp faction={newAgent.faction}></FactionDisp>
+            <ShipDisp ship={newAgent.ship}></ShipDisp>
+            <ContractDisp contract={newAgent.contract}></ContractDisp>
+          </Flex>
+        </Card>
       )}
     </div>
   );

@@ -5,7 +5,7 @@ function ShipDisp({ ship }: { ship: Ship }) {
   return (
     <Card style={{ width: "fit-content" }}>
       <Descriptions
-        title="Details"
+        title="Ship Info"
         bordered
         items={[
           {

@@ -6,6 +6,7 @@ function FactionDisp({ faction }: { faction: Faction }) {
     <Card style={{ width: "fit-content" }}>
       <Descriptions
         bordered
+        title="Faction Info"
         layout="vertical"
         items={[
           {

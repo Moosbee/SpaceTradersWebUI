@@ -6,6 +6,7 @@ function ContractDisp({ contract }: { contract: Contract }) {
     <Card style={{ width: "fit-content" }}>
       <Descriptions
         bordered
+        title="Contract Info"
         layout="vertical"
         items={[
           {
