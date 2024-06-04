@@ -18,12 +18,12 @@ import type { Configuration } from "./configuration";
 import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from "axios";
 import globalAxios from "axios";
 
-// export const BASE_PATH = "https://api.spacetraders.io/v2".replace(/\/+$/, "");
-export const BASE_PATH =
-  "https://stoplight.io/mocks/spacetraders/spacetraders/96627693".replace(
-    /\/+$/,
-    ""
-  );
+export const BASE_PATH = "https://api.spacetraders.io/v2".replace(/\/+$/, "");
+// export const BASE_PATH =
+//   "https://stoplight.io/mocks/spacetraders/spacetraders/96627693".replace(
+//     /\/+$/,
+//     ""
+//   );
 
 /**
  *
