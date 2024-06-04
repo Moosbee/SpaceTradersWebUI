@@ -7,8 +7,8 @@ import Systems from "./sites/systems/Systems";
 import Factions from "./sites/factions/Factions";
 import Contracts from "./sites/contracts/Contracts";
 import NewAgent from "./sites/newAgent/NewAgent";
-import { Menu, Layout, theme, ConfigProvider, Button } from "antd";
-import MyHeader from "./components/myHeader/myHeader";
+import { Layout, theme, ConfigProvider, Button } from "antd";
+import MySider from "./components/myHeader/mySider";
 import { useState } from "react";
 
 const { Header, Content, Sider } = Layout;
@@ -19,7 +19,7 @@ function App() {
   } = theme.useToken();
 
   const { defaultAlgorithm, darkAlgorithm } = theme;
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   return (
     <ConfigProvider
       theme={{
@@ -35,30 +35,20 @@ function App() {
             width: "100%",
             display: "flex",
             alignItems: "center",
+            justifyContent: "end",
           }}
         >
-          <MyHeader></MyHeader>
+          <Button
+            onClick={() => {
+              setIsDarkMode(!isDarkMode);
+            }}
+          >
+            {isDarkMode ? "Light" : "Dark"}-Mode
+          </Button>
         </Header>
         <Layout>
-          <Sider width={200}>
-            <Menu
-              mode="inline"
-              style={{ height: "100%", borderRight: 0 }}
-              items={[
-                {
-                  key: "1",
-                  label: (
-                    <Button
-                      onClick={() => {
-                        setIsDarkMode(!isDarkMode);
-                      }}
-                    >
-                      {isDarkMode ? "Light" : "Dark"}-Mode
-                    </Button>
-                  ),
-                },
-              ]}
-            />
+          <Sider width={256} theme="light">
+            <MySider></MySider>
           </Sider>
           <Layout style={{ padding: "24px 24px" }}>
             <Content

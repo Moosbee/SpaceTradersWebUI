@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import spaceTraderClient from "../../spaceTraderClient";
 import { GetStatus200Response } from "../../components/api";
+import {
+  Card,
+  Col,
+  Descriptions,
+  DescriptionsProps,
+  Divider,
+  Flex,
+  Menu,
+  Row,
+  Table,
+} from "antd";
+import { Link } from "react-router-dom";
 
 function Main() {
   const [status, setStatus] = useState<GetStatus200Response | null>(null);
@@ -9,100 +21,146 @@ function Main() {
       console.log("response", response);
       setStatus(response.data);
     });
-    return () => {};
   }, []);
+
+  const items: DescriptionsProps["items"] = [
+    {
+      key: 1,
+      label: "Description",
+      children: status?.description,
+      span: { xs: 2, sm: 3, md: 4, lg: 4, xl: 3, xxl: 3 },
+    },
+    {
+      key: 2,
+      label: "Status",
+      children: status?.status,
+    },
+    {
+      key: 3,
+      label: "Version",
+      children: status?.version,
+    },
+    {
+      key: 4,
+      label: "Last reset",
+      children: new Date(status ? status.resetDate : 0).toLocaleDateString(),
+    },
+    {
+      key: 5,
+      label: "Next reset",
+      children: new Date(
+        status ? status?.serverResets.next : 0
+      ).toLocaleDateString(),
+    },
+    {
+      key: 6,
+      label: "Frequency",
+      children: status?.serverResets.frequency,
+    },
+    {
+      key: 7,
+      label: "Agents",
+      children: status?.stats.agents,
+    },
+    {
+      key: 8,
+      label: "Ships",
+      children: status?.stats.ships,
+    },
+    {
+      key: 9,
+      label: "Systems",
+      children: status?.stats.systems,
+    },
+    {
+      key: 10,
+      label: "Waypoints",
+      children: status?.stats.waypoints,
+    },
+  ];
 
   return (
     <div>
       <h2>Announcements</h2>
-      <ul>
+      <Flex gap="14px">
         {status?.announcements.map((value) => {
           return (
-            <li key={value.title}>
-              <h3>{value.title}</h3>
+            <Card key={value.title} title={value.title}>
               <p>{value.body}</p>
-            </li>
+            </Card>
           );
         })}
-      </ul>
-      <h2>Information</h2>
-      <hr />
-      <p>{status?.description}</p>
-      <hr />
-      <b>{status?.status}</b>
-      <p>Version: {status?.version}</p>
-      <p>
-        Last reset:{" "}
-        {new Date(status ? status.resetDate : 0).toLocaleDateString()}
-      </p>
-      <p>
-        Next reset:{" "}
-        {new Date(status ? status?.serverResets.next : 0).toLocaleDateString()}{" "}
-        {new Date(status ? status?.serverResets.next : 0).toLocaleTimeString()}{" "}
-        frequency: {status?.serverResets.frequency}
-      </p>
-      <p>
-        Agents: {status?.stats.agents}
-        <br />
-        Ships: {status?.stats.ships}
-        <br />
-        Systems: {status?.stats.systems}
-        <br />
-        Waypoints: {status?.stats.waypoints}
-      </p>
-      <h2>Leaderboards</h2>
-      <div>
-        <div>
-          <h3>Most Credits</h3>
-          <div>
-            <div>
-              <b>Agent Symbol</b>
-            </div>
-            <div>
-              <b>Credits</b>
-            </div>
-            {status?.leaderboards.mostCredits.map((value) => {
-              return (
-                <>
-                  <div>{value.agentSymbol}</div>
-                  <div>{value.credits}</div>
-                </>
-              );
-            })}
-          </div>
-        </div>
-        <div>
-          <h3>Most Submitted Charts</h3>
-          <div>
-            <div>
-              <b>Agent Symbol</b>
-            </div>
-            <div>
-              <b>Chart Count</b>
-            </div>
-            {status?.leaderboards.mostSubmittedCharts.map((value) => {
-              return (
-                <>
-                  <div>{value.agentSymbol}</div>
-                  <div>{value.chartCount}</div>
-                </>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      </Flex>
+      <Divider />
 
-      <nav>
-        <ul>
-          {status?.links.map((value) => {
-            return (
-              <li>
-                <a href={value.url}>{value.name}</a>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      <h2>Information</h2>
+      <Descriptions items={items} bordered />
+      <h2>Leaderboards</h2>
+      <Divider />
+      <Row gutter={16}>
+        <Col span={12}>
+          <h3>Most Credits</h3>
+
+          <Divider />
+          <Table
+            dataSource={status?.leaderboards.mostCredits.map((value) => {
+              return {
+                key: value.agentSymbol,
+                agentSymbol: value.agentSymbol,
+                credits: value.credits,
+              };
+            })}
+            columns={[
+              {
+                title: "Agent Symbol",
+                dataIndex: "agentSymbol",
+                key: "agentSymbol",
+              },
+              {
+                title: "Credits",
+                dataIndex: "credits",
+                key: "credits",
+              },
+            ]}
+          />
+        </Col>
+        <Col span={12}>
+          <h3>Most Submitted Charts</h3>
+          <Divider />
+          <Table
+            dataSource={status?.leaderboards.mostSubmittedCharts.map(
+              (value) => {
+                return {
+                  key: value.agentSymbol,
+                  agentSymbol: value.agentSymbol,
+                  chartCount: value.chartCount,
+                };
+              }
+            )}
+            columns={[
+              {
+                title: "Agent Symbol",
+                dataIndex: "agentSymbol",
+                key: "agentSymbol",
+              },
+              {
+                title: "Chart Count",
+                dataIndex: "chartCount",
+                key: "chartCount",
+              },
+            ]}
+          />
+        </Col>
+      </Row>
+      <Menu
+        mode="horizontal"
+        items={status?.links.map((value) => {
+          return {
+            key: value.name,
+            label: <Link to={value.url}>{value.name}</Link>,
+          };
+        })}
+      ></Menu>
     </div>
   );
 }

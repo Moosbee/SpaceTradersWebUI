@@ -11,8 +11,8 @@ const items = [
   { label: <Link to="/newAgent">New Agent</Link>, key: "newAgent" },
 ];
 
-function MyHeader() {
-  return <Menu theme="dark" mode="horizontal" items={items}></Menu>;
+function MySider() {
+  return <Menu mode="inline" items={items} style={{ width: 250 }}></Menu>;
 }
 
-export default MyHeader;
+export default MySider;
