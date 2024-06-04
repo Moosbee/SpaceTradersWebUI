@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Agent } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
-import AgentDisp from "../../components/agentDisp/AgentDisp";
+import AgentDisp from "../../components/disp/AgentDisp";
 import { Divider, Flex, Pagination, PaginationProps } from "antd";
 
 function Agents() {

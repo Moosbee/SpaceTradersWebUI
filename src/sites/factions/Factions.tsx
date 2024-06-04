@@ -1,15 +1,8 @@
-import {
-  PaginationProps,
-  Pagination,
-  Flex,
-  Card,
-  Descriptions,
-  Tooltip,
-  List,
-} from "antd";
+import { PaginationProps, Pagination, Flex } from "antd";
 import { useState, useEffect } from "react";
 import { Faction } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
+import FactionDisp from "../../components/disp/FactionDisp";
 
 function Factions() {
   const [factions, setFactions] = useState<Faction[]>([]);
@@ -48,61 +41,9 @@ function Factions() {
         style={{ padding: "16px", textAlign: "center" }}
       />
       <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {factions.map((value) => {
-          return (
-            <Card key={value.symbol} style={{ width: "fit-content" }}>
-              <Descriptions
-                bordered
-                layout="vertical"
-                items={[
-                  {
-                    label: "Symbol",
-                    key: "symbol",
-                    children: value.symbol,
-                  },
-                  {
-                    label: "Name",
-                    key: "name",
-                    children: value.name,
-                  },
-                  {
-                    label: "Description",
-                    key: "description",
-                    children: value.description,
-                  },
-                  {
-                    label: "Headquarters",
-                    key: "headquarters",
-                    children: value.headquarters,
-                  },
-                  {
-                    label: "IsRecruiting",
-                    key: "isRecruiting",
-                    children: value.isRecruiting ? "Yes" : "No",
-                  },
-                  {
-                    label: "Traits",
-                    key: "traits",
-                    children: (
-                      <List
-                        size="small"
-                        dataSource={value.traits.map((trait) => (
-                          <Tooltip
-                            key={trait.symbol}
-                            title={`${trait.symbol} - ${trait.description}`}
-                          >
-                            <span>{trait.name}</span>
-                          </Tooltip>
-                        ))}
-                        renderItem={(item) => <List.Item>{item}</List.Item>}
-                      ></List>
-                    ),
-                  },
-                ]}
-              ></Descriptions>
-            </Card>
-          );
-        })}
+        {factions.map((value) => (
+          <FactionDisp key={value.symbol} faction={value}></FactionDisp>
+        ))}
       </Flex>
     </div>
   );

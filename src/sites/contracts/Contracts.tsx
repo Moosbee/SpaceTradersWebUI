@@ -1,7 +1,8 @@
-import { PaginationProps, Pagination, Flex, Card, Descriptions } from "antd";
+import { PaginationProps, Pagination, Flex } from "antd";
 import { useState, useEffect } from "react";
 import { Contract } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
+import ContractDisp from "../../components/disp/ContractDisp";
 
 function Contracts() {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -40,73 +41,9 @@ function Contracts() {
         style={{ padding: "16px", textAlign: "center" }}
       />
       <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {contracts.map((value) => {
-          return (
-            <Card key={value.id} style={{ width: "fit-content" }}>
-              <Descriptions
-                bordered
-                layout="vertical"
-                items={[
-                  {
-                    label: "Id",
-                    key: "id",
-                    children: value.id,
-                  },
-                  {
-                    label: "accepted",
-                    key: "accepted",
-                    children: value.accepted,
-                  },
-                  {
-                    label: "deadlineToAccept",
-                    key: "deadlineToAccept",
-                    children: value.deadlineToAccept,
-                  },
-                  {
-                    label: "factionSymbol",
-                    key: "factionSymbol",
-                    children: value.factionSymbol,
-                  },
-                  {
-                    label: "fulfilled",
-                    key: "fulfilled",
-                    children: value.fulfilled,
-                  },
-                  {
-                    label: "terms.deadline",
-                    key: "terms.deadline",
-                    children: value.terms.deadline,
-                  },
-                  {
-                    label: "terms.payment.onAccepted",
-                    key: "terms.payment.onAccepted",
-                    children: value.terms.payment.onAccepted,
-                  },
-                  {
-                    label: "terms.payment.onFulfilled",
-                    key: "terms.payment.onFulfilled",
-                    children: value.terms.payment.onFulfilled,
-                  },
-                  {
-                    label: "terms.deliver",
-                    key: "terms.deliver",
-                    children: value.terms.deliver?.join(" - "),
-                  },
-                  {
-                    label: "type",
-                    key: "type",
-                    children: value.type,
-                  },
-                  {
-                    label: "expiration",
-                    key: "expiration",
-                    children: value.expiration,
-                  },
-                ]}
-              ></Descriptions>
-            </Card>
-          );
-        })}
+        {contracts.map((value) => (
+          <ContractDisp key={value.id} contract={value}></ContractDisp>
+        ))}
       </Flex>
     </div>
   );
