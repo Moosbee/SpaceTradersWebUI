@@ -9,7 +9,10 @@ const items = [
     label: "Systems",
     key: "systems",
     children: [
-      { label: <Link to="/systems">Systems Overview</Link>, key: "systems" },
+      {
+        label: <Link to="/systems">Systems Overview</Link>,
+        key: "systemsOverview",
+      },
     ],
   },
   { label: <Link to="/factions">Factions Overview</Link>, key: "factions" },

@@ -74,7 +74,7 @@ function MyApp() {
                   <Route path="/contracts" element={<Contracts></Contracts>} />
                   <Route path="/newAgent" element={<NewAgent></NewAgent>} />
                   <Route
-                    path="/system/:systemID:/waypointID"
+                    path="/system/:systemID/:waypointID"
                     element={<WaypointInfo></WaypointInfo>}
                   />
                   <Route
