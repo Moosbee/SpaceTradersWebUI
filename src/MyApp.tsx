@@ -10,6 +10,7 @@ import NewAgent from "./sites/newAgent/NewAgent";
 import { Layout, theme, ConfigProvider, Button, App } from "antd";
 import MySider from "./components/myHeader/mySider";
 import { useState } from "react";
+import SystemInfo from "./sites/systems/SystemInfo";
 
 const { Header, Content, Sider } = Layout;
 
@@ -68,10 +69,14 @@ function MyApp() {
                   />
                   <Route path="/agents" element={<Agents></Agents>} />
                   <Route path="/fleet" element={<Fleet></Fleet>} />
-                  <Route path="/systems" element={<Systems></Systems>} />
                   <Route path="/factions" element={<Factions></Factions>} />
                   <Route path="/contracts" element={<Contracts></Contracts>} />
                   <Route path="/newAgent" element={<NewAgent></NewAgent>} />
+                  <Route
+                    path="/system/:systemID"
+                    element={<SystemInfo></SystemInfo>}
+                  />
+                  <Route path="/systems" element={<Systems></Systems>} />
                 </Routes>
               </Content>
             </Layout>

@@ -16,6 +16,8 @@ function Agents() {
   const [agentsPage, setAgentsPage] = useState(1);
   const [agentsAll, setAgentsAll] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     spaceTraderClient.AgentsClient.getMyAgent().then((response) => {
       console.log("my response", response);

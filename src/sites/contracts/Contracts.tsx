@@ -9,6 +9,8 @@ function Contracts() {
   const [contractsPage, setContractsPage] = useState(1);
   const [contractsAll, setContractsAll] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     spaceTraderClient.ContractsClient.getContracts(
       contractsPage,

@@ -1,5 +1,6 @@
 import { Card, Descriptions } from "antd";
 import { Ship } from "../api";
+import { Link } from "react-router-dom";
 
 function ShipDisp({ ship }: { ship: Ship }) {
   return (
@@ -35,7 +36,11 @@ function ShipDisp({ ship }: { ship: Ship }) {
           {
             key: "navSystem",
             label: "Nav System",
-            children: <span>{ship.nav.systemSymbol}</span>,
+            children: (
+              <Link to={`/system/${ship.nav.systemSymbol}`}>
+                {ship.nav.systemSymbol}
+              </Link>
+            ),
           },
           {
             key: "navWaypoint",

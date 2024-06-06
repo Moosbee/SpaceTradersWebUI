@@ -9,6 +9,8 @@ function Factions() {
   const [factionsPage, setFactionsPage] = useState(1);
   const [factionsAll, setFactionsAll] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     spaceTraderClient.FactionsClient.getFactions(
       factionsPage,

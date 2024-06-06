@@ -9,6 +9,7 @@ function Fleet() {
   const [shipsPage, setShipsPage] = useState(1);
   const [allShips, setAllShips] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     spaceTraderClient.FleetClient.getMyShips(shipsPage, itemsPerPage).then(
