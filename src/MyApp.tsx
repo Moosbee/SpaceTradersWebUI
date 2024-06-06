@@ -11,6 +11,7 @@ import { Layout, theme, ConfigProvider, Button, App } from "antd";
 import MySider from "./components/myHeader/mySider";
 import { useState } from "react";
 import SystemInfo from "./sites/systems/SystemInfo";
+import WaypointInfo from "./sites/systems/WaypointInfo";
 
 const { Header, Content, Sider } = Layout;
 
@@ -72,6 +73,10 @@ function MyApp() {
                   <Route path="/factions" element={<Factions></Factions>} />
                   <Route path="/contracts" element={<Contracts></Contracts>} />
                   <Route path="/newAgent" element={<NewAgent></NewAgent>} />
+                  <Route
+                    path="/system/:systemID:/waypointID"
+                    element={<WaypointInfo></WaypointInfo>}
+                  />
                   <Route
                     path="/system/:systemID"
                     element={<SystemInfo></SystemInfo>}
