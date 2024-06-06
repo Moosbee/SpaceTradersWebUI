@@ -10,6 +10,7 @@ import {
   Flex,
   Menu,
   Row,
+  Spin,
   Table,
 } from "antd";
 import { Link } from "react-router-dom";
@@ -81,6 +82,7 @@ function Main() {
 
   return (
     <div>
+      <Spin spinning={status === null} fullscreen />
       <h2>Announcements</h2>
       <Flex gap="14px">
         {status?.announcements.map((value) => {

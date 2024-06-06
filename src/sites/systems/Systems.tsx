@@ -12,11 +12,13 @@ function Systems() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     spaceTraderClient.SystemsClient.getSystems(systemsPage, itemsPerPage).then(
       (response) => {
         console.log("my responses", response);
         setSystems(response.data.data);
         setAllSystems(response.data.meta.total);
+        setLoading(false);
       }
     );
     return () => {};

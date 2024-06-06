@@ -1,4 +1,4 @@
-import { PaginationProps, Pagination, Flex } from "antd";
+import { PaginationProps, Pagination, Flex, Spin } from "antd";
 import { useState, useEffect } from "react";
 import { Contract } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
@@ -12,6 +12,7 @@ function Contracts() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     spaceTraderClient.ContractsClient.getContracts(
       contractsPage,
       itemsPerPage
@@ -19,8 +20,8 @@ function Contracts() {
       console.log("response", response);
       setContracts(response.data.data);
       setContractsAll(response.data.meta.total);
+      setLoading(false);
     });
-    return () => {};
   }, [contractsPage, itemsPerPage]);
 
   const onChange: PaginationProps["onChange"] = (page, pageSize) => {
@@ -42,11 +43,13 @@ function Contracts() {
         }
         style={{ padding: "16px", textAlign: "center" }}
       />
-      <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {contracts.map((value) => (
-          <ContractDisp key={value.id} contract={value}></ContractDisp>
-        ))}
-      </Flex>
+      <Spin spinning={loading}>
+        <Flex wrap gap="middle" align="center" justify="space-evenly">
+          {contracts.map((value) => (
+            <ContractDisp key={value.id} contract={value}></ContractDisp>
+          ))}
+        </Flex>
+      </Spin>
     </div>
   );
 }

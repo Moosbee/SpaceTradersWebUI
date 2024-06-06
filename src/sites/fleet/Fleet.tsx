@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import spaceTraderClient from "../../spaceTraderClient";
 import { Ship } from "../../components/api";
-import { Flex, Pagination, PaginationProps } from "antd";
+import { Flex, Pagination, PaginationProps, Spin } from "antd";
 import ShipDisp from "../../components/disp/ShipDisp";
 
 function Fleet() {
@@ -12,11 +12,13 @@ function Fleet() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     spaceTraderClient.FleetClient.getMyShips(shipsPage, itemsPerPage).then(
       (response) => {
         console.log("my responses", response);
         setShips(response.data.data);
         setAllShips(response.data.meta.total);
+        setLoading(false);
       }
     );
     return () => {};
@@ -41,11 +43,13 @@ function Fleet() {
         }
         style={{ padding: "16px", textAlign: "center" }}
       />
-      <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {ships.map((value) => {
-          return <ShipDisp key={value.symbol} ship={value}></ShipDisp>;
-        })}
-      </Flex>
+      <Spin spinning={loading}>
+        <Flex wrap gap="middle" align="center" justify="space-evenly">
+          {ships.map((value) => {
+            return <ShipDisp key={value.symbol} ship={value}></ShipDisp>;
+          })}
+        </Flex>
+      </Spin>
     </div>
   );
 }

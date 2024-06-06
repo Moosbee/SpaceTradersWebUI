@@ -1,4 +1,4 @@
-import { PaginationProps, Pagination, Flex } from "antd";
+import { PaginationProps, Pagination, Flex, Spin } from "antd";
 import { useState, useEffect } from "react";
 import { Faction } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
@@ -12,6 +12,7 @@ function Factions() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
     spaceTraderClient.FactionsClient.getFactions(
       factionsPage,
       itemsPerPage
@@ -19,6 +20,7 @@ function Factions() {
       console.log("response", response);
       setFactions(response.data.data);
       setFactionsAll(response.data.meta.total);
+      setLoading(false);
     });
     return () => {};
   }, [factionsPage, itemsPerPage]);
@@ -42,11 +44,13 @@ function Factions() {
         }
         style={{ padding: "16px", textAlign: "center" }}
       />
-      <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {factions.map((value) => (
-          <FactionDisp key={value.symbol} faction={value}></FactionDisp>
-        ))}
-      </Flex>
+      <Spin spinning={loading}>
+        <Flex wrap gap="middle" align="center" justify="space-evenly">
+          {factions.map((value) => (
+            <FactionDisp key={value.symbol} faction={value}></FactionDisp>
+          ))}
+        </Flex>
+      </Spin>
     </div>
   );
 }

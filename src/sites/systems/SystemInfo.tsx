@@ -73,10 +73,10 @@ function SystemInfo() {
   ];
 
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
-  const [loading, setLoading] = useState(true);
   const [waypointsPage, setShipsPage] = useState(1);
   const [allWaypoints, setAllWaypoints] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!systemID) return;
@@ -101,8 +101,7 @@ function SystemInfo() {
   };
 
   return (
-    <div>
-      <Spin spinning={system.symbol == ""} fullscreen />
+    <Spin spinning={system.symbol === ""}>
       <h2>System {systemID}</h2>
       <Descriptions bordered items={items} />
 
@@ -126,7 +125,7 @@ function SystemInfo() {
           })}
         </Flex>
       </Spin>
-    </div>
+    </Spin>
   );
 }
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Agent } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
 import AgentDisp from "../../components/disp/AgentDisp";
-import { Divider, Flex, Pagination, PaginationProps } from "antd";
+import { Divider, Flex, Pagination, PaginationProps, Spin } from "antd";
 
 function Agents() {
   const [myAgent, setMyAgent] = useState<Agent>({
@@ -27,11 +27,13 @@ function Agents() {
     return () => {};
   }, []);
   useEffect(() => {
+    setLoading(true);
     spaceTraderClient.AgentsClient.getAgents(agentsPage, itemsPerPage).then(
       (response) => {
         console.log("response", response);
         setAgents(response.data.data);
         setAgentsAll(response.data.meta.total);
+        setLoading(false);
       }
     );
     return () => {};
@@ -46,7 +48,9 @@ function Agents() {
   return (
     <div>
       <h2>My Agent</h2>
-      <AgentDisp agent={myAgent}></AgentDisp>
+      <Spin spinning={myAgent.symbol == ""}>
+        <AgentDisp agent={myAgent}></AgentDisp>
+      </Spin>
       <Divider />
       <h2>All Agents</h2>
       <Pagination
@@ -59,11 +63,13 @@ function Agents() {
         }
         style={{ padding: "16px", textAlign: "center" }}
       />
-      <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {agents.map((value) => {
-          return <AgentDisp agent={value} key={value.symbol}></AgentDisp>;
-        })}
-      </Flex>
+      <Spin spinning={loading}>
+        <Flex wrap gap="middle" align="center" justify="space-evenly">
+          {agents.map((value) => {
+            return <AgentDisp agent={value} key={value.symbol}></AgentDisp>;
+          })}
+        </Flex>
+      </Spin>
     </div>
   );
 }
