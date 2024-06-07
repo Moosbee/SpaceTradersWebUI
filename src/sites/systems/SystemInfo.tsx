@@ -8,6 +8,7 @@ import {
 } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
 import {
+  Button,
   Col,
   Descriptions,
   DescriptionsProps,
@@ -129,6 +130,24 @@ function SystemInfo() {
       <Descriptions bordered items={items} />
 
       <h2>Waypoints</h2>
+      {/* <Button
+        type="primary"
+        onClick={() => {
+          if (!systemID) return;
+          spaceTraderClient.CrawlClient.getSystemWaypoints(
+            systemID,
+            (progress, total) => {
+              console.log("my progress", progress);
+              console.log("my total", total);
+            }
+          ).then((response) => {
+            console.log("my responses", response);
+          });
+        }}
+      >
+        Primary Button
+      </Button> */}
+      {/* !todo rewrite with crawler */}
       <Row align="middle">
         <Col span={6} style={{ textAlign: "center" }}>
           <Select
@@ -175,7 +194,7 @@ function SystemInfo() {
             placeholder="Select Traits"
             onChange={handleTraitsChange}
             options={traitsOptions}
-            style={{ padding: "16px", width: 400 }}
+            style={{ width: 400 }}
           />
         </Col>
       </Row>
