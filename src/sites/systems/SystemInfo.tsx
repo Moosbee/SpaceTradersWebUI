@@ -92,7 +92,7 @@ function SystemInfo() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [type, setType] = useState<WaypointType>();
-  const [traits, setTraits] = useState<WaypointTraitSymbol[]>();
+  const [traits, setTraits] = useState<WaypointTraitSymbol>();
 
   useEffect(() => {
     if (!systemID) return;
@@ -118,9 +118,9 @@ function SystemInfo() {
     setItemsPerPage(pageSize);
   };
 
-  const handleTraitsChange = (value: string[]) => {
+  const handleTraitsChange = (value: string) => {
     console.log(`selected ${value}`);
-    setTraits(value as WaypointTraitSymbol[]);
+    setTraits(value as WaypointTraitSymbol);
   };
 
   return (
@@ -171,10 +171,8 @@ function SystemInfo() {
         </Col>
         <Col span={7}>
           <Select
-            mode="multiple"
             allowClear
             placeholder="Select Traits"
-            defaultValue={[]}
             onChange={handleTraitsChange}
             options={traitsOptions}
             style={{ padding: "16px", width: 400 }}
