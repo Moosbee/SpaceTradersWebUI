@@ -1,4 +1,14 @@
-import { Card, Row, Col, Descriptions, List, Flex, Divider, Table } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Descriptions,
+  List,
+  Flex,
+  Divider,
+  Table,
+  Empty,
+} from "antd";
 import { Shipyard } from "../api";
 import ShipDisp from "./ShipDisp";
 
@@ -37,54 +47,63 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
             ]}
           />
         </Col>
-        <Col span={24}>
-          <Divider>Available Ships</Divider>
-          <Row gutter={[8, 8]}>
-            {shipyard.ships?.map((value) => {
-              return (
-                <Col span={12} key={value.name}>
-                  <ShipDisp shipyardShip={value}></ShipDisp>
-                </Col>
-              );
-            })}
-          </Row>
-        </Col>
-        <Divider>Transaction History</Divider>
+        {shipyard.ships && (
+          <>
+            <Col span={24}>
+              <Divider>Available Ships</Divider>
+              <Row gutter={[8, 8]}>
+                {shipyard.ships?.map((value) => {
+                  return (
+                    <Col span={12} key={value.name}>
+                      <ShipDisp shipyardShip={value}></ShipDisp>
+                    </Col>
+                  );
+                })}
+              </Row>
+            </Col>
 
-        <Col span={24}>
-          <Table
-            dataSource={shipyard.transactions}
-            columns={[
-              {
-                title: "Ship Symbol",
-                dataIndex: "shipSymbol",
-                key: "shipSymbol",
-              },
-              {
-                title: "Ship Type",
-                dataIndex: "shipType",
-                key: "shipType",
-              },
-              {
-                title: "Price",
-                dataIndex: "price",
-                key: "price",
-              },
-              {
-                title: "Agent Symbol",
-                dataIndex: "agentSymbol",
-                key: "agentSymbol",
-              },
-              {
-                title: "Timestamp",
-                dataIndex: "timestamp",
-                key: "timestamp",
-                render: (timestamp) => new Date(timestamp).toLocaleString(),
-              },
-            ]}
-            rowKey="timestamp"
-          />
-        </Col>
+            <Col span={24}>
+              <Divider>Transaction History</Divider>
+              <Table
+                dataSource={shipyard.transactions}
+                columns={[
+                  {
+                    title: "Ship Symbol",
+                    dataIndex: "shipSymbol",
+                    key: "shipSymbol",
+                  },
+                  {
+                    title: "Ship Type",
+                    dataIndex: "shipType",
+                    key: "shipType",
+                  },
+                  {
+                    title: "Price",
+                    dataIndex: "price",
+                    key: "price",
+                  },
+                  {
+                    title: "Agent Symbol",
+                    dataIndex: "agentSymbol",
+                    key: "agentSymbol",
+                  },
+                  {
+                    title: "Timestamp",
+                    dataIndex: "timestamp",
+                    key: "timestamp",
+                    render: (timestamp) => new Date(timestamp).toLocaleString(),
+                  },
+                ]}
+                rowKey="timestamp"
+              />
+            </Col>
+          </>
+        )}
+        {shipyard.ships == undefined && (
+          <Col span={24}>
+            <Empty description="No ship nearby"></Empty>
+          </Col>
+        )}
       </Row>
     </Card>
   );

@@ -6,14 +6,9 @@ const items = [
   { label: <Link to="/agents">Agents Overview</Link>, key: "agents" },
   { label: <Link to="/fleet">Fleet Overview</Link>, key: "fleet" },
   {
-    label: "Systems",
+    // label: "Systems",
     key: "systems",
-    children: [
-      {
-        label: <Link to="/systems">Systems Overview</Link>,
-        key: "systemsOverview",
-      },
-    ],
+    label: <Link to="/systems">Systems Overview</Link>,
   },
   { label: <Link to="/factions">Factions Overview</Link>, key: "factions" },
   { label: <Link to="/contracts">Contracts overview</Link>, key: "contracts" },
