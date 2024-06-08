@@ -75,7 +75,11 @@ function WaypointDisp({
     items.push({
       key: "orbits",
       label: "Orbits",
-      children: <p>{waypoint.orbits}</p>,
+      children: (
+        <Link to={`/system/${waypoint.systemSymbol}/${waypoint.orbits}`}>
+          {waypoint.orbits}
+        </Link>
+      ),
     });
   }
 
@@ -84,14 +88,15 @@ function WaypointDisp({
       key: "orbitals",
       label: "Orbitals",
       children: (
-        <p>
-          {waypoint.orbitals.map(
-            (orbital) =>
-              orbital.symbol +
-              `
-          `
-          )}
-        </p>
+        <List
+          size="small"
+          dataSource={waypoint.orbitals.map((orbitals) => (
+            <Link to={`/system/${waypoint.systemSymbol}/${orbitals.symbol}`}>
+              {orbitals.symbol}
+            </Link>
+          ))}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
+        ></List>
       ),
     });
   } else {

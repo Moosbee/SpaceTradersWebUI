@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Construction, Market, Shipyard, Waypoint } from "../../components/api";
+import { Link, useParams } from "react-router-dom";
+import {
+  Construction,
+  JumpGate,
+  Market,
+  Shipyard,
+  Waypoint,
+} from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
 import WaypointDisp from "../../components/disp/WaypointDisp";
+import { Badge, Descriptions, List } from "antd";
+import MarketDisp from "../../components/disp/MarketDisp";
+import ShipyardDisp from "../../components/disp/ShipyardDisp";
 
 function WaypointInfo() {
   const { systemID } = useParams();
@@ -88,6 +97,92 @@ function WaypointInfo() {
         Waypoint <b>{waypointID}</b> in <b>{systemID}</b>
       </h2>
       <WaypointDisp waypoint={waypoint} moreInfo={true}></WaypointDisp>
+
+      {market && (
+        <>
+          <h3>Market</h3>
+          <MarketDisp market={market} />
+        </>
+      )}
+
+      {shipyard && (
+        <>
+          <h3>Shipyard</h3>
+          <ShipyardDisp shipyard={shipyard} />
+        </>
+      )}
+
+      {jumpGate && (
+        <>
+          <h3>Jump Gate</h3>
+          <Descriptions
+            bordered
+            layout="vertical"
+            items={[
+              {
+                label: "Symbol",
+                children: jumpGate.symbol,
+                span: 3,
+              },
+              {
+                label: "Connections",
+                children: (
+                  <List
+                    size="small"
+                    dataSource={jumpGate.connections.map((connection) => (
+                      <Link to={`/systems/${connection}`}>{connection}</Link>
+                    ))}
+                    renderItem={(item) => <List.Item>{item}</List.Item>}
+                  ></List>
+                ),
+              },
+            ]}
+          />
+        </>
+      )}
+
+      {constructionSite && (
+        <>
+          <h3>Construction Site</h3>
+          <Descriptions
+            bordered
+            // layout="vertical"
+
+            items={[
+              {
+                label: "Symbol",
+                children: constructionSite.symbol,
+                span: 2,
+              },
+              {
+                label: "Status",
+                children: constructionSite.isComplete ? (
+                  <Badge status="success" text="Complete" />
+                ) : (
+                  <Badge status="processing" text="In Progress" />
+                ),
+                span: 2,
+              },
+              {
+                label: "Materials",
+                children: (
+                  <List
+                    size="small"
+                    dataSource={constructionSite.materials.map((material) => (
+                      <span>
+                        {material.tradeSymbol} {material.fulfilled}/
+                        {material.required}
+                      </span>
+                    ))}
+                    renderItem={(item) => <List.Item>{item}</List.Item>}
+                  ></List>
+                ),
+                span: 3,
+              },
+            ]}
+          />
+        </>
+      )}
     </div>
   );
 }

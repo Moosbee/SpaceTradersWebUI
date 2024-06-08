@@ -42,12 +42,14 @@ axiosInstance.interceptors.response.use(
 );
 
 const openapiConfig = new Configuration();
-openapiConfig.baseOptions = {
-  headers: {
-    Authorization:
-      "Bearer " + import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN,
-  },
-};
+if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
+  openapiConfig.baseOptions = {
+    headers: {
+      Authorization:
+        "Bearer " + import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN,
+    },
+  };
+}
 
 const FleetClient = new FleetApi(openapiConfig, undefined, axiosInstance);
 const AgentsClient = new AgentsApi(openapiConfig, undefined, axiosInstance);
