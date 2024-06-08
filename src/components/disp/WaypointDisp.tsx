@@ -2,7 +2,13 @@ import { Card, Descriptions, DescriptionsProps, List, Tooltip } from "antd";
 import { Waypoint } from "../api";
 import { Link } from "react-router-dom";
 
-function WaypointDisp({ waypoint }: { waypoint: Waypoint }) {
+function WaypointDisp({
+  waypoint,
+  moreInfo,
+}: {
+  waypoint: Waypoint;
+  moreInfo?: boolean;
+}) {
   const items: DescriptionsProps["items"] = [];
 
   items.push({
@@ -73,11 +79,28 @@ function WaypointDisp({ waypoint }: { waypoint: Waypoint }) {
     });
   }
 
-  items.push({
-    key: "orbitals",
-    label: "Orbitals",
-    children: <p>{waypoint.orbitals.length}</p>,
-  });
+  if (moreInfo) {
+    items.push({
+      key: "orbitals",
+      label: "Orbitals",
+      children: (
+        <p>
+          {waypoint.orbitals.map(
+            (orbital) =>
+              orbital.symbol +
+              `
+          `
+          )}
+        </p>
+      ),
+    });
+  } else {
+    items.push({
+      key: "orbitals",
+      label: "Orbitals",
+      children: <p>{waypoint.orbitals.length}</p>,
+    });
+  }
 
   if (!waypoint.modifiers || waypoint.modifiers.length > 0) {
     items.push({
@@ -129,7 +152,11 @@ function WaypointDisp({ waypoint }: { waypoint: Waypoint }) {
         </Link>
       }
     >
-      <Descriptions bordered items={items} layout="vertical" />
+      <Descriptions
+        bordered
+        items={items}
+        layout={moreInfo ? "horizontal" : "vertical"}
+      />
     </Card>
   );
 }
