@@ -14,7 +14,7 @@ import {
   Space,
   Typography,
 } from "antd";
-import ShipDisp from "../../components/disp/ShipDisp";
+import ShipDisp from "../../components/disp/ship/ShipDisp";
 import FactionDisp from "../../components/disp/FactionDisp";
 import ContractDisp from "../../components/disp/ContractDisp";
 

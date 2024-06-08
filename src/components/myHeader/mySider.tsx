@@ -1,7 +1,9 @@
-import { Menu } from "antd";
+import { Menu, MenuProps } from "antd";
 import { Link } from "react-router-dom";
 
-const items = [
+type MenuItem = Required<MenuProps>["items"][number];
+
+const items: MenuItem[] = [
   { label: <Link to="/">Spacetraders API</Link>, key: "home" },
   { label: <Link to="/agents">Agents Overview</Link>, key: "agents" },
   { label: <Link to="/fleet">Fleet Overview</Link>, key: "fleet" },

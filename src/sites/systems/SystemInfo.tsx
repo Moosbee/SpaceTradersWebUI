@@ -8,7 +8,6 @@ import {
 } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
 import {
-  Button,
   Col,
   Descriptions,
   DescriptionsProps,

@@ -12,6 +12,7 @@ import MySider from "./components/myHeader/mySider";
 import { useState } from "react";
 import SystemInfo from "./sites/systems/SystemInfo";
 import WaypointInfo from "./sites/systems/WaypointInfo";
+import ShipInfo from "./sites/fleet/ShipInfo";
 
 const { Header, Content, Sider } = Layout;
 
@@ -69,6 +70,10 @@ function MyApp() {
                     errorElement={<ErrorPage />}
                   />
                   <Route path="/agents" element={<Agents></Agents>} />
+                  <Route
+                    path="/fleet/:shipID"
+                    element={<ShipInfo></ShipInfo>}
+                  />
                   <Route path="/fleet" element={<Fleet></Fleet>} />
                   <Route path="/factions" element={<Factions></Factions>} />
                   <Route path="/contracts" element={<Contracts></Contracts>} />

@@ -4,13 +4,12 @@ import {
   Col,
   Descriptions,
   List,
-  Flex,
   Divider,
   Table,
   Empty,
 } from "antd";
 import { Shipyard } from "../api";
-import ShipDisp from "./ShipDisp";
+import ShipyardShipDisp from "./ship/ShipyardShip";
 
 function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
   return (
@@ -55,7 +54,7 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                 {shipyard.ships?.map((value) => {
                   return (
                     <Col span={12} key={value.name}>
-                      <ShipDisp shipyardShip={value}></ShipDisp>
+                      <ShipyardShipDisp shipyardShip={value}></ShipyardShipDisp>
                     </Col>
                   );
                 })}

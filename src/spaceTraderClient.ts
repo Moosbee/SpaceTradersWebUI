@@ -47,6 +47,7 @@ if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
     headers: {
       Authorization:
         "Bearer " + import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN,
+      // Prefer: "dynamic=true",
     },
   };
 }

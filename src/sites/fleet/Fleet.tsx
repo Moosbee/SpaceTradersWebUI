@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import spaceTraderClient from "../../spaceTraderClient";
 import { Ship } from "../../components/api";
 import { Flex, Pagination, PaginationProps, Spin } from "antd";
-import ShipDisp from "../../components/disp/ShipDisp";
+import ShipDisp from "../../components/disp/ship/ShipDisp";
 
 function Fleet() {
   const [ships, setShips] = useState<Ship[]>([]);
