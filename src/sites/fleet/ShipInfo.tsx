@@ -7,6 +7,7 @@ import {
   Col,
   Descriptions,
   DescriptionsProps,
+  Flex,
   Row,
   Spin,
   Table,
@@ -398,20 +399,6 @@ function ShipInfo() {
       ),
     },
   ];
-  const itemsMounts: DescriptionsProps["items"] = [
-    {
-      key: "mounts",
-      label: "Mounts",
-      children: <span>{ship.mounts.length} installed</span>,
-    },
-  ];
-  const itemsModules: DescriptionsProps["items"] = [
-    {
-      key: "modules",
-      label: "Modules",
-      children: <span>{ship.modules.length} installed</span>,
-    },
-  ];
 
   return (
     <div>
@@ -467,20 +454,158 @@ function ShipInfo() {
           </Col>
           <Col span={12}></Col>
           <Col span={12}>
-            <Descriptions
-              title="Mounts Info"
-              bordered
-              items={itemsMounts}
-              layout="vertical"
-            ></Descriptions>
+            <Flex wrap>
+              {ship.mounts.map((value) => (
+                <Descriptions
+                  title="Mount Info"
+                  bordered
+                  items={[
+                    {
+                      key: "symbol",
+                      label: "Symbol",
+                      children: value.symbol,
+                    },
+                    {
+                      key: "name",
+                      label: "Name",
+                      children: value.name,
+                    },
+                    ...(value.strength
+                      ? [
+                          {
+                            key: "strength",
+                            label: "Strength",
+                            children: value.strength,
+                          },
+                        ]
+                      : []),
+                    {
+                      key: "description",
+                      label: "Description",
+                      children: value.description,
+                      span: 3,
+                    },
+
+                    {
+                      key: "requirements",
+                      label: "Requirements",
+                      children: (
+                        <span>
+                          {value.requirements.crew && (
+                            <span style={{ wordBreak: "keep-all" }}>
+                              Crew:&nbsp;{value.requirements.crew}
+                              <br />
+                            </span>
+                          )}
+                          {value.requirements.power && (
+                            <span style={{ wordBreak: "keep-all" }}>
+                              Power:&nbsp;{value.requirements.power}
+                              <br />
+                            </span>
+                          )}
+                          {value.requirements.slots && (
+                            <span style={{ wordBreak: "keep-all" }}>
+                              Slots:&nbsp;{ship.reactor.requirements.slots}
+                              <br />
+                            </span>
+                          )}
+                        </span>
+                      ),
+                    },
+                    ...(value.deposits
+                      ? [
+                          {
+                            key: "deposits",
+                            label: "Deposits",
+                            children: value.deposits?.map(
+                              (value, index, array) => (
+                                <>
+                                  {" "}
+                                  {value}
+                                  {index < array.length - 1 ? "," : ""}
+                                </>
+                              )
+                            ),
+                          },
+                        ]
+                      : []),
+                  ]}
+                  layout="horizontal"
+                ></Descriptions>
+              ))}
+            </Flex>
           </Col>
           <Col span={12}>
-            <Descriptions
-              title="Modules Info"
-              bordered
-              items={itemsModules}
-              layout="vertical"
-            ></Descriptions>
+            <Flex wrap>
+              {ship.modules.map((value) => (
+                <Descriptions
+                  title="Modules Info"
+                  bordered
+                  items={[
+                    {
+                      key: "symbol",
+                      label: "Symbol",
+                      children: value.symbol,
+                    },
+                    {
+                      key: "name",
+                      label: "Name",
+                      children: value.name,
+                    },
+                    {
+                      key: "description",
+                      label: "Description",
+                      children: value.description,
+                    },
+                    ...(value.capacity
+                      ? [
+                          {
+                            key: "capacity",
+                            label: "Capacity",
+                            children: value.capacity,
+                          },
+                        ]
+                      : []),
+                    ...(value.range
+                      ? [
+                          {
+                            key: "range",
+                            label: "Range",
+                            children: value.range,
+                          },
+                        ]
+                      : []),
+                    {
+                      key: "requirements",
+                      label: "Requirements",
+                      children: (
+                        <span>
+                          {value.requirements.crew && (
+                            <>
+                              Crew:{value.requirements.crew}
+                              <br />
+                            </>
+                          )}
+                          {value.requirements.power && (
+                            <>
+                              Power:{value.requirements.power}
+                              <br />
+                            </>
+                          )}
+                          {value.requirements.slots && (
+                            <>
+                              Slots:{ship.reactor.requirements.slots}
+                              <br />
+                            </>
+                          )}
+                        </span>
+                      ),
+                    },
+                  ]}
+                  layout="vertical"
+                ></Descriptions>
+              ))}
+            </Flex>
           </Col>
         </Row>
       </Card>
