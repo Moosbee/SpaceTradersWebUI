@@ -81,8 +81,7 @@ function Main() {
   ];
 
   return (
-    <div>
-      <Spin spinning={status === null} fullscreen />
+    <Spin spinning={status === null}>
       <h2>Announcements</h2>
       <Flex gap="14px">
         {status?.announcements.map((value) => {
@@ -163,7 +162,7 @@ function Main() {
           };
         })}
       ></Menu>
-    </div>
+    </Spin>
   );
 }
 

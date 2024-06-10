@@ -1,4 +1,4 @@
-import { Card, Descriptions } from "antd";
+import { Button, Card, Descriptions, Table } from "antd";
 import { Contract } from "../../components/api";
 
 function ContractDisp({ contract }: { contract: Contract }) {
@@ -8,6 +8,7 @@ function ContractDisp({ contract }: { contract: Contract }) {
         bordered
         title="Contract Info"
         layout="vertical"
+        extra={contract.accepted ? "Accepted" : <Button>Accept</Button>}
         items={[
           {
             label: "Id",
@@ -15,55 +16,96 @@ function ContractDisp({ contract }: { contract: Contract }) {
             children: contract.id,
           },
           {
-            label: "accepted",
+            label: "Accepted",
             key: "accepted",
-            children: contract.accepted,
+            children: contract.accepted ? "Yes" : "No",
           },
+          ...(contract.deadlineToAccept
+            ? [
+                {
+                  label: "deadlineToAccept",
+                  key: "deadlineToAccept",
+                  children: new Date(
+                    contract.deadlineToAccept
+                  ).toLocaleString(),
+                },
+              ]
+            : []),
           {
-            label: "deadlineToAccept",
-            key: "deadlineToAccept",
-            children: contract.deadlineToAccept,
-          },
-          {
-            label: "factionSymbol",
+            label: "Faction Symbol",
             key: "factionSymbol",
             children: contract.factionSymbol,
           },
           {
-            label: "fulfilled",
+            label: "Fulfilled",
             key: "fulfilled",
-            children: contract.fulfilled,
+            children: contract.fulfilled ? "Yes" : "No",
           },
           {
-            label: "terms.deadline",
+            label: "Deadline",
             key: "terms.deadline",
-            children: contract.terms.deadline,
+            children: new Date(contract.terms.deadline).toLocaleString(),
           },
           {
-            label: "terms.payment.onAccepted",
+            label: "Payment on Accepted",
             key: "terms.payment.onAccepted",
             children: contract.terms.payment.onAccepted,
           },
           {
-            label: "terms.payment.onFulfilled",
+            label: "Payment on Fulfilled",
             key: "terms.payment.onFulfilled",
             children: contract.terms.payment.onFulfilled,
           },
+          ...(contract.terms.deliver == undefined ||
+          contract.terms.deliver.length == 0
+            ? []
+            : [
+                {
+                  label: "Deliver Terms",
+                  key: "terms.deliver",
+                  children: (
+                    <Table
+                      columns={[
+                        {
+                          title: "Destination Symbol",
+                          dataIndex: "destinationSymbol",
+                          key: "destinationSymbol",
+                        },
+                        {
+                          title: "Trade Symbol",
+                          dataIndex: "tradeSymbol",
+                          key: "tradeSymbol",
+                        },
+                        {
+                          title: "Units Fulfilled",
+                          dataIndex: "unitsFulfilled",
+                          key: "unitsFulfilled",
+                        },
+                        {
+                          title: "Units Required",
+                          dataIndex: "unitsRequired",
+                          key: "unitsRequired",
+                        },
+                      ]}
+                      dataSource={contract.terms.deliver}
+                    ></Table>
+                  ),
+                },
+              ]),
           {
-            label: "terms.deliver",
-            key: "terms.deliver",
-            children: contract.terms.deliver?.join(" - "),
-          },
-          {
-            label: "type",
+            label: "Type",
             key: "type",
             children: contract.type,
           },
-          {
-            label: "expiration",
-            key: "expiration",
-            children: contract.expiration,
-          },
+          ...(contract.expiration == contract.deadlineToAccept
+            ? []
+            : [
+                {
+                  label: "Expiration Date",
+                  key: "expiration",
+                  children: new Date(contract.expiration).toLocaleString(),
+                },
+              ]),
         ]}
       ></Descriptions>
     </Card>

@@ -10,6 +10,7 @@ import {
   Form,
   FormProps,
   Input,
+  Result,
   Select,
   Space,
   Typography,
@@ -131,21 +132,28 @@ function NewAgent() {
       {newAgent == null ? (
         ""
       ) : (
-        <Card title="New Agent">
-          <Space>
-            <Text>Token:</Text>
-            <Text copyable code>
-              {newAgent.token}
-            </Text>
-          </Space>
-          <Divider></Divider>
-          <Flex wrap gap="middle" align="center" justify="space-evenly">
-            <AgentDisp agent={newAgent.agent}></AgentDisp>
-            <FactionDisp faction={newAgent.faction}></FactionDisp>
-            <ShipDisp ship={newAgent.ship}></ShipDisp>
-            <ContractDisp contract={newAgent.contract}></ContractDisp>
-          </Flex>
-        </Card>
+        <Result
+          status="success"
+          title="Successfully Registered"
+          subTitle="Agent Created"
+          extra={[
+            <Card title="New Agent">
+              <Space>
+                <Text>Token:</Text>
+                <Text copyable code>
+                  {newAgent.token}
+                </Text>
+              </Space>
+              <Divider></Divider>
+              <Flex wrap gap="middle" align="center" justify="space-evenly">
+                <AgentDisp agent={newAgent.agent}></AgentDisp>
+                <FactionDisp faction={newAgent.faction}></FactionDisp>
+                <ShipDisp ship={newAgent.ship}></ShipDisp>
+                <ContractDisp contract={newAgent.contract}></ContractDisp>
+              </Flex>
+            </Card>,
+          ]}
+        />
       )}
     </div>
   );
