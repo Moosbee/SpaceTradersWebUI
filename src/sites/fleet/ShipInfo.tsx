@@ -3,12 +3,15 @@ import { Link, useParams } from "react-router-dom";
 import { Ship } from "../../components/api";
 import spaceTraderClient from "../../spaceTraderClient";
 import {
+  Button,
   Card,
   Col,
   Descriptions,
   DescriptionsProps,
   Flex,
   Row,
+  Select,
+  Space,
   Spin,
   Table,
   Tooltip,
@@ -17,6 +20,8 @@ import {
 function ShipInfo() {
   const { shipID } = useParams();
   const [ship, setShip] = useState<Ship | undefined>(undefined);
+  const [reload, setReload] = useState<boolean>(false);
+  const [loadingShipNav, setLoadingShipNav] = useState<boolean>(false);
 
   useEffect(() => {
     if (!shipID) return;
@@ -126,13 +131,78 @@ function ShipInfo() {
     {
       key: "navStatus",
       label: "Nav Status",
-      children: <span>{ship.nav.status}</span>,
+      children: (
+        <Space>
+          {ship.nav.status}
+          {ship.nav.status == "DOCKED" && (
+            <Button
+              onClick={() => {
+                if (!shipID) return;
+                spaceTraderClient.FleetClient.orbitShip(shipID).then(
+                  (value) => {
+                    const shp = ship;
+                    shp.nav = value.data.data.nav;
+                    console.log("nav", value.data.data.nav);
+
+                    setReload(!reload);
+                    setShip(shp);
+                  }
+                );
+              }}
+            >
+              Undock Ship
+            </Button>
+          )}
+          {ship.nav.status == "IN_ORBIT" && (
+            <Button
+              onClick={() => {
+                if (!shipID) return;
+                spaceTraderClient.FleetClient.dockShip(shipID).then((value) => {
+                  const shp = ship;
+                  shp.nav = value.data.data.nav;
+                  console.log("nav", value.data.data.nav, shp.nav);
+                  setReload(!reload);
+                  setShip(shp);
+                });
+              }}
+            >
+              Dock Ship
+            </Button>
+          )}
+        </Space>
+      ),
       span: 2,
     },
     {
       key: "flightMode",
       label: "Flight Mode",
-      children: <span>{ship.nav.flightMode}</span>,
+      children: (
+        <Space>
+          <Select
+            defaultValue={ship.nav.flightMode}
+            style={{ width: 120 }}
+            onChange={(value) => {
+              if (!shipID) return;
+              setLoadingShipNav(true);
+              spaceTraderClient.FleetClient.patchShipNav(shipID, {
+                flightMode: value,
+              }).then((value) => {
+                const shp = ship;
+                shp.nav = value.data.data;
+                setShip(shp);
+                setLoadingShipNav(false);
+              });
+            }}
+            options={[
+              { value: "DRIFT" },
+              { value: "STEALTH" },
+              { value: "CRUISE" },
+              { value: "BURN" },
+            ]}
+          />
+          <Spin spinning={loadingShipNav}></Spin>
+        </Space>
+      ),
       span: 2,
     },
     {
@@ -167,6 +237,18 @@ function ShipInfo() {
           items={itemsNavRoute}
           layout="vertical"
         ></Descriptions>
+      ),
+      span: 4,
+    },
+    {
+      key: "newRoute",
+      label: "New Route",
+      children: (
+        <Flex wrap gap={8}>
+          <Button>Navigate Ship</Button>
+          <Button>Jump Ship</Button>
+          <Button>Warp Ship</Button>
+        </Flex>
       ),
     },
   ];
@@ -411,6 +493,29 @@ function ShipInfo() {
               items={itemsGeneral}
               layout="horizontal"
             ></Descriptions>
+          </Col>
+          <Col span={24}>
+            <Flex wrap gap={8}>
+              <Button>Ship Refine</Button>
+              <Button>Create Chart</Button>
+              <Button>Create Survey</Button>
+              <Button>Extract Resources</Button>
+              <Button>Siphon Resources</Button>
+              <Button>Extract Resources with Survey</Button>
+              <Button>Jettison Cargo</Button>
+              <Button>Sell Cargo</Button>
+              <Button>Scan Systems</Button>
+              <Button>Scan Waypoints</Button>
+              <Button>Scan Ships</Button>
+              <Button>Refuel Ship</Button>
+              <Button>Purchase Cargo</Button>
+              <Button>Transfer Cargo</Button>
+              <Button>Negotiate Contract</Button>
+              <Button>Install Mount</Button>
+              <Button>Remove Mount</Button>
+              <Button>Scrap Ship</Button>
+              <Button>Repair Ship</Button>
+            </Flex>
           </Col>
           <Col span={12}>
             <Descriptions

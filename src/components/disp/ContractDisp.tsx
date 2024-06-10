@@ -1,14 +1,24 @@
 import { Button, Card, Descriptions, Table } from "antd";
 import { Contract } from "../../components/api";
 
-function ContractDisp({ contract }: { contract: Contract }) {
+function ContractDisp({
+  contract,
+  onAccept,
+}: {
+  contract: Contract;
+  onAccept?: () => void;
+}) {
   return (
     <Card style={{ width: "fit-content" }}>
       <Descriptions
         bordered
         title="Contract Info"
         layout="vertical"
-        extra={contract.accepted ? "Accepted" : <Button>Accept</Button>}
+        extra={
+          contract.accepted && !onAccept ? undefined : (
+            <Button onClick={onAccept}>Accept</Button>
+          )
+        }
         items={[
           {
             label: "Id",

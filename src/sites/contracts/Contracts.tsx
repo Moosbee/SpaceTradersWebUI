@@ -46,7 +46,18 @@ function Contracts() {
       <Spin spinning={loading}>
         <Flex wrap gap="middle" align="center" justify="space-evenly">
           {contracts.map((value) => (
-            <ContractDisp key={value.id} contract={value}></ContractDisp>
+            <ContractDisp
+              key={value.id}
+              contract={value}
+              onAccept={() => {
+                spaceTraderClient.ContractsClient.acceptContract(value.id).then(
+                  (response) => {
+                    console.log("response", response);
+                    setContractsPage(contractsPage);
+                  }
+                );
+              }}
+            ></ContractDisp>
           ))}
         </Flex>
       </Spin>
