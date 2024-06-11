@@ -15,6 +15,7 @@ const items: MenuItem[] = [
   { label: <Link to="/factions">Factions Overview</Link>, key: "factions" },
   { label: <Link to="/contracts">Contracts overview</Link>, key: "contracts" },
   { label: <Link to="/newAgent">New Agent</Link>, key: "newAgent" },
+  { label: <Link to="/cache">Cache Config</Link>, key: "cache" },
 ];
 
 function MySider() {

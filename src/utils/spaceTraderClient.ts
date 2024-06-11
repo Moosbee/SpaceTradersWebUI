@@ -5,11 +5,11 @@ import {
   FactionsApi,
   ContractsApi,
   DefaultApi,
-  Waypoint,
 } from "./api/api";
 import { Configuration } from "./api/configuration";
 
-import axios, { RawAxiosRequestConfig } from "axios";
+import axios from "axios";
+import localCache from "./cache";
 
 // Create an Axios instance
 const axiosInstance = axios.create();
@@ -63,46 +63,46 @@ const ContractsClient = new ContractsApi(
 );
 const DefaultClient = new DefaultApi(openapiConfig, undefined, axiosInstance);
 
-const CrawlClient = {
-  getSystemWaypoints: async (
-    systemSymbol: string,
-    onProgress?: (progress: number, total: number) => void,
-    options?: RawAxiosRequestConfig
-  ) => {
-    const limit = 20;
-    let page = 1;
-    let total = 0;
+// const CrawlClient = {
+//   getSystemWaypoints: async (
+//     systemSymbol: string,
+//     onProgress?: (progress: number, total: number) => void,
+//     options?: RawAxiosRequestConfig
+//   ) => {
+//     const limit = 20;
+//     let page = 1;
+//     let total = 0;
 
-    let finished = false;
+//     let finished = false;
 
-    let waypoints: Waypoint[] = [];
+//     let waypoints: Waypoint[] = [];
 
-    while (!finished) {
-      const response = await SystemsClient.getSystemWaypoints(
-        systemSymbol,
-        page,
-        limit,
-        undefined,
-        undefined,
-        options
-      );
-      total = response.data.meta.total;
+//     while (!finished) {
+//       const response = await SystemsClient.getSystemWaypoints(
+//         systemSymbol,
+//         page,
+//         limit,
+//         undefined,
+//         undefined,
+//         options
+//       );
+//       total = response.data.meta.total;
 
-      waypoints = waypoints.concat(response.data.data);
+//       waypoints = waypoints.concat(response.data.data);
 
-      onProgress?.((page - 1) * limit + response.data.data.length, total);
+//       onProgress?.((page - 1) * limit + response.data.data.length, total);
 
-      if (response.data.data.length === 0) {
-        finished = true;
-      }
-      if (page * limit >= total) {
-        finished = true;
-      }
-      page++;
-    }
-    return waypoints;
-  },
-};
+//       if (response.data.data.length === 0) {
+//         finished = true;
+//       }
+//       if (page * limit >= total) {
+//         finished = true;
+//       }
+//       page++;
+//     }
+//     return waypoints;
+//   },
+// };
 
 export default {
   FleetClient: FleetClient,
@@ -111,5 +111,5 @@ export default {
   FactionsClient: FactionsClient,
   ContractsClient: ContractsClient,
   DefaultClient: DefaultClient,
-  CrawlClient: CrawlClient,
+  LocalCache: localCache,
 };

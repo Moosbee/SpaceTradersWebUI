@@ -13,6 +13,7 @@ import { useState } from "react";
 import SystemInfo from "./sites/systems/SystemInfo";
 import WaypointInfo from "./sites/systems/WaypointInfo";
 import ShipInfo from "./sites/fleet/ShipInfo";
+import Caching from "./sites/caching/caching";
 
 const { Header, Content, Sider } = Layout;
 
@@ -87,6 +88,7 @@ function MyApp() {
                     element={<SystemInfo></SystemInfo>}
                   />
                   <Route path="/systems" element={<Systems></Systems>} />
+                  <Route path="/cache" element={<Caching></Caching>} />
                 </Routes>
               </Content>
             </Layout>
