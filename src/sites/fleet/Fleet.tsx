@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import spaceTraderClient from "../../spaceTraderClient";
-import { Ship } from "../../components/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
+import { Ship } from "../../utils/api";
 import { Flex, Pagination, PaginationProps, Spin } from "antd";
 import ShipDisp from "../../components/disp/ship/ShipDisp";
 

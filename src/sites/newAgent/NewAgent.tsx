@@ -1,6 +1,6 @@
 import { useState } from "react";
-import spaceTraderClient from "../../spaceTraderClient";
-import { FactionSymbol, Register201ResponseData } from "../../components/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
+import { FactionSymbol, Register201ResponseData } from "../../utils/api";
 import AgentDisp from "../../components/disp/AgentDisp";
 import {
   Button,

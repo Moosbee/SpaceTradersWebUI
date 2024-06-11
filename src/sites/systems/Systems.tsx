@@ -1,7 +1,7 @@
 import { PaginationProps, Pagination, Flex, Spin } from "antd";
 import { useState, useEffect } from "react";
-import { System } from "../../components/api";
-import spaceTraderClient from "../../spaceTraderClient";
+import { System } from "../../utils/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
 import SystemDisp from "../../components/disp/SystemDisp";
 
 function Systems() {

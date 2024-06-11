@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Agent } from "../../components/api";
-import spaceTraderClient from "../../spaceTraderClient";
+import { Agent } from "../../utils/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
 import AgentDisp from "../../components/disp/AgentDisp";
 import { Divider, Flex, Pagination, PaginationProps, Spin } from "antd";
 

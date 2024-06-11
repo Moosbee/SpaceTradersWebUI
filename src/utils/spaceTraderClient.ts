@@ -6,8 +6,8 @@ import {
   ContractsApi,
   DefaultApi,
   Waypoint,
-} from "./components/api/api";
-import { Configuration } from "./components/api/configuration";
+} from "./api/api";
+import { Configuration } from "./api/configuration";
 
 import axios, { RawAxiosRequestConfig } from "axios";
 

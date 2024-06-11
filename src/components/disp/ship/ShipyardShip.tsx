@@ -1,5 +1,5 @@
 import { Card, Descriptions, DescriptionsProps } from "antd";
-import { ShipyardShip } from "../../api";
+import { ShipyardShip } from "../../../utils/api";
 
 function ShipyardShipDisp({ shipyardShip }: { shipyardShip: ShipyardShip }) {
   const items: DescriptionsProps["items"] = [

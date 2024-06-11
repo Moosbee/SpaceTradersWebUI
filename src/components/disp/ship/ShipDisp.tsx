@@ -1,5 +1,5 @@
 import { Card, Descriptions, DescriptionsProps } from "antd";
-import { Ship } from "../../api";
+import { Ship } from "../../../utils/api";
 import { Link } from "react-router-dom";
 
 function ShipDisp({ ship }: { ship: Ship }) {

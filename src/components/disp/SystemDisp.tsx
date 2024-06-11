@@ -1,5 +1,5 @@
 import { Card, Descriptions, DescriptionsProps } from "antd";
-import { System } from "../api";
+import { System } from "../../utils/api";
 import { Link } from "react-router-dom";
 
 function SystemDisp({ system }: { system: System }) {

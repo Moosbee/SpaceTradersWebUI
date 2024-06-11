@@ -1,7 +1,7 @@
 import { PaginationProps, Pagination, Flex, Spin } from "antd";
 import { useState, useEffect } from "react";
-import { Faction } from "../../components/api";
-import spaceTraderClient from "../../spaceTraderClient";
+import { Faction } from "../../utils/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
 import FactionDisp from "../../components/disp/FactionDisp";
 
 function Factions() {

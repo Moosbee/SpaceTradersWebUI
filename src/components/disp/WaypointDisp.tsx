@@ -1,5 +1,5 @@
 import { Card, Descriptions, DescriptionsProps, List, Tooltip } from "antd";
-import { Waypoint } from "../api";
+import { Waypoint } from "../../utils/api";
 import { Link } from "react-router-dom";
 
 function WaypointDisp({

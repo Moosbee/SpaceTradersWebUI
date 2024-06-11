@@ -5,8 +5,8 @@ import {
   Waypoint,
   WaypointTraitSymbol,
   WaypointType,
-} from "../../components/api";
-import spaceTraderClient from "../../spaceTraderClient";
+} from "../../utils/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
 import {
   Col,
   Descriptions,

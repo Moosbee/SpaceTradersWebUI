@@ -1,5 +1,5 @@
 import { Button, Card, Descriptions, Table } from "antd";
-import { Contract } from "../../components/api";
+import { Contract } from "../../utils/api";
 
 function ContractDisp({
   contract,

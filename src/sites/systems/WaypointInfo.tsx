@@ -6,8 +6,8 @@ import {
   Market,
   Shipyard,
   Waypoint,
-} from "../../components/api";
-import spaceTraderClient from "../../spaceTraderClient";
+} from "../../utils/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
 import WaypointDisp from "../../components/disp/WaypointDisp";
 import { Badge, Descriptions, List } from "antd";
 import MarketDisp from "../../components/disp/MarketDisp";

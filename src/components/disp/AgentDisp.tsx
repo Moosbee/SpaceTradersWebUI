@@ -1,5 +1,5 @@
 import { Card, Descriptions, DescriptionsProps } from "antd";
-import { Agent } from "../api";
+import { Agent } from "../../utils/api";
 
 function AgentDisp({ agent }: { agent: Agent }) {
   const items: DescriptionsProps["items"] = [

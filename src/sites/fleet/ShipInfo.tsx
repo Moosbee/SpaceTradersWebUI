@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Ship } from "../../components/api";
-import spaceTraderClient from "../../spaceTraderClient";
+import { Ship } from "../../utils/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
 import {
   Button,
   Card,

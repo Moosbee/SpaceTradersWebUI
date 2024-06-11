@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import spaceTraderClient from "../../spaceTraderClient";
-import { GetStatus200Response } from "../../components/api";
+import spaceTraderClient from "../../utils/spaceTraderClient";
+import { GetStatus200Response } from "../../utils/api";
 import {
   Card,
   Col,

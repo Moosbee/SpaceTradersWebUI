@@ -1,5 +1,5 @@
 import { Card, Col, Empty, List, Row, Table, Tooltip } from "antd";
-import { Market } from "../api";
+import { Market } from "../../utils/api";
 
 function MarketDisp({ market }: { market: Market }) {
   return (

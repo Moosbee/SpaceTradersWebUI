@@ -8,7 +8,7 @@ import {
   Table,
   Empty,
 } from "antd";
-import { Shipyard } from "../api";
+import { Shipyard } from "../../utils/api";
 import ShipyardShipDisp from "./ship/ShipyardShip";
 
 function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
