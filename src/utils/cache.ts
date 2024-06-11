@@ -3,6 +3,8 @@ import spaceTraderClient from "./spaceTraderClient";
 
 const cacheDB = new DataBase("cache", 1);
 
+cacheDB.openAsync();
+
 const localCache = {
   getSystemWaypoints: async (systemSymbol: string) => {
     return await cacheDB.getSystemWaypointsBySystemSymbol(systemSymbol);
@@ -10,6 +12,9 @@ const localCache = {
   cacheSystemWaypoints: async (
     onProgress?: (progress: number, total: number) => void
   ) => {},
+  clearSystemWaypoints: async () => {
+    await cacheDB.clearSystemWaypoints();
+  },
   getSystems: async () => {
     return await cacheDB.getSystems();
   },
@@ -46,6 +51,9 @@ const localCache = {
       }
       page++;
     }
+  },
+  clearSystems: async () => {
+    await cacheDB.clearSystems();
   },
   getSystemsWaypoints: async () => {
     return await cacheDB.getSystemWaypoints();

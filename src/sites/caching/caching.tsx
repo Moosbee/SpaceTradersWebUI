@@ -4,8 +4,9 @@ import { Button, List, Spin } from "antd";
 
 function Caching() {
   const [systemsCount, setSystemsCount] = useState(0);
+  const [totalSystemsCount, setTotalSystemsCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [systemLog, setSystemsLog] = useState<
+  const [systemLogs, setSystemsLogs] = useState<
     {
       progress: number;
       total: number;
@@ -23,27 +24,44 @@ function Caching() {
 
   const updateSystems = () => {
     setLoading(true);
+    console.log("Starting Caching");
+
     spaceTraderClient.LocalCache.cacheSystems((progress, total) => {
-      setSystemsLog([...systemLog, { progress, total, timestamp: new Date() }]);
+      console.log(systemLogs);
+      const sysLog = systemLogs;
+      sysLog.push({ progress, total, timestamp: new Date() });
+      setSystemsLogs(sysLog);
       console.log({ progress, total, timestamp: new Date() });
+      setSystemsCount(progress);
+      setTotalSystemsCount(total);
     }).then(() => {
       setLoading(false);
+      console.log("Caching Complete");
     });
   };
 
   return (
     <div>
       <h1>Caching</h1>
-      Cached Systems: {systemsCount}
+      Cached Systems: {systemsCount}/{totalSystemsCount} <br />
       <Button onClick={updateSystems}>Update Systems</Button>
       <Spin spinning={loading}></Spin>
+      <br />
+      <Button
+        onClick={() => {
+          spaceTraderClient.LocalCache.clearSystems();
+          setSystemsCount(0);
+        }}
+      >
+        Clear Systems
+      </Button>
       <List
-        dataSource={systemLog}
-        renderItem={(item) => (
-          <List.Item>
+        dataSource={systemLogs.map((item) => (
+          <List.Item key={item.timestamp.toISOString()}>
             {item.timestamp.toLocaleString()} - {item.progress} / {item.total}
           </List.Item>
-        )}
+        ))}
+        renderItem={(item) => <List.Item>{item}</List.Item>}
       ></List>
     </div>
   );

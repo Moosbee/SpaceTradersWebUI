@@ -59,6 +59,21 @@ export class DataBase {
     });
   }
 
+  public clearSystems(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.throwIfNotOpened();
+      const tx = this._db!.transaction(["system"], "readwrite");
+      const store = tx.objectStore("system");
+      store.clear();
+      tx.oncomplete = () => {
+        resolve();
+      };
+      tx.onerror = (event) => {
+        reject(event);
+      };
+    });
+  }
+
   public addSystem(system: System): Promise<void> {
     return new Promise((resolve, reject) => {
       this.throwIfNotOpened();
@@ -129,6 +144,21 @@ export class DataBase {
       const tx = this._db!.transaction(["system"], "readwrite");
       const store = tx.objectStore("system");
       store.put(system);
+      tx.oncomplete = () => {
+        resolve();
+      };
+      tx.onerror = (event) => {
+        reject(event);
+      };
+    });
+  }
+
+  public clearSystemWaypoints(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.throwIfNotOpened();
+      const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
+      const store = tx.objectStore("systemWaypoint");
+      store.clear();
       tx.oncomplete = () => {
         resolve();
       };
