@@ -55,6 +55,15 @@ function Caching() {
       >
         Clear Systems
       </Button>
+      <Button
+        onClick={() => {
+          console.log(
+            spaceTraderClient.LocalCache.getSystemByWaypoint("X1-J36-A1")
+          );
+        }}
+      >
+        Printsystems
+      </Button>
       <List
         dataSource={systemLogs.map((item) => (
           <List.Item key={item.timestamp.toISOString()}>

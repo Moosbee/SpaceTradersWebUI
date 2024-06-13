@@ -1,4 +1,4 @@
-import { System, Waypoint } from "./api";
+import { System } from "./api";
 
 export class DataBase {
   private dbName: string;
@@ -153,98 +153,142 @@ export class DataBase {
     });
   }
 
-  public clearSystemWaypoints(): Promise<void> {
+  public getSystemByWaypoint(waypointSymbol: string): Promise<System[]> {
     return new Promise((resolve, reject) => {
       this.throwIfNotOpened();
-      const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
-      const store = tx.objectStore("systemWaypoint");
-      store.clear();
-      tx.oncomplete = () => {
-        resolve();
+      const transaction = this._db!.transaction(["system"], "readonly");
+
+      // Get the object store
+      const objectStore = transaction.objectStore("system");
+
+      // Open a cursor to iterate over the objects
+      const cursorRequest = objectStore.openCursor();
+
+      const results: System[] = [];
+
+      cursorRequest.onsuccess = function (event) {
+        const cursor = (event.target as IDBRequest).result as
+          | IDBCursorWithValue
+          | undefined;
+        if (cursor) {
+          const system = cursor.value as System;
+          const waypoints = system.waypoints;
+
+          // Check if the 'items' array contains the string
+          if (
+            waypoints &&
+            waypoints.length != 0 &&
+            waypoints.some((waypoint) => waypoint.symbol === waypointSymbol)
+          ) {
+            results.push(system);
+          }
+
+          // Continue to the next record
+          cursor.continue();
+        } else {
+          // No more entries
+          resolve(results);
+        }
       };
-      tx.onerror = (event) => {
-        reject(event);
+
+      cursorRequest.onerror = function (event) {
+        reject("Cursor request error: " + event.target);
       };
     });
   }
 
-  public addSystemWaypoint(waypoint: Waypoint): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened();
-      const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
-      const store = tx.objectStore("systemWaypoint");
-      store.add(waypoint);
-      tx.oncomplete = () => {
-        resolve();
-      };
-      tx.onerror = (event) => {
-        reject(event);
-      };
-    });
-  }
+  // public clearSystemWaypoints(): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     store.clear();
+  //     tx.oncomplete = () => {
+  //       resolve();
+  //     };
+  //     tx.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
 
-  public addSystemWaypoints(waypoints: Waypoint[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened();
-      const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
-      const store = tx.objectStore("systemWaypoint");
-      waypoints.forEach((waypoint) => {
-        store.add(waypoint);
-      });
-      tx.oncomplete = () => {
-        resolve();
-      };
-      tx.onerror = (event) => {
-        reject(event);
-      };
-    });
-  }
+  // public addSystemWaypoint(waypoint: Waypoint): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     store.add(waypoint);
+  //     tx.oncomplete = () => {
+  //       resolve();
+  //     };
+  //     tx.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
 
-  public getSystemWaypoint(symbol: string): Promise<Waypoint> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened();
-      const tx = this._db!.transaction(["systemWaypoint"], "readonly");
-      const store = tx.objectStore("systemWaypoint");
-      const request = store.get(symbol);
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-      request.onerror = (event) => {
-        reject(event);
-      };
-    });
-  }
+  // public addSystemWaypoints(waypoints: Waypoint[]): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     waypoints.forEach((waypoint) => {
+  //       store.add(waypoint);
+  //     });
+  //     tx.oncomplete = () => {
+  //       resolve();
+  //     };
+  //     tx.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
 
-  public getSystemWaypointsBySystemSymbol(
-    systemSymbol: string
-  ): Promise<Waypoint[]> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened();
-      const tx = this._db!.transaction(["systemWaypoint"], "readonly");
-      const store = tx.objectStore("systemWaypoint");
-      const index = store.index("systemSymbol");
-      const request = index.getAll(systemSymbol);
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-      request.onerror = (event) => {
-        reject(event);
-      };
-    });
-  }
+  // public getSystemWaypoint(symbol: string): Promise<Waypoint> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readonly");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     const request = store.get(symbol);
+  //     request.onsuccess = () => {
+  //       resolve(request.result);
+  //     };
+  //     request.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
 
-  public getSystemWaypoints(): Promise<Waypoint[]> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened();
-      const tx = this._db!.transaction(["systemWaypoint"], "readonly");
-      const store = tx.objectStore("systemWaypoint");
-      const request = store.getAll();
-      request.onsuccess = () => {
-        resolve(request.result);
-      };
-      request.onerror = (event) => {
-        reject(event);
-      };
-    });
-  }
+  // public getSystemWaypointsBySystemSymbol(
+  //   systemSymbol: string
+  // ): Promise<Waypoint[]> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readonly");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     const index = store.index("systemSymbol");
+  //     const request = index.getAll(systemSymbol);
+  //     request.onsuccess = () => {
+  //       resolve(request.result);
+  //     };
+  //     request.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
+
+  // public getSystemWaypoints(): Promise<Waypoint[]> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readonly");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     const request = store.getAll();
+  //     request.onsuccess = () => {
+  //       resolve(request.result);
+  //     };
+  //     request.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
 }

@@ -6,15 +6,21 @@ const cacheDB = new DataBase("cache", 1);
 cacheDB.openAsync();
 
 const localCache = {
-  getSystemWaypoints: async (systemSymbol: string) => {
-    return await cacheDB.getSystemWaypointsBySystemSymbol(systemSymbol);
-  },
-  cacheSystemWaypoints: async (
-    onProgress?: (progress: number, total: number) => void
-  ) => {},
-  clearSystemWaypoints: async () => {
-    await cacheDB.clearSystemWaypoints();
-  },
+  // getSystemWaypoints: async (systemSymbol: string) => {
+  //   return await cacheDB.getSystemWaypointsBySystemSymbol(systemSymbol);
+  // },
+  // cacheSystemWaypoints: async (
+  //   onProgress?: (progress: number, total: number) => void
+  // ) => {},
+  // clearSystemWaypoints: async () => {
+  //   await cacheDB.clearSystemWaypoints();
+  // },
+  // getSystemsWaypoints: async () => {
+  //   return await cacheDB.getSystemWaypoints();
+  // },
+  // cacheSystemsWaypoints: async (
+  //   onProgress?: (progress: number, total: number) => void
+  // ) => {},
   getSystems: async () => {
     return await cacheDB.getSystems();
   },
@@ -30,7 +36,7 @@ const localCache = {
     // let systems: System[] = [];
 
     while (!finished) {
-      await new Promise((resolve) => setTimeout(resolve, 2500)); // rate limiting :D
+      await new Promise((resolve) => setTimeout(resolve, 2100)); // rate limiting :D
 
       const response = await spaceTraderClient.SystemsClient.getSystems(
         page,
@@ -55,12 +61,9 @@ const localCache = {
   clearSystems: async () => {
     await cacheDB.clearSystems();
   },
-  getSystemsWaypoints: async () => {
-    return await cacheDB.getSystemWaypoints();
+  getSystemByWaypoint: async (waypointSymbol: string) => {
+    return await cacheDB.getSystemByWaypoint(waypointSymbol);
   },
-  cacheSystemsWaypoints: async (
-    onProgress?: (progress: number, total: number) => void
-  ) => {},
 };
-
+export { cacheDB };
 export default localCache;
