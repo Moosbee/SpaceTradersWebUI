@@ -1,5 +1,8 @@
 import { Button, Card, Descriptions, Table } from "antd";
 import { Contract } from "../../utils/api";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import spaceTraderClient from "../../utils/spaceTraderClient";
 
 function ContractDisp({
   contract,
@@ -8,6 +11,34 @@ function ContractDisp({
   contract: Contract;
   onAccept?: () => void;
 }) {
+  const [deliverTerms, setDeliverTerms] = useState<
+    {
+      systemSymbol?: string;
+      tradeSymbol: string;
+      destinationSymbol: string;
+      unitsRequired: number;
+      unitsFulfilled: number;
+    }[]
+  >(contract.terms.deliver || []);
+
+  useEffect(() => {
+    if (!contract.terms.deliver) return;
+    Promise.all(
+      contract.terms.deliver.map(async (d) => {
+        const data = await spaceTraderClient.LocalCache.getSystemByWaypoint(
+          d.destinationSymbol
+        );
+        return { data, d };
+      })
+    ).then((data) => {
+      const deliverTerms = data.map((d) => ({
+        ...d.d,
+        systemSymbol: d.data[0].symbol,
+      }));
+      setDeliverTerms(deliverTerms);
+    });
+  }, [contract]);
+
   return (
     <Card style={{ width: "fit-content" }}>
       <Descriptions
@@ -80,6 +111,13 @@ function ContractDisp({
                           title: "Destination Symbol",
                           dataIndex: "destinationSymbol",
                           key: "destinationSymbol",
+                          render: (symbol: string, record) => (
+                            <Link
+                              to={`/system/${record.systemSymbol}/${symbol}`}
+                            >
+                              {symbol}
+                            </Link>
+                          ),
                         },
                         {
                           title: "Trade Symbol",
@@ -97,7 +135,7 @@ function ContractDisp({
                           key: "unitsRequired",
                         },
                       ]}
-                      dataSource={contract.terms.deliver}
+                      dataSource={deliverTerms}
                     ></Table>
                   ),
                 },

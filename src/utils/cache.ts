@@ -24,6 +24,12 @@ const localCache = {
   getSystems: async () => {
     return await cacheDB.getSystems();
   },
+  getSystemByWaypoint: async (waypointSymbol: string) => {
+    return await cacheDB.getSystemByWaypoint(waypointSymbol);
+  },
+  getSystem: async (symbol: string) => {
+    return await cacheDB.getSystem(symbol);
+  },
   cacheSystems: async (
     onProgress?: (progress: number, total: number) => void
   ) => {
@@ -60,9 +66,6 @@ const localCache = {
   },
   clearSystems: async () => {
     await cacheDB.clearSystems();
-  },
-  getSystemByWaypoint: async (waypointSymbol: string) => {
-    return await cacheDB.getSystemByWaypoint(waypointSymbol);
   },
 };
 export { cacheDB };
