@@ -1,7 +1,13 @@
-import { Card, Descriptions, DescriptionsProps } from "antd";
+import { Button, Card, Descriptions, DescriptionsProps } from "antd";
 import { ShipyardShip } from "../../../utils/api";
 
-function ShipyardShipDisp({ shipyardShip }: { shipyardShip: ShipyardShip }) {
+function ShipyardShipDisp({
+  shipyardShip,
+  onBuy,
+}: {
+  shipyardShip: ShipyardShip;
+  onBuy: () => void;
+}) {
   const items: DescriptionsProps["items"] = [
     {
       key: "name",
@@ -64,12 +70,22 @@ function ShipyardShipDisp({ shipyardShip }: { shipyardShip: ShipyardShip }) {
     {
       key: "modules",
       label: "Modules",
-      children: <span>{shipyardShip.modules.length} installed</span>,
+      children: (
+        <span>
+          {shipyardShip.modules.length} installed <br />(
+          {shipyardShip.modules.map((m) => m.symbol).join(", ")})
+        </span>
+      ),
     },
     {
       key: "mounts",
       label: "Mounts",
-      children: <span>{shipyardShip.mounts.length} installed</span>,
+      children: (
+        <span>
+          {shipyardShip.mounts.length} installed
+          <br />({shipyardShip.mounts.map((m) => m.symbol).join(", ")})
+        </span>
+      ),
     },
 
     {
@@ -88,6 +104,7 @@ function ShipyardShipDisp({ shipyardShip }: { shipyardShip: ShipyardShip }) {
         title="Ship Info"
         bordered
         items={items}
+        extra={<Button onClick={onBuy}>Buy {shipyardShip.name}</Button>}
         layout="vertical"
       ></Descriptions>
     </Card>
