@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Ship, System, SystemWaypoint } from "../../utils/api";
+import { Ship, ShipCargoItem, System, SystemWaypoint } from "../../utils/api";
 import spaceTraderClient from "../../utils/spaceTraderClient";
 import {
   Button,
@@ -9,14 +9,19 @@ import {
   Descriptions,
   DescriptionsProps,
   Flex,
+  InputNumber,
   Row,
   Select,
   Space,
   Spin,
+  Statistic,
   Table,
   // Table,
   Tooltip,
+  message,
 } from "antd";
+
+const { Countdown } = Statistic;
 
 function ShipInfo() {
   const { shipID } = useParams();
@@ -65,13 +70,17 @@ function ShipInfo() {
       children: <span>{ship.registration.role}</span>,
     },
   ];
-  if (ship.cooldown.totalSeconds - ship.cooldown.remainingSeconds > 0) {
+  if (
+    ship.cooldown.totalSeconds != ship.cooldown.remainingSeconds &&
+    ship.cooldown.expiration
+  ) {
     itemsGeneral.push({
       key: "cooldown",
       label: "Cooldown",
       children: (
         <span>
-          {ship.cooldown.remainingSeconds} / {ship.cooldown.totalSeconds}
+          <Countdown value={new Date(ship.cooldown.expiration).getTime()} /> /{" "}
+          {ship.cooldown.totalSeconds}
         </span>
       ),
     });
@@ -108,17 +117,6 @@ function ShipInfo() {
 
   const itemsNavRoute: DescriptionsProps["items"] = [
     {
-      key: "routeDestination",
-      label: "Route Destination",
-      children: (
-        <Link
-          to={`/system/${ship.nav.route.destination.systemSymbol}/${ship.nav.route.destination.symbol}`}
-        >
-          {ship.nav.route.destination.symbol}
-        </Link>
-      ),
-    },
-    {
       key: "routeOrigin",
       label: "Route Origin",
       children: (
@@ -130,10 +128,14 @@ function ShipInfo() {
       ),
     },
     {
-      key: "routeArrival",
-      label: "Route Arrival",
+      key: "routeDestination",
+      label: "Route Destination",
       children: (
-        <span>{new Date(ship.nav.route.arrival).toLocaleString()}</span>
+        <Link
+          to={`/system/${ship.nav.route.destination.systemSymbol}/${ship.nav.route.destination.symbol}`}
+        >
+          {ship.nav.route.destination.symbol}
+        </Link>
       ),
     },
     {
@@ -141,6 +143,24 @@ function ShipInfo() {
       label: "Route Departure",
       children: (
         <span>{new Date(ship.nav.route.departureTime).toLocaleString()}</span>
+      ),
+    },
+    {
+      key: "routeArrival",
+      label: "Route Arrival",
+      children: (
+        <span>{new Date(ship.nav.route.arrival).toLocaleString()}</span>
+      ),
+    },
+    {
+      key: "countDown",
+      label: "Remaining Time",
+      children: (
+        <span>
+          <Countdown
+            value={new Date(ship.nav.route.arrival).getTime()}
+          ></Countdown>
+        </span>
       ),
     },
   ];
@@ -247,7 +267,6 @@ function ShipInfo() {
 
       children: (
         <Descriptions
-          // title="Cargo Info"
           bordered
           items={itemsNavRoute}
           layout="vertical"
@@ -287,6 +306,14 @@ function ShipInfo() {
                       waypointSymbol: navWaypoint,
                     }).then((value) => {
                       console.log("value", value);
+                      setTimeout(() => {
+                        const shp = ship;
+                        shp.nav = value.data.data.nav;
+
+                        shp.fuel = value.data.data.fuel;
+                        setReload(!reload);
+                        setShip(shp);
+                      });
                     });
                   }}
                 >
@@ -327,15 +354,73 @@ function ShipInfo() {
           {ship.cargo.units}/{ship.cargo.capacity}
         </span>
       ),
-      span: 3,
+      span: ship.nav.status == "IN_ORBIT" ? 1 : 3,
     },
+    ...(ship.nav.status == "IN_ORBIT"
+      ? [
+          {
+            key: "extraction",
+            label: "Extraction",
+            children: (
+              <Space>
+                <Button
+                  onClick={() => {
+                    if (!shipID) return;
+                    spaceTraderClient.FleetClient.extractResources(shipID).then(
+                      (value) => {
+                        console.log("value", value);
+                        setTimeout(() => {
+                          message.success(
+                            `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`
+                          );
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          shp.cooldown = value.data.data.cooldown;
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      }
+                    );
+                  }}
+                >
+                  Extract Resources
+                </Button>
+                <Button
+                  onClick={() => {
+                    if (!shipID) return;
+                    spaceTraderClient.FleetClient.siphonResources(shipID).then(
+                      (value) => {
+                        console.log("value", value);
+                        setTimeout(() => {
+                          message.success(
+                            `Siphoned ${value.data.data.siphon.yield.units} ${value.data.data.siphon.yield.symbol}`
+                          );
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          shp.cooldown = value.data.data.cooldown;
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      }
+                    );
+                  }}
+                >
+                  Siphon Resources
+                </Button>
+                <Button>Extract Resources with Survey</Button>
+              </Space>
+            ),
+            span: 2,
+          },
+        ]
+      : []),
     {
       key: "inventory",
       label: "Inventory",
       span: 3,
-
       children: (
         <Table
+          rowKey={(item) => item.symbol}
           columns={[
             {
               title: "Name",
@@ -353,6 +438,54 @@ function ShipInfo() {
               },
             },
             { title: "Units", key: "units", dataIndex: "units" },
+            {
+              title: "Action",
+              key: "action",
+
+              render(_value, record) {
+                return (
+                  <CargoActions
+                    key={record.symbol}
+                    item={record}
+                    onJettison={(count, item) => {
+                      console.log("Jettison", item, count);
+                      spaceTraderClient.FleetClient.jettison(ship.symbol, {
+                        symbol: record.symbol,
+                        units: count,
+                      }).then((value) => {
+                        console.log("jett value", value);
+                        setTimeout(() => {
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          message.success(`${count} ${item} jettisoned`);
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
+                    }}
+                    onSell={(count, item) => {
+                      console.log("Sell", item, count);
+                      spaceTraderClient.FleetClient.sellCargo(ship.symbol, {
+                        symbol: record.symbol,
+                        units: count,
+                      }).then((value) => {
+                        console.log("sell value", value);
+                        setTimeout(() => {
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          message.success(
+                            `${count} ${item} sold, new balance: ${value.data.data.agent.credits}`
+                          );
+
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
+                    }}
+                  ></CargoActions>
+                );
+              },
+            },
           ]}
           dataSource={ship.cargo.inventory}
           // bordered
@@ -567,17 +700,12 @@ function ShipInfo() {
               <Button>Ship Refine</Button>
               <Button>Create Chart</Button>
               <Button>Create Survey</Button>
-              <Button>Extract Resources</Button>
-              <Button>Siphon Resources</Button>
-              <Button>Extract Resources with Survey</Button>
-              <Button>Jettison Cargo</Button>
-              <Button>Sell Cargo</Button>
+              <Button>Transfer Cargo</Button>
               <Button>Scan Systems</Button>
               <Button>Scan Waypoints</Button>
               <Button>Scan Ships</Button>
               <Button>Refuel Ship</Button>
               <Button>Purchase Cargo</Button>
-              <Button>Transfer Cargo</Button>
               <Button>Negotiate Contract</Button>
               <Button>Install Mount</Button>
               <Button>Remove Mount</Button>
@@ -786,6 +914,33 @@ function ShipInfo() {
         </Row>
       </Card>
     </div>
+  );
+}
+
+function CargoActions({
+  item,
+  onJettison,
+  onSell,
+}: {
+  item: ShipCargoItem;
+  onJettison: (count: number, item: string) => void;
+  onSell: (count: number, item: string) => void;
+}) {
+  const [count, setCount] = useState(1);
+
+  return (
+    <Space>
+      <InputNumber
+        min={1}
+        max={item.units}
+        defaultValue={1}
+        style={{ width: 60 }}
+        onChange={(value) => setCount(value?.valueOf() ?? 1)}
+        value={count}
+      />
+      <Button onClick={() => onJettison(count, item.symbol)}>Jettison</Button>
+      <Button onClick={() => onSell(count, item.symbol)}>Sell</Button>
+    </Space>
   );
 }
 
