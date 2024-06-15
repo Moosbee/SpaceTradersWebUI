@@ -19,6 +19,14 @@ function Fleet() {
         setShips(response.data.data);
         setAllShips(response.data.meta.total);
         setLoading(false);
+        spaceTraderClient.LocalCache.setShips(
+          response.data.data.map((value) => {
+            return {
+              symbol: value.symbol,
+              waypointSymbol: value.nav.waypointSymbol,
+            };
+          })
+        );
       }
     );
     return () => {};

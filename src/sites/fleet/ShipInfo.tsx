@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Ship, ShipCargoItem, System, SystemWaypoint } from "../../utils/api";
+import {
+  Ship,
+  ShipCargoItem,
+  Survey,
+  System,
+  SystemWaypoint,
+} from "../../utils/api";
 import spaceTraderClient from "../../utils/spaceTraderClient";
 import {
   Button,
@@ -8,6 +14,7 @@ import {
   Col,
   Descriptions,
   DescriptionsProps,
+  Dropdown,
   Flex,
   InputNumber,
   Row,
@@ -362,12 +369,14 @@ function ShipInfo() {
             key: "extraction",
             label: "Extraction",
             children: (
-              <Space>
-                <Button
-                  onClick={() => {
-                    if (!shipID) return;
-                    spaceTraderClient.FleetClient.extractResources(shipID).then(
-                      (value) => {
+              <Flex vertical gap={4}>
+                <Space>
+                  <Button
+                    onClick={() => {
+                      if (!shipID) return;
+                      spaceTraderClient.FleetClient.extractResources(
+                        shipID
+                      ).then((value) => {
                         console.log("value", value);
                         setTimeout(() => {
                           message.success(
@@ -379,17 +388,17 @@ function ShipInfo() {
                           setReload(!reload);
                           setShip(shp);
                         });
-                      }
-                    );
-                  }}
-                >
-                  Extract Resources
-                </Button>
-                <Button
-                  onClick={() => {
-                    if (!shipID) return;
-                    spaceTraderClient.FleetClient.siphonResources(shipID).then(
-                      (value) => {
+                      });
+                    }}
+                  >
+                    Extract Resources
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      if (!shipID) return;
+                      spaceTraderClient.FleetClient.siphonResources(
+                        shipID
+                      ).then((value) => {
                         console.log("value", value);
                         setTimeout(() => {
                           message.success(
@@ -401,14 +410,66 @@ function ShipInfo() {
                           setReload(!reload);
                           setShip(shp);
                         });
-                      }
-                    );
+                      });
+                    }}
+                  >
+                    Siphon Resources
+                  </Button>
+                </Space>
+                <ExtractSurvey
+                  waypoint={ship.nav.waypointSymbol}
+                  onSurvey={() => {
+                    return new Promise((resolve) => {
+                      if (!shipID) return;
+                      spaceTraderClient.FleetClient.createSurvey(shipID).then(
+                        (value) => {
+                          console.log("value", value);
+                          setTimeout(() => {
+                            const shp = ship;
+                            shp.cooldown = value.data.data.cooldown;
+                            spaceTraderClient.LocalCache.addSurveys(
+                              value.data.data.surveys
+                            );
+                            message.success(
+                              `Surveys Created\n ${value.data.data.surveys
+                                .map(
+                                  (w) =>
+                                    `${w.signature}(${
+                                      w.size
+                                    }) - (${w.deposits.map((w) => w.symbol)})`
+                                )
+                                .join("\n")}`
+                            );
+                            resolve();
+                          });
+                        }
+                      );
+                    });
                   }}
-                >
-                  Siphon Resources
-                </Button>
-                <Button>Extract Resources with Survey</Button>
-              </Space>
+                  onExtraction={(survey) => {
+                    return new Promise((resolve) => {
+                      if (!shipID) return;
+                      spaceTraderClient.FleetClient.extractResourcesWithSurvey(
+                        shipID,
+                        survey
+                      ).then((value) => {
+                        console.log("value", value);
+                        setTimeout(() => {
+                          message.success(
+                            `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`
+                          );
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          shp.cooldown = value.data.data.cooldown;
+                          setReload(!reload);
+                          setShip(shp);
+                          resolve();
+                        });
+                      });
+                    });
+                  }}
+                ></ExtractSurvey>
+              </Flex>
             ),
             span: 2,
           },
@@ -477,6 +538,25 @@ function ShipInfo() {
                             `${count} ${item} sold, new balance: ${value.data.data.agent.credits}`
                           );
 
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
+                    }}
+                    onTransfer={(count, item, shipSymbol) => {
+                      console.log("Transfer", item, count, shipSymbol);
+                      spaceTraderClient.FleetClient.transferCargo(ship.symbol, {
+                        shipSymbol,
+                        tradeSymbol: record.symbol,
+                        units: count,
+                      }).then((value) => {
+                        console.log("transfer value", value);
+                        setTimeout(() => {
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          message.success(
+                            `${count} ${item} transfered to ${shipSymbol}`
+                          );
                           setReload(!reload);
                           setShip(shp);
                         });
@@ -699,8 +779,6 @@ function ShipInfo() {
             <Flex wrap gap={8}>
               <Button>Ship Refine</Button>
               <Button>Create Chart</Button>
-              <Button>Create Survey</Button>
-              <Button>Transfer Cargo</Button>
               <Button>Scan Systems</Button>
               <Button>Scan Waypoints</Button>
               <Button>Scan Ships</Button>
@@ -917,16 +995,97 @@ function ShipInfo() {
   );
 }
 
+function ExtractSurvey({
+  waypoint,
+  onSurvey,
+  onExtraction,
+}: {
+  waypoint: string;
+  onSurvey: () => Promise<void>;
+  onExtraction: (survey: Survey) => Promise<void>;
+}) {
+  const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [survey, setSurvey] = useState<string | undefined>(undefined);
+
+  const [reload, setReload] = useState(false);
+
+  useEffect(() => {
+    spaceTraderClient.LocalCache.getSurveys().then((response) => {
+      setSurveys(response);
+    });
+    spaceTraderClient.LocalCache.pruneSurveys();
+  }, [reload]);
+
+  return (
+    <Space>
+      <Select
+        options={surveys
+          .filter((w) => w.symbol === waypoint)
+          .map((w) => {
+            return {
+              value: w.signature,
+              label: (
+                <Tooltip
+                  title={`${w.signature} - (${w.deposits
+                    ?.map((w) => w.symbol)
+                    .join(", ")})`}
+                >
+                  {w.signature}
+                </Tooltip>
+              ),
+            };
+          })}
+        showSearch
+        style={{ width: 180 }}
+        onChange={(value) => {
+          setSurvey(value);
+        }}
+        value={survey}
+      />
+      <Button
+        onClick={() => {
+          onExtraction(surveys.find((w) => w.signature === survey)!);
+        }}
+      >
+        Extract Resources with Survey
+      </Button>
+      <Button
+        onClick={() => {
+          onSurvey().then(() => {
+            setReload(!reload);
+          });
+        }}
+      >
+        Create Survey
+      </Button>
+    </Space>
+  );
+}
+
 function CargoActions({
   item,
   onJettison,
   onSell,
+  onTransfer,
 }: {
   item: ShipCargoItem;
   onJettison: (count: number, item: string) => void;
   onSell: (count: number, item: string) => void;
+  onTransfer: (count: number, item: string, shipSymbol: string) => void;
 }) {
   const [count, setCount] = useState(1);
+
+  const items = useMemo(() => {
+    return [
+      ...spaceTraderClient.LocalCache.getShips().map((w) => {
+        return {
+          key: w.symbol,
+          label: w.symbol,
+        };
+      }),
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
 
   return (
     <Space>
@@ -940,6 +1099,17 @@ function CargoActions({
       />
       <Button onClick={() => onJettison(count, item.symbol)}>Jettison</Button>
       <Button onClick={() => onSell(count, item.symbol)}>Sell</Button>
+      <Dropdown
+        menu={{
+          items,
+          onClick: ({ key }) => {
+            onTransfer(count, item.symbol, key);
+          },
+        }}
+        trigger={["click"]}
+      >
+        <Button>Transfer</Button>
+      </Dropdown>
     </Space>
   );
 }

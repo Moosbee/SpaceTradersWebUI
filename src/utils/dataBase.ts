@@ -1,4 +1,4 @@
-import { System } from "./api";
+import { Survey, System } from "./api";
 
 export class DataBase {
   private dbName: string;
@@ -19,8 +19,10 @@ export class DataBase {
   public openAsync(): Promise<void> {
     return new Promise((resolve, reject) => {
       const database = indexedDB.open(this.dbName, this.version);
+      console.log("openAsync", database);
       database.onsuccess = () => {
         this._db = database.result;
+
         resolve();
       };
       database.onerror = (event) => {
@@ -33,6 +35,8 @@ export class DataBase {
       database.onupgradeneeded = (event) => {
         // the existing database version is less than 2 (or it doesn't exist)
         const db = database.result;
+        // close all other windows
+        console.log("update", db);
         switch (
           event.oldVersion // existing db version
         ) {
@@ -46,15 +50,25 @@ export class DataBase {
 
             objectStore.createIndex("systemSymbol", "systemSymbol");
 
+            const objectStore2 = db.createObjectStore("survey", {
+              keyPath: "signature",
+            });
+
+            objectStore2.createIndex("symbol", "symbol");
+
             break;
           }
           case 1:
-          // client had version 1
+            // client had version 1
+
+            break;
           // update
         }
 
         // Create another object store called "names" with the autoIncrement flag set as true.
-        reject(event);
+        setTimeout(() => {
+          reject(event);
+        });
       };
     });
   }
@@ -291,4 +305,87 @@ export class DataBase {
   //     };
   //   });
   // }
+
+  public getSurveys(): Promise<Survey[]> {
+    return new Promise((resolve, reject) => {
+      this.throwIfNotOpened();
+      const tx = this._db!.transaction(["survey"], "readonly");
+      const store = tx.objectStore("survey");
+      const request = store.getAll();
+      request.onsuccess = () => {
+        resolve(request.result);
+      };
+      request.onerror = (event) => {
+        reject(event);
+      };
+    });
+  }
+  public addSurvey(survey: Survey) {
+    return new Promise<void>((resolve, reject) => {
+      this.throwIfNotOpened();
+      const tx = this._db!.transaction(["survey"], "readwrite");
+      const store = tx.objectStore("survey");
+      store.add(survey);
+      tx.oncomplete = () => {
+        resolve();
+      };
+      tx.onerror = (event) => {
+        reject(event);
+      };
+    });
+  }
+
+  public addSurveys(surveys: Survey[]) {
+    return new Promise<void>((resolve, reject) => {
+      this.throwIfNotOpened();
+      const tx = this._db!.transaction(["survey"], "readwrite");
+      const store = tx.objectStore("survey");
+      surveys.forEach((survey) => {
+        store.add(survey);
+      });
+      tx.oncomplete = () => {
+        resolve();
+      };
+      tx.onerror = (event) => {
+        reject(event);
+      };
+    });
+  }
+
+  public pruneSurveys() {
+    return new Promise<void>((resolve, reject) => {
+      this.throwIfNotOpened();
+      const tx = this._db!.transaction(["survey"], "readwrite");
+      const store = tx.objectStore("survey");
+
+      // Get the object store
+
+      // Open a cursor to iterate over the objects
+      const cursorRequest = store.openCursor();
+
+      cursorRequest.onsuccess = function (event) {
+        const cursor = (event.target as IDBRequest).result as
+          | IDBCursorWithValue
+          | undefined;
+        if (cursor) {
+          const survey = cursor.value as Survey;
+
+          if (new Date(survey.expiration).getTime() < Date.now()) {
+            console.log("pruning survey", survey);
+            store.delete(cursor.key as string);
+          }
+
+          // Continue to the next record
+          cursor.continue();
+        } else {
+          // No more entries
+          resolve();
+        }
+      };
+
+      cursorRequest.onerror = function (event) {
+        reject("Cursor request error: " + event.target);
+      };
+    });
+  }
 }

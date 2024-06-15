@@ -1,9 +1,25 @@
+import { Survey } from "./api";
 import { DataBase } from "./dataBase";
 import spaceTraderClient from "./spaceTraderClient";
 
 const cacheDB = new DataBase("cache", 1);
 
-cacheDB.openAsync();
+if (navigator.storage && navigator.storage.persist) {
+  const persistent = await navigator.storage.persist();
+  if (persistent) {
+    console.log("Storage will not be cleared except by explicit user action");
+  } else {
+    console.log("Storage may be cleared by the UA under storage pressure.");
+  }
+}
+
+await cacheDB.openAsync();
+// .then(() => {
+//   console.log("cacheDB opened");
+// })
+// .catch((error) => {
+//   console.error("db err", error);
+// });
 
 const localCache = {
   // getSystemWaypoints: async (systemSymbol: string) => {
@@ -66,6 +82,29 @@ const localCache = {
   },
   clearSystems: async () => {
     await cacheDB.clearSystems();
+  },
+
+  getSurveys: async () => {
+    return await cacheDB.getSurveys();
+  },
+  addSurvey: async (survey: Survey) => {
+    await cacheDB.addSurvey(survey);
+  },
+  addSurveys: async (survey: Survey[]) => {
+    await cacheDB.addSurveys(survey);
+  },
+  pruneSurveys: async () => {
+    await cacheDB.pruneSurveys();
+  },
+
+  getShips: (): { symbol: string; waypointSymbol: string }[] => {
+    const ships = JSON.parse(sessionStorage.getItem("ships") || "[]");
+    // console.log("ships", ships);
+    return ships;
+  },
+
+  setShips: (ships: { symbol: string; waypointSymbol: string }[]) => {
+    sessionStorage.setItem("ships", JSON.stringify(ships));
   },
 };
 export { cacheDB };
