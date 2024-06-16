@@ -21,6 +21,7 @@ function Contracts() {
       setContracts(response.data.data);
       setContractsAll(response.data.meta.total);
       setLoading(false);
+      spaceTraderClient.LocalCache.setContracts(response.data.data);
     });
   }, [contractsPage, itemsPerPage]);
 
@@ -56,6 +57,14 @@ function Contracts() {
                     setContractsPage(contractsPage);
                   }
                 );
+              }}
+              onFulfill={() => {
+                spaceTraderClient.ContractsClient.fulfillContract(
+                  value.id
+                ).then((response) => {
+                  console.log("response", response);
+                  setContractsPage(contractsPage);
+                });
               }}
             ></ContractDisp>
           ))}

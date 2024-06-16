@@ -22,6 +22,7 @@ import {
   Space,
   Spin,
   Statistic,
+  Switch,
   Table,
   // Table,
   Tooltip,
@@ -99,9 +100,25 @@ function ShipInfo() {
         key: "fuel",
         label: "Fuel",
         children: (
-          <span>
+          <Space>
             {ship.fuel.current}/{ship.fuel.capacity}
-          </span>
+            <Button
+              onClick={() => {
+                spaceTraderClient.FleetClient.refuelShip(ship.symbol, {
+                  fromCargo: false,
+                  units: ship.fuel.capacity - ship.fuel.current,
+                }).then((response) => {
+                  const shp = ship;
+                  shp.fuel = response.data.data.fuel;
+                  message.success(`Refueled`);
+                  setReload(!reload);
+                  setShip(shp);
+                });
+              }}
+            >
+              Refuel
+            </Button>
+          </Space>
         ),
       },
       {
@@ -440,6 +457,8 @@ function ShipInfo() {
                                 )
                                 .join("\n")}`
                             );
+                            setReload(!reload);
+                            setShip(shp);
                             resolve();
                           });
                         }
@@ -463,7 +482,7 @@ function ShipInfo() {
                           shp.cooldown = value.data.data.cooldown;
                           setReload(!reload);
                           setShip(shp);
-                          resolve();
+                          resolve(value.data.data.cooldown.remainingSeconds);
                         });
                       });
                     });
@@ -556,6 +575,28 @@ function ShipInfo() {
                           shp.cargo = value.data.data.cargo;
                           message.success(
                             `${count} ${item} transfered to ${shipSymbol}`
+                          );
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
+                    }}
+                    onFulfill={(count, item, contractID) => {
+                      console.log("Deliver", item, count, contractID);
+                      spaceTraderClient.ContractsClient.deliverContract(
+                        contractID,
+                        {
+                          shipSymbol: ship.symbol,
+                          tradeSymbol: record.symbol,
+                          units: count,
+                        }
+                      ).then((value) => {
+                        console.log("deliver value", value);
+                        setTimeout(() => {
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          message.success(
+                            `${count} ${item} delivered to ${contractID}`
                           );
                           setReload(!reload);
                           setShip(shp);
@@ -782,7 +823,6 @@ function ShipInfo() {
               <Button>Scan Systems</Button>
               <Button>Scan Waypoints</Button>
               <Button>Scan Ships</Button>
-              <Button>Refuel Ship</Button>
               <Button>Purchase Cargo</Button>
               <Button>Negotiate Contract</Button>
               <Button>Install Mount</Button>
@@ -1002,12 +1042,13 @@ function ExtractSurvey({
 }: {
   waypoint: string;
   onSurvey: () => Promise<void>;
-  onExtraction: (survey: Survey) => Promise<void>;
+  onExtraction: (survey: Survey) => Promise<number>;
 }) {
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [survey, setSurvey] = useState<string | undefined>(undefined);
 
   const [reload, setReload] = useState(false);
+  const [contin, setContin] = useState(false);
 
   useEffect(() => {
     spaceTraderClient.LocalCache.getSurveys().then((response) => {
@@ -1015,6 +1056,19 @@ function ExtractSurvey({
     });
     spaceTraderClient.LocalCache.pruneSurveys();
   }, [reload]);
+
+  const extract = async () => {
+    if (!survey) {
+      return;
+    }
+    onExtraction(surveys.find((w) => w.signature === survey)!).then((ret) => {
+      if (contin) {
+        setTimeout(() => {
+          extract();
+        }, ret * 1000 + 1000);
+      }
+    });
+  };
 
   return (
     <Space>
@@ -1044,7 +1098,7 @@ function ExtractSurvey({
       />
       <Button
         onClick={() => {
-          onExtraction(surveys.find((w) => w.signature === survey)!);
+          extract();
         }}
       >
         Extract Resources with Survey
@@ -1058,6 +1112,12 @@ function ExtractSurvey({
       >
         Create Survey
       </Button>
+      <Switch
+        checkedChildren="continue"
+        unCheckedChildren="continue"
+        checked={contin}
+        onChange={setContin}
+      />
     </Space>
   );
 }
@@ -1067,11 +1127,13 @@ function CargoActions({
   onJettison,
   onSell,
   onTransfer,
+  onFulfill,
 }: {
   item: ShipCargoItem;
   onJettison: (count: number, item: string) => void;
   onSell: (count: number, item: string) => void;
   onTransfer: (count: number, item: string, shipSymbol: string) => void;
+  onFulfill: (count: number, item: string, contractID: string) => void;
 }) {
   const [count, setCount] = useState(1);
 
@@ -1083,6 +1145,20 @@ function CargoActions({
           label: w.symbol,
         };
       }),
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
+
+  const contracts = useMemo(() => {
+    return [
+      ...spaceTraderClient.LocalCache.getContracts()
+        .filter((w) => w.terms && !w.fulfilled)
+        .map((w) => {
+          return {
+            key: w.id,
+            label: w.id,
+          };
+        }),
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [count]);
@@ -1109,6 +1185,17 @@ function CargoActions({
         trigger={["click"]}
       >
         <Button>Transfer</Button>
+      </Dropdown>
+      <Dropdown
+        menu={{
+          items: contracts,
+          onClick: ({ key }) => {
+            onFulfill(count, item.symbol, key);
+          },
+        }}
+        trigger={["click"]}
+      >
+        <Button>Fulfill Contr.</Button>
       </Dropdown>
     </Space>
   );

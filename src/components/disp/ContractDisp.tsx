@@ -7,9 +7,11 @@ import spaceTraderClient from "../../utils/spaceTraderClient";
 function ContractDisp({
   contract,
   onAccept,
+  onFulfill,
 }: {
   contract: Contract;
   onAccept?: () => void;
+  onFulfill?: () => void;
 }) {
   const [deliverTerms, setDeliverTerms] = useState<
     {
@@ -46,9 +48,14 @@ function ContractDisp({
         title="Contract Info"
         layout="vertical"
         extra={
-          contract.accepted && !onAccept ? undefined : (
-            <Button onClick={onAccept}>Accept</Button>
-          )
+          <span>
+            {contract.accepted || !onAccept ? undefined : (
+              <Button onClick={onAccept}>Accept</Button>
+            )}
+            {!contract.accepted || !onFulfill ? undefined : (
+              <Button onClick={onFulfill}>Fulfill</Button>
+            )}
+          </span>
         }
         items={[
           {

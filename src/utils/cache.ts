@@ -1,4 +1,4 @@
-import { Survey } from "./api";
+import { Contract, Survey } from "./api";
 import { DataBase } from "./dataBase";
 import spaceTraderClient from "./spaceTraderClient";
 
@@ -58,7 +58,7 @@ const localCache = {
     // let systems: System[] = [];
 
     while (!finished) {
-      await new Promise((resolve) => setTimeout(resolve, 2100)); // rate limiting :D
+      await new Promise((resolve) => setTimeout(resolve, 510)); // rate limiting :D
 
       const response = await spaceTraderClient.SystemsClient.getSystems(
         page,
@@ -105,6 +105,19 @@ const localCache = {
 
   setShips: (ships: { symbol: string; waypointSymbol: string }[]) => {
     sessionStorage.setItem("ships", JSON.stringify(ships));
+  },
+  getContracts: (): Contract[] => {
+    const ships = JSON.parse(sessionStorage.getItem("contracts") || "[]");
+    // console.log("ships", ships);
+    return ships;
+  },
+  addContract: async (contract: Contract) => {
+    const ships = JSON.parse(sessionStorage.getItem("contracts") || "[]");
+    ships.push(contract);
+    sessionStorage.setItem("contracts", JSON.stringify(ships));
+  },
+  setContracts: async (contracts: Contract[]) => {
+    sessionStorage.setItem("contracts", JSON.stringify(contracts));
   },
 };
 export { cacheDB };
