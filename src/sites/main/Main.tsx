@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
-import type { GetStatus200Response } from "../../app/spaceTraderAPI/api"
-import type { DescriptionsProps } from "antd"
+import { useEffect, useState } from "react";
+import type { GetStatus200Response } from "../../app/spaceTraderAPI/api";
+import type { DescriptionsProps } from "antd";
 import {
   Card,
   Col,
@@ -11,18 +11,18 @@ import {
   Row,
   Spin,
   Table,
-} from "antd"
-import { Link } from "react-router-dom"
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
+} from "antd";
+import { Link } from "react-router-dom";
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 
 function Main() {
-  const [status, setStatus] = useState<GetStatus200Response | null>(null)
+  const [status, setStatus] = useState<GetStatus200Response | null>(null);
   useEffect(() => {
-    spaceTraderClient.DefaultClient.getStatus().then(response => {
-      console.log("response", response)
-      setStatus(response.data)
-    })
-  }, [])
+    spaceTraderClient.DefaultClient.getStatus().then((response) => {
+      console.log("response", response);
+      setStatus(response.data);
+    });
+  }, []);
 
   const items: DescriptionsProps["items"] = [
     {
@@ -78,18 +78,18 @@ function Main() {
       label: "Waypoints",
       children: status?.stats.waypoints,
     },
-  ]
+  ];
 
   return (
     <Spin spinning={status === null}>
       <h2>Announcements</h2>
       <Flex gap="14px">
-        {status?.announcements.map(value => {
+        {status?.announcements.map((value) => {
           return (
             <Card key={value.title} title={value.title}>
               <p>{value.body}</p>
             </Card>
-          )
+          );
         })}
       </Flex>
       <Divider />
@@ -104,12 +104,12 @@ function Main() {
 
           <Divider />
           <Table
-            dataSource={status?.leaderboards.mostCredits.map(value => {
+            dataSource={status?.leaderboards.mostCredits.map((value) => {
               return {
                 key: value.agentSymbol,
                 agentSymbol: value.agentSymbol,
                 credits: value.credits,
-              }
+              };
             })}
             columns={[
               {
@@ -129,13 +129,15 @@ function Main() {
           <h3>Most Submitted Charts</h3>
           <Divider />
           <Table
-            dataSource={status?.leaderboards.mostSubmittedCharts.map(value => {
-              return {
-                key: value.agentSymbol,
-                agentSymbol: value.agentSymbol,
-                chartCount: value.chartCount,
-              }
-            })}
+            dataSource={status?.leaderboards.mostSubmittedCharts.map(
+              (value) => {
+                return {
+                  key: value.agentSymbol,
+                  agentSymbol: value.agentSymbol,
+                  chartCount: value.chartCount,
+                };
+              },
+            )}
             columns={[
               {
                 title: "Agent Symbol",
@@ -153,15 +155,15 @@ function Main() {
       </Row>
       <Menu
         mode="horizontal"
-        items={status?.links.map(value => {
+        items={status?.links.map((value) => {
           return {
             key: value.name,
             label: <Link to={value.url}>{value.name}</Link>,
-          }
+          };
         })}
       ></Menu>
     </Spin>
-  )
+  );
 }
 
-export default Main
+export default Main;

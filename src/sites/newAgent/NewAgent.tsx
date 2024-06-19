@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useState } from "react";
 import type {
   FactionSymbol,
   Register201ResponseData,
-} from "../../app/spaceTraderAPI/api"
-import type { FormProps } from "antd"
+} from "../../app/spaceTraderAPI/api";
+import type { FormProps } from "antd";
 import {
   Button,
   Card,
@@ -15,37 +15,39 @@ import {
   Select,
   Space,
   Typography,
-} from "antd"
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
-import AgentDisp from "../../features/disp/AgentDisp"
-import ContractDisp from "../../features/disp/ContractDisp"
-import FactionDisp from "../../features/disp/FactionDisp"
-import ShipDisp from "../../features/disp/ship/ShipDisp"
+} from "antd";
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
+import AgentDisp from "../../features/disp/AgentDisp";
+import ContractDisp from "../../features/disp/ContractDisp";
+import FactionDisp from "../../features/disp/FactionDisp";
+import ShipDisp from "../../features/disp/ship/ShipDisp";
 
 const layout = {
   labelCol: { span: 8 },
   wrapperCol: { span: 16 },
-}
+};
 
 const tailLayout = {
   wrapperCol: { offset: 8, span: 16 },
-}
+};
 
 function NewAgent() {
-  const [newAgent, setNewAgent] = useState<Register201ResponseData | null>(null)
+  const [newAgent, setNewAgent] = useState<Register201ResponseData | null>(
+    null,
+  );
 
   type FieldType = {
-    callsign: string
-    email?: string
-    faction: FactionSymbol
-  }
+    callsign: string;
+    email?: string;
+    faction: FactionSymbol;
+  };
 
-  const { Text } = Typography
+  const { Text } = Typography;
 
-  const [form] = Form.useForm()
+  const [form] = Form.useForm();
 
-  const onFinish: FormProps<FieldType>["onFinish"] = values => {
-    console.log("Success:", values)
+  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
+    console.log("Success:", values);
 
     spaceTraderClient.DefaultClient.register(
       {
@@ -55,15 +57,15 @@ function NewAgent() {
       },
       {
         transformRequest: (data, headers) => {
-          delete headers["Authorization"]
-          return data
+          delete headers["Authorization"];
+          return data;
         },
       },
-    ).then(answer => {
-      console.log(answer)
-      setNewAgent(answer.data.data)
-    })
-  }
+    ).then((answer) => {
+      console.log(answer);
+      setNewAgent(answer.data.data);
+    });
+  };
 
   return (
     <div>
@@ -157,7 +159,7 @@ function NewAgent() {
         />
       )}
     </div>
-  )
+  );
 }
 
-export default NewAgent
+export default NewAgent;

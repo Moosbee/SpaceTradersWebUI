@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import type {
   Ship,
   ShipCargoItem,
   Survey,
   System,
   SystemWaypoint,
-} from "../../app/spaceTraderAPI/api"
-import type { DescriptionsProps } from "antd"
+} from "../../app/spaceTraderAPI/api";
+import type { DescriptionsProps } from "antd";
 import {
   Button,
   Card,
@@ -25,24 +25,24 @@ import {
   Table,
   Tooltip,
   message,
-} from "antd"
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
-import { useAppDispatch, useAppSelector } from "../../app/hooks"
+} from "antd";
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   addSurveys,
   selectSurveys,
-} from "../../app/spaceTraderAPI/redux/surveySlice"
+} from "../../app/spaceTraderAPI/redux/surveySlice";
 
-const { Countdown } = Statistic
+const { Countdown } = Statistic;
 
 function ShipInfo() {
-  const { shipID } = useParams()
-  const [ship, setShip] = useState<Ship | undefined>(undefined)
-  const [reload, setReload] = useState<boolean>(false)
-  const [loadingShipNav, setLoadingShipNav] = useState<boolean>(false)
-  const dispatch = useAppDispatch()
+  const { shipID } = useParams();
+  const [ship, setShip] = useState<Ship | undefined>(undefined);
+  const [reload, setReload] = useState<boolean>(false);
+  const [loadingShipNav, setLoadingShipNav] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
-  const [navWaypoint, setNavWaypoint] = useState<string>()
+  const [navWaypoint, setNavWaypoint] = useState<string>();
 
   const [system, setSystem] = useState<System>({
     symbol: "",
@@ -52,25 +52,25 @@ function ShipInfo() {
     waypoints: [],
     factions: [],
     sectorSymbol: "",
-  })
+  });
 
   const wayPoint = system?.waypoints.find(
-    x => x.symbol === ship?.nav.waypointSymbol,
-  )
+    (x) => x.symbol === ship?.nav.waypointSymbol,
+  );
 
   useEffect(() => {
-    if (!shipID) return
-    spaceTraderClient.FleetClient.getMyShip(shipID).then(response => {
-      setShip(response.data.data)
+    if (!shipID) return;
+    spaceTraderClient.FleetClient.getMyShip(shipID).then((response) => {
+      setShip(response.data.data);
       spaceTraderClient.LocalCache.getSystem(
         response.data.data.nav.systemSymbol,
-      ).then(response => {
-        setSystem(response)
-      })
-    })
-  }, [shipID])
+      ).then((response) => {
+        setSystem(response);
+      });
+    });
+  }, [shipID]);
 
-  if (!ship) return <Spin spinning={true} fullscreen></Spin>
+  if (!ship) return <Spin spinning={true} fullscreen></Spin>;
   const itemsGeneral: DescriptionsProps["items"] = [
     {
       key: "symbol",
@@ -82,7 +82,7 @@ function ShipInfo() {
       label: "Role",
       children: <span>{ship.registration.role}</span>,
     },
-  ]
+  ];
   if (
     ship.cooldown.totalSeconds !== ship.cooldown.remainingSeconds &&
     ship.cooldown.expiration
@@ -96,7 +96,7 @@ function ShipInfo() {
           {ship.cooldown.totalSeconds}
         </span>
       ),
-    })
+    });
   }
 
   itemsGeneral.push(
@@ -112,13 +112,13 @@ function ShipInfo() {
                 spaceTraderClient.FleetClient.refuelShip(ship.symbol, {
                   fromCargo: false,
                   units: ship.fuel.capacity - ship.fuel.current,
-                }).then(response => {
-                  const shp = ship
-                  shp.fuel = response.data.data.fuel
-                  message.success(`Refueled`)
-                  setReload(!reload)
-                  setShip(shp)
-                })
+                }).then((response) => {
+                  const shp = ship;
+                  shp.fuel = response.data.data.fuel;
+                  message.success(`Refueled`);
+                  setReload(!reload);
+                  setShip(shp);
+                });
               }}
             >
               Refuel
@@ -142,7 +142,7 @@ function ShipInfo() {
         children: <span>{ship.registration.factionSymbol}</span>,
       },
     ],
-  )
+  );
 
   const itemsNavRoute: DescriptionsProps["items"] = [
     {
@@ -192,7 +192,7 @@ function ShipInfo() {
         </span>
       ),
     },
-  ]
+  ];
 
   const itemsNav: DescriptionsProps["items"] = [
     {
@@ -204,14 +204,16 @@ function ShipInfo() {
           {ship.nav.status === "DOCKED" && (
             <Button
               onClick={() => {
-                if (!shipID) return
-                spaceTraderClient.FleetClient.orbitShip(shipID).then(value => {
-                  const shp = ship
-                  shp.nav = value.data.data.nav
-                  console.log("nav", value.data.data.nav)
-                  setReload(!reload)
-                  setShip(shp)
-                })
+                if (!shipID) return;
+                spaceTraderClient.FleetClient.orbitShip(shipID).then(
+                  (value) => {
+                    const shp = ship;
+                    shp.nav = value.data.data.nav;
+                    console.log("nav", value.data.data.nav);
+                    setReload(!reload);
+                    setShip(shp);
+                  },
+                );
               }}
             >
               Undock Ship
@@ -220,14 +222,14 @@ function ShipInfo() {
           {ship.nav.status === "IN_ORBIT" && (
             <Button
               onClick={() => {
-                if (!shipID) return
-                spaceTraderClient.FleetClient.dockShip(shipID).then(value => {
-                  const shp = ship
-                  shp.nav = value.data.data.nav
-                  console.log("nav", value.data.data.nav, shp.nav)
-                  setReload(!reload)
-                  setShip(shp)
-                })
+                if (!shipID) return;
+                spaceTraderClient.FleetClient.dockShip(shipID).then((value) => {
+                  const shp = ship;
+                  shp.nav = value.data.data.nav;
+                  console.log("nav", value.data.data.nav, shp.nav);
+                  setReload(!reload);
+                  setShip(shp);
+                });
               }}
             >
               Dock Ship
@@ -244,17 +246,17 @@ function ShipInfo() {
           <Select
             defaultValue={ship.nav.flightMode}
             style={{ width: 120 }}
-            onChange={value => {
-              if (!shipID) return
-              setLoadingShipNav(true)
+            onChange={(value) => {
+              if (!shipID) return;
+              setLoadingShipNav(true);
               spaceTraderClient.FleetClient.patchShipNav(shipID, {
                 flightMode: value,
-              }).then(value => {
-                const shp = ship
-                shp.nav = value.data.data
-                setShip(shp)
-                setLoadingShipNav(false)
-              })
+              }).then((value) => {
+                const shp = ship;
+                shp.nav = value.data.data;
+                setShip(shp);
+                setLoadingShipNav(false);
+              });
             }}
             options={[
               { value: "DRIFT" },
@@ -312,36 +314,36 @@ function ShipInfo() {
             {ship.nav.status === "IN_ORBIT" && (
               <>
                 <Select
-                  options={system.waypoints.map(w => {
+                  options={system.waypoints.map((w) => {
                     return {
                       value: w.symbol,
                       label: <Tooltip title={w.type}>{w.symbol}</Tooltip>,
-                    }
+                    };
                   })}
                   showSearch
                   style={{ width: 130 }}
-                  onChange={value => {
-                    setNavWaypoint(value)
+                  onChange={(value) => {
+                    setNavWaypoint(value);
                   }}
                   value={navWaypoint}
                 />
                 <Button
                   onClick={() => {
-                    console.log("Navigate Ship to", navWaypoint)
-                    if (!shipID || !navWaypoint) return
+                    console.log("Navigate Ship to", navWaypoint);
+                    if (!shipID || !navWaypoint) return;
                     spaceTraderClient.FleetClient.navigateShip(shipID, {
                       waypointSymbol: navWaypoint,
-                    }).then(value => {
-                      console.log("value", value)
+                    }).then((value) => {
+                      console.log("value", value);
                       setTimeout(() => {
-                        const shp = ship
-                        shp.nav = value.data.data.nav
+                        const shp = ship;
+                        shp.nav = value.data.data.nav;
 
-                        shp.fuel = value.data.data.fuel
-                        setReload(!reload)
-                        setShip(shp)
-                      })
-                    })
+                        shp.fuel = value.data.data.fuel;
+                        setReload(!reload);
+                        setShip(shp);
+                      });
+                    });
                   }}
                 >
                   Navigate Ship
@@ -363,7 +365,7 @@ function ShipInfo() {
           {ship !== undefined &&
             ship.nav.status === "IN_ORBIT" &&
             ship.modules.some(
-              m =>
+              (m) =>
                 m.symbol === "MODULE_WARP_DRIVE_I" ||
                 m.symbol === "MODULE_WARP_DRIVE_II" ||
                 m.symbol === "MODULE_WARP_DRIVE_III",
@@ -371,7 +373,7 @@ function ShipInfo() {
         </Flex>
       ),
     },
-  ]
+  ];
 
   const itemsCargo: DescriptionsProps["items"] = [
     {
@@ -394,44 +396,44 @@ function ShipInfo() {
                 <Space>
                   <Button
                     onClick={() => {
-                      if (!shipID) return
+                      if (!shipID) return;
                       spaceTraderClient.FleetClient.extractResources(
                         shipID,
-                      ).then(value => {
-                        console.log("value", value)
+                      ).then((value) => {
+                        console.log("value", value);
                         setTimeout(() => {
                           message.success(
                             `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
-                          )
-                          const shp = ship
-                          shp.cargo = value.data.data.cargo
-                          shp.cooldown = value.data.data.cooldown
-                          setReload(!reload)
-                          setShip(shp)
-                        })
-                      })
+                          );
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          shp.cooldown = value.data.data.cooldown;
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
                     }}
                   >
                     Extract Resources
                   </Button>
                   <Button
                     onClick={() => {
-                      if (!shipID) return
+                      if (!shipID) return;
                       spaceTraderClient.FleetClient.siphonResources(
                         shipID,
-                      ).then(value => {
-                        console.log("value", value)
+                      ).then((value) => {
+                        console.log("value", value);
                         setTimeout(() => {
                           message.success(
                             `Siphoned ${value.data.data.siphon.yield.units} ${value.data.data.siphon.yield.symbol}`,
-                          )
-                          const shp = ship
-                          shp.cargo = value.data.data.cargo
-                          shp.cooldown = value.data.data.cooldown
-                          setReload(!reload)
-                          setShip(shp)
-                        })
-                      })
+                          );
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          shp.cooldown = value.data.data.cooldown;
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
                     }}
                   >
                     Siphon Resources
@@ -440,52 +442,52 @@ function ShipInfo() {
                 <ExtractSurvey
                   waypoint={ship.nav.waypointSymbol}
                   onSurvey={() => {
-                    return new Promise(resolve => {
-                      if (!shipID) return
+                    return new Promise((resolve) => {
+                      if (!shipID) return;
                       spaceTraderClient.FleetClient.createSurvey(shipID).then(
-                        value => {
-                          console.log("value", value)
+                        (value) => {
+                          console.log("value", value);
                           setTimeout(() => {
-                            dispatch(addSurveys(value.data.data.surveys))
+                            dispatch(addSurveys(value.data.data.surveys));
 
                             message.success(
                               `Surveys Created\n ${value.data.data.surveys
                                 .map(
-                                  w =>
+                                  (w) =>
                                     `${w.signature}(${
                                       w.size
-                                    }) - (${w.deposits.map(w => w.symbol)})`,
+                                    }) - (${w.deposits.map((w) => w.symbol)})`,
                                 )
                                 .join("\n")}`,
-                            )
-                            setReload(!reload)
-                            resolve()
-                          })
+                            );
+                            setReload(!reload);
+                            resolve();
+                          });
                         },
-                      )
-                    })
+                      );
+                    });
                   }}
-                  onExtraction={survey => {
-                    return new Promise(resolve => {
-                      if (!shipID) return
+                  onExtraction={(survey) => {
+                    return new Promise((resolve) => {
+                      if (!shipID) return;
                       spaceTraderClient.FleetClient.extractResourcesWithSurvey(
                         shipID,
                         survey,
-                      ).then(value => {
-                        console.log("value", value)
+                      ).then((value) => {
+                        console.log("value", value);
                         setTimeout(() => {
                           message.success(
                             `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
-                          )
-                          const shp = ship
-                          shp.cargo = value.data.data.cargo
-                          shp.cooldown = value.data.data.cooldown
-                          setReload(!reload)
-                          setShip(shp)
-                          resolve(value.data.data.cooldown.remainingSeconds)
-                        })
-                      })
-                    })
+                          );
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          shp.cooldown = value.data.data.cooldown;
+                          setReload(!reload);
+                          setShip(shp);
+                          resolve(value.data.data.cooldown.remainingSeconds);
+                        });
+                      });
+                    });
                   }}
                 ></ExtractSurvey>
               </Flex>
@@ -500,7 +502,7 @@ function ShipInfo() {
       span: 3,
       children: (
         <Table
-          rowKey={item => item.symbol}
+          rowKey={(item) => item.symbol}
           columns={[
             {
               title: "Name",
@@ -514,7 +516,7 @@ function ShipInfo() {
                   >
                     <span>{value}</span>
                   </Tooltip>
-                )
+                );
               },
             },
             { title: "Units", key: "units", dataIndex: "units" },
@@ -528,61 +530,61 @@ function ShipInfo() {
                     key={record.symbol}
                     item={record}
                     onJettison={(count, item) => {
-                      console.log("Jettison", item, count)
+                      console.log("Jettison", item, count);
                       spaceTraderClient.FleetClient.jettison(ship.symbol, {
                         symbol: record.symbol,
                         units: count,
-                      }).then(value => {
-                        console.log("jett value", value)
+                      }).then((value) => {
+                        console.log("jett value", value);
                         setTimeout(() => {
-                          const shp = ship
-                          shp.cargo = value.data.data.cargo
-                          message.success(`${count} ${item} jettisoned`)
-                          setReload(!reload)
-                          setShip(shp)
-                        })
-                      })
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
+                          message.success(`${count} ${item} jettisoned`);
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
                     }}
                     onSell={(count, item) => {
-                      console.log("Sell", item, count)
+                      console.log("Sell", item, count);
                       spaceTraderClient.FleetClient.sellCargo(ship.symbol, {
                         symbol: record.symbol,
                         units: count,
-                      }).then(value => {
-                        console.log("sell value", value)
+                      }).then((value) => {
+                        console.log("sell value", value);
                         setTimeout(() => {
-                          const shp = ship
-                          shp.cargo = value.data.data.cargo
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
                           message.success(
                             `${count} ${item} sold, new balance: ${value.data.data.agent.credits}`,
-                          )
+                          );
 
-                          setReload(!reload)
-                          setShip(shp)
-                        })
-                      })
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
                     }}
                     onTransfer={(count, item, shipSymbol) => {
-                      console.log("Transfer", item, count, shipSymbol)
+                      console.log("Transfer", item, count, shipSymbol);
                       spaceTraderClient.FleetClient.transferCargo(ship.symbol, {
                         shipSymbol,
                         tradeSymbol: record.symbol,
                         units: count,
-                      }).then(value => {
-                        console.log("transfer value", value)
+                      }).then((value) => {
+                        console.log("transfer value", value);
                         setTimeout(() => {
-                          const shp = ship
-                          shp.cargo = value.data.data.cargo
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
                           message.success(
                             `${count} ${item} transfered to ${shipSymbol}`,
-                          )
-                          setReload(!reload)
-                          setShip(shp)
-                        })
-                      })
+                          );
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
                     }}
                     onFulfill={(count, item, contractID) => {
-                      console.log("Deliver", item, count, contractID)
+                      console.log("Deliver", item, count, contractID);
                       spaceTraderClient.ContractsClient.deliverContract(
                         contractID,
                         {
@@ -590,21 +592,21 @@ function ShipInfo() {
                           tradeSymbol: record.symbol,
                           units: count,
                         },
-                      ).then(value => {
-                        console.log("deliver value", value)
+                      ).then((value) => {
+                        console.log("deliver value", value);
                         setTimeout(() => {
-                          const shp = ship
-                          shp.cargo = value.data.data.cargo
+                          const shp = ship;
+                          shp.cargo = value.data.data.cargo;
                           message.success(
                             `${count} ${item} delivered to ${contractID}`,
-                          )
-                          setReload(!reload)
-                          setShip(shp)
-                        })
-                      })
+                          );
+                          setReload(!reload);
+                          setShip(shp);
+                        });
+                      });
                     }}
                   ></CargoActions>
-                )
+                );
               },
             },
           ]}
@@ -614,7 +616,7 @@ function ShipInfo() {
         />
       ),
     },
-  ]
+  ];
   const itemsFrame: DescriptionsProps["items"] = [
     {
       key: "symbol",
@@ -683,7 +685,7 @@ function ShipInfo() {
         </span>
       ),
     },
-  ]
+  ];
 
   const itemsEngine: DescriptionsProps["items"] = [
     {
@@ -743,7 +745,7 @@ function ShipInfo() {
         </span>
       ),
     },
-  ]
+  ];
 
   const itemsReactor: DescriptionsProps["items"] = [
     {
@@ -802,7 +804,7 @@ function ShipInfo() {
         </span>
       ),
     },
-  ]
+  ];
 
   return (
     <div>
@@ -875,7 +877,7 @@ function ShipInfo() {
           <Col span={12}></Col>
           <Col span={12}>
             <Flex wrap>
-              {ship.mounts.map(value => (
+              {ship.mounts.map((value) => (
                 <Descriptions
                   title="Mount Info"
                   bordered
@@ -1032,7 +1034,7 @@ function ShipInfo() {
         </Row>
       </Card>
     </div>
-  )
+  );
 }
 
 function ExtractSurvey({
@@ -1040,61 +1042,61 @@ function ExtractSurvey({
   onSurvey,
   onExtraction,
 }: {
-  waypoint: string
-  onSurvey: () => Promise<void>
-  onExtraction: (survey: Survey) => Promise<number>
+  waypoint: string;
+  onSurvey: () => Promise<void>;
+  onExtraction: (survey: Survey) => Promise<number>;
 }) {
-  const [survey, setSurvey] = useState<string | undefined>(undefined)
+  const [survey, setSurvey] = useState<string | undefined>(undefined);
 
-  const surveys = useAppSelector(selectSurveys)
+  const surveys = useAppSelector(selectSurveys);
 
-  const [contin, setContin] = useState(false)
+  const [contin, setContin] = useState(false);
 
   const extract = async () => {
     if (!survey) {
-      return
+      return;
     }
-    onExtraction(surveys.find(w => w.signature === survey)!).then(ret => {
+    onExtraction(surveys.find((w) => w.signature === survey)!).then((ret) => {
       if (contin) {
         setTimeout(
           () => {
-            extract()
+            extract();
           },
           ret * 1000 + 1000,
-        )
+        );
       }
-    })
-  }
+    });
+  };
 
   return (
     <Space>
       <Select
         options={surveys
-          .filter(w => w.symbol === waypoint)
-          .map(w => {
+          .filter((w) => w.symbol === waypoint)
+          .map((w) => {
             return {
               value: w.signature,
               label: (
                 <Tooltip
                   title={`${w.signature} - (${w.deposits
-                    ?.map(w => w.symbol)
+                    ?.map((w) => w.symbol)
                     .join(", ")})`}
                 >
                   {w.signature}
                 </Tooltip>
               ),
-            }
+            };
           })}
         showSearch
         style={{ width: 180 }}
-        onChange={value => {
-          setSurvey(value)
+        onChange={(value) => {
+          setSurvey(value);
         }}
         value={survey}
       />
       <Button
         onClick={() => {
-          extract()
+          extract();
         }}
       >
         Extract Resources with Survey
@@ -1107,7 +1109,7 @@ function ExtractSurvey({
         onChange={setContin}
       />
     </Space>
-  )
+  );
 }
 
 function CargoActions({
@@ -1117,39 +1119,39 @@ function CargoActions({
   onTransfer,
   onFulfill,
 }: {
-  item: ShipCargoItem
-  onJettison: (count: number, item: string) => void
-  onSell: (count: number, item: string) => void
-  onTransfer: (count: number, item: string, shipSymbol: string) => void
-  onFulfill: (count: number, item: string, contractID: string) => void
+  item: ShipCargoItem;
+  onJettison: (count: number, item: string) => void;
+  onSell: (count: number, item: string) => void;
+  onTransfer: (count: number, item: string, shipSymbol: string) => void;
+  onFulfill: (count: number, item: string, contractID: string) => void;
 }) {
-  const [count, setCount] = useState(1)
+  const [count, setCount] = useState(1);
 
   const items = useMemo(() => {
     return [
-      ...spaceTraderClient.LocalCache.getShips().map(w => {
+      ...spaceTraderClient.LocalCache.getShips().map((w) => {
         return {
           key: w.symbol,
           label: w.symbol,
-        }
+        };
       }),
-    ]
+    ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count])
+  }, [count]);
 
   const contracts = useMemo(() => {
     return [
       ...spaceTraderClient.LocalCache.getContracts()
-        .filter(w => w.terms && !w.fulfilled)
-        .map(w => {
+        .filter((w) => w.terms && !w.fulfilled)
+        .map((w) => {
           return {
             key: w.id,
             label: w.id,
-          }
+          };
         }),
-    ]
+    ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count])
+  }, [count]);
 
   return (
     <Space>
@@ -1158,7 +1160,7 @@ function CargoActions({
         max={item.units}
         defaultValue={1}
         style={{ width: 60 }}
-        onChange={value => setCount(value?.valueOf() ?? 1)}
+        onChange={(value) => setCount(value?.valueOf() ?? 1)}
         value={count}
       />
       <Button onClick={() => onJettison(count, item.symbol)}>Jettison</Button>
@@ -1167,7 +1169,7 @@ function CargoActions({
         menu={{
           items,
           onClick: ({ key }) => {
-            onTransfer(count, item.symbol, key)
+            onTransfer(count, item.symbol, key);
           },
         }}
         trigger={["click"]}
@@ -1178,7 +1180,7 @@ function CargoActions({
         menu={{
           items: contracts,
           onClick: ({ key }) => {
-            onFulfill(count, item.symbol, key)
+            onFulfill(count, item.symbol, key);
           },
         }}
         trigger={["click"]}
@@ -1186,45 +1188,45 @@ function CargoActions({
         <Button>Fulfill Contr.</Button>
       </Dropdown>
     </Space>
-  )
+  );
 }
 
 function WarpShip({ ship }: { ship: Ship }) {
-  const [systems, setSystems] = useState<System[]>([])
-  const [system, setSystem] = useState<System | undefined>(undefined)
+  const [systems, setSystems] = useState<System[]>([]);
+  const [system, setSystem] = useState<System | undefined>(undefined);
 
   const [waypoint, setWaypoint] = useState<SystemWaypoint | undefined>(
     undefined,
-  )
+  );
 
   function handleChangeSystem(value: string) {
     // console.log(`selected`, value);
-    setSystem(systems.find(w => w.symbol === value))
-    setWaypoint(undefined)
+    setSystem(systems.find((w) => w.symbol === value));
+    setWaypoint(undefined);
   }
 
   function handleChangeWaypoint(value: string) {
     // console.log(`selectedWay`, value);
-    const potWaypoint = system?.waypoints.find(w => w.symbol === value)
-    setWaypoint(potWaypoint)
+    const potWaypoint = system?.waypoints.find((w) => w.symbol === value);
+    setWaypoint(potWaypoint);
   }
 
   useEffect(() => {
-    spaceTraderClient.LocalCache.getSystems().then(data => {
-      setSystems(data)
-      const info = data.find(w => w.symbol === ship.nav.systemSymbol)
-      setSystem(info)
+    spaceTraderClient.LocalCache.getSystems().then((data) => {
+      setSystems(data);
+      const info = data.find((w) => w.symbol === ship.nav.systemSymbol);
+      setSystem(info);
       setWaypoint(
-        info?.waypoints.find(w => w.symbol === ship.nav.waypointSymbol),
-      )
-    })
-  }, [ship.nav.systemSymbol, ship.nav.waypointSymbol])
+        info?.waypoints.find((w) => w.symbol === ship.nav.waypointSymbol),
+      );
+    });
+  }, [ship.nav.systemSymbol, ship.nav.waypointSymbol]);
 
   return (
     <Space>
       <Select
-        options={systems.map(w => {
-          return { value: w.symbol, label: w.symbol }
+        options={systems.map((w) => {
+          return { value: w.symbol, label: w.symbol };
         })}
         onChange={handleChangeSystem}
         style={{ width: 100 }}
@@ -1232,8 +1234,8 @@ function WarpShip({ ship }: { ship: Ship }) {
         showSearch
       />
       <Select
-        options={system?.waypoints.map(w => {
-          return { value: w.symbol, label: w.symbol }
+        options={system?.waypoints.map((w) => {
+          return { value: w.symbol, label: w.symbol };
         })}
         onChange={handleChangeWaypoint}
         value={waypoint?.symbol}
@@ -1246,19 +1248,19 @@ function WarpShip({ ship }: { ship: Ship }) {
             spaceTraderClient.FleetClient.warpShip(ship.symbol, {
               waypointSymbol: waypoint.symbol,
             })
-              .then(data => {
-                console.log("data", data)
+              .then((data) => {
+                console.log("data", data);
               })
-              .catch(err => {
-                console.log("err", err)
-              })
+              .catch((err) => {
+                console.log("err", err);
+              });
           }
         }}
       >
         Warp Ship
       </Button>
     </Space>
-  )
+  );
 }
 
-export default ShipInfo
+export default ShipInfo;

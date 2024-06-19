@@ -1,5 +1,5 @@
-import { Card, Descriptions, List, Tooltip } from "antd"
-import type { Faction } from "../../app/spaceTraderAPI/api"
+import { Card, Descriptions, List, Tooltip } from "antd";
+import type { Faction } from "../../app/spaceTraderAPI/api";
 
 function FactionDisp({ faction }: { faction: Faction }) {
   return (
@@ -40,7 +40,7 @@ function FactionDisp({ faction }: { faction: Faction }) {
             children: (
               <List
                 size="small"
-                dataSource={faction.traits.map(trait => (
+                dataSource={faction.traits.map((trait) => (
                   <Tooltip
                     key={trait.symbol}
                     title={`${trait.symbol} - ${trait.description}`}
@@ -48,14 +48,14 @@ function FactionDisp({ faction }: { faction: Faction }) {
                     <span>{trait.name}</span>
                   </Tooltip>
                 ))}
-                renderItem={item => <List.Item>{item}</List.Item>}
+                renderItem={(item) => <List.Item>{item}</List.Item>}
               ></List>
             ),
           },
         ]}
       ></Descriptions>
     </Card>
-  )
+  );
 }
 
-export default FactionDisp
+export default FactionDisp;

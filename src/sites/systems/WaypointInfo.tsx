@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import type {
   Construction,
   JumpGate,
   Market,
   Shipyard,
   Waypoint,
-} from "../../app/spaceTraderAPI/api"
-import { Badge, Descriptions, List } from "antd"
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
-import WaypointDisp from "../../features/disp/WaypointDisp"
-import MarketDisp from "../../features/disp/MarketDisp"
-import ShipyardDisp from "../../features/disp/ShipyardDisp"
+} from "../../app/spaceTraderAPI/api";
+import { Badge, Descriptions, List } from "antd";
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
+import WaypointDisp from "../../features/disp/WaypointDisp";
+import MarketDisp from "../../features/disp/MarketDisp";
+import ShipyardDisp from "../../features/disp/ShipyardDisp";
 
 function WaypointInfo() {
-  const { systemID } = useParams()
-  const { waypointID } = useParams()
+  const { systemID } = useParams();
+  const { waypointID } = useParams();
   const [waypoint, setWaypoint] = useState<Waypoint>({
     isUnderConstruction: false,
     orbitals: [],
@@ -25,71 +25,71 @@ function WaypointInfo() {
     type: "ORBITAL_STATION",
     x: 0,
     y: 0,
-  })
+  });
 
   useEffect(() => {
-    if (!systemID || !waypointID) return
+    if (!systemID || !waypointID) return;
 
     spaceTraderClient.SystemsClient.getWaypoint(systemID, waypointID).then(
-      response => {
-        setWaypoint(response.data.data)
+      (response) => {
+        setWaypoint(response.data.data);
       },
-    )
-  }, [systemID, waypointID])
+    );
+  }, [systemID, waypointID]);
 
-  const [market, setMarket] = useState<Market | undefined>(undefined)
+  const [market, setMarket] = useState<Market | undefined>(undefined);
 
   useEffect(() => {
-    if (waypoint.traits.some(x => x.symbol === "MARKETPLACE")) {
+    if (waypoint.traits.some((x) => x.symbol === "MARKETPLACE")) {
       spaceTraderClient.SystemsClient.getMarket(
         waypoint.systemSymbol,
         waypoint.symbol,
-      ).then(response => {
-        setMarket(response.data.data)
-      })
+      ).then((response) => {
+        setMarket(response.data.data);
+      });
     }
-  }, [waypoint])
+  }, [waypoint]);
 
-  const [shipyard, setShipyard] = useState<Shipyard | undefined>(undefined)
+  const [shipyard, setShipyard] = useState<Shipyard | undefined>(undefined);
 
   useEffect(() => {
-    if (waypoint.traits.some(x => x.symbol === "SHIPYARD")) {
+    if (waypoint.traits.some((x) => x.symbol === "SHIPYARD")) {
       spaceTraderClient.SystemsClient.getShipyard(
         waypoint.systemSymbol,
         waypoint.symbol,
-      ).then(response => {
-        setShipyard(response.data.data)
-      })
+      ).then((response) => {
+        setShipyard(response.data.data);
+      });
     }
-  }, [waypoint])
+  }, [waypoint]);
 
-  const [jumpGate, setJumpGate] = useState<JumpGate | undefined>(undefined)
+  const [jumpGate, setJumpGate] = useState<JumpGate | undefined>(undefined);
 
   useEffect(() => {
     if (waypoint.type === "JUMP_GATE") {
       spaceTraderClient.SystemsClient.getJumpGate(
         waypoint.systemSymbol,
         waypoint.symbol,
-      ).then(response => {
-        setJumpGate(response.data.data)
-      })
+      ).then((response) => {
+        setJumpGate(response.data.data);
+      });
     }
-  }, [waypoint])
+  }, [waypoint]);
 
   const [constructionSite, setConstructionSite] = useState<
     Construction | undefined
-  >(undefined)
+  >(undefined);
 
   useEffect(() => {
     if (waypoint.isUnderConstruction) {
       spaceTraderClient.SystemsClient.getConstruction(
         waypoint.systemSymbol,
         waypoint.symbol,
-      ).then(response => {
-        setConstructionSite(response.data.data)
-      })
+      ).then((response) => {
+        setConstructionSite(response.data.data);
+      });
     }
-  }, [waypoint])
+  }, [waypoint]);
 
   return (
     <div>
@@ -129,10 +129,10 @@ function WaypointInfo() {
                 children: (
                   <List
                     size="small"
-                    dataSource={jumpGate.connections.map(connection => (
+                    dataSource={jumpGate.connections.map((connection) => (
                       <Link to={`/systems/${connection}`}>{connection}</Link>
                     ))}
-                    renderItem={item => <List.Item>{item}</List.Item>}
+                    renderItem={(item) => <List.Item>{item}</List.Item>}
                   ></List>
                 ),
               },
@@ -168,13 +168,13 @@ function WaypointInfo() {
                 children: (
                   <List
                     size="small"
-                    dataSource={constructionSite.materials.map(material => (
+                    dataSource={constructionSite.materials.map((material) => (
                       <span>
                         {material.tradeSymbol} {material.fulfilled}/
                         {material.required}
                       </span>
                     ))}
-                    renderItem={item => <List.Item>{item}</List.Item>}
+                    renderItem={(item) => <List.Item>{item}</List.Item>}
                   ></List>
                 ),
                 span: 3,
@@ -184,7 +184,7 @@ function WaypointInfo() {
         </>
       )}
     </div>
-  )
+  );
 }
 
-export default WaypointInfo
+export default WaypointInfo;

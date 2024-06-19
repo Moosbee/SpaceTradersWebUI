@@ -1,7 +1,7 @@
-import type { DescriptionsProps } from "antd"
-import { Card, Descriptions } from "antd"
-import type { System } from "../../app/spaceTraderAPI/api"
-import { Link } from "react-router-dom"
+import type { DescriptionsProps } from "antd";
+import { Card, Descriptions } from "antd";
+import type { System } from "../../app/spaceTraderAPI/api";
+import { Link } from "react-router-dom";
 
 function SystemDisp({ system }: { system: System }) {
   const items: DescriptionsProps["items"] = [
@@ -32,14 +32,16 @@ function SystemDisp({ system }: { system: System }) {
     {
       key: "factions",
       label: "Factions",
-      children: <p>{system.factions.map(value => value.symbol).join(" - ")}</p>,
+      children: (
+        <p>{system.factions.map((value) => value.symbol).join(" - ")}</p>
+      ),
     },
     {
       key: "waypointsCount",
       label: "Waypoints Count",
       children: <p>{system.waypoints.length}</p>,
     },
-  ]
+  ];
 
   return (
     <div>
@@ -51,7 +53,7 @@ function SystemDisp({ system }: { system: System }) {
         <Descriptions bordered items={items} layout="vertical" />
       </Card>
     </div>
-  )
+  );
 }
 
-export default SystemDisp
+export default SystemDisp;

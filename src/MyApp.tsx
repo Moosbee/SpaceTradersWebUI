@@ -1,30 +1,30 @@
-import { Layout, theme, ConfigProvider, App, Button, message } from "antd"
-import { useState } from "react"
-import { Routes, Route } from "react-router-dom"
-import "./MyApp.css"
-import Agents from "./sites/agents/Agents"
-import Caching from "./sites/caching/caching"
-import Contracts from "./sites/contracts/Contracts"
-import Factions from "./sites/factions/Factions"
-import Fleet from "./sites/fleet/Fleet"
-import ShipInfo from "./sites/fleet/ShipInfo"
-import Main from "./sites/main/Main"
-import NewAgent from "./sites/newAgent/NewAgent"
-import SystemInfo from "./sites/systems/SystemInfo"
-import Systems from "./sites/systems/Systems"
-import WaypointInfo from "./sites/systems/WaypointInfo"
-import ErrorPage from "./sites/ErrorPage"
-import MySider from "./features/mySider"
-const { Header, Content, Sider } = Layout
+import { Layout, theme, ConfigProvider, App, Button, message } from "antd";
+import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
+import "./MyApp.css";
+import Agents from "./sites/agents/Agents";
+import Caching from "./sites/caching/caching";
+import Contracts from "./sites/contracts/Contracts";
+import Factions from "./sites/factions/Factions";
+import Fleet from "./sites/fleet/Fleet";
+import ShipInfo from "./sites/fleet/ShipInfo";
+import Main from "./sites/main/Main";
+import NewAgent from "./sites/newAgent/NewAgent";
+import SystemInfo from "./sites/systems/SystemInfo";
+import Systems from "./sites/systems/Systems";
+import WaypointInfo from "./sites/systems/WaypointInfo";
+import ErrorPage from "./sites/ErrorPage";
+import MySider from "./features/mySider";
+const { Header, Content, Sider } = Layout;
 
 function MyApp() {
   const {
     token: { borderRadiusLG },
-  } = theme.useToken()
-  const contextHolder = message.useMessage()[1]
+  } = theme.useToken();
+  const contextHolder = message.useMessage()[1];
 
-  const { defaultAlgorithm, darkAlgorithm } = theme
-  const [isDarkMode, setIsDarkMode] = useState(true)
+  const { defaultAlgorithm, darkAlgorithm } = theme;
+  const [isDarkMode, setIsDarkMode] = useState(true);
   return (
     <>
       {contextHolder}
@@ -48,7 +48,7 @@ function MyApp() {
             >
               <Button
                 onClick={() => {
-                  setIsDarkMode(!isDarkMode)
+                  setIsDarkMode(!isDarkMode);
                 }}
               >
                 {isDarkMode ? "Light" : "Dark"}-Mode
@@ -103,7 +103,7 @@ function MyApp() {
         </App>
       </ConfigProvider>
     </>
-  )
+  );
 }
 
-export default MyApp
+export default MyApp;

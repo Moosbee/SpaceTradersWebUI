@@ -5,43 +5,43 @@ import {
   FactionsApi,
   ContractsApi,
   DefaultApi,
-} from "./api/api"
-import { Configuration } from "./api/configuration"
+} from "./api/api";
+import { Configuration } from "./api/configuration";
 
-import axios from "axios"
-import localCache from "./cache"
+import axios from "axios";
+import localCache from "./cache";
 
 // Create an Axios instance
-const axiosInstance = axios.create()
+const axiosInstance = axios.create();
 
 // Add request interceptor
 axiosInstance.interceptors.request.use(
-  config => {
+  (config) => {
     // Modify the request config here (e.g., add headers, modify data)
     // config.headers["Authorization"] = `Bearer your-token`;
     // console.log("axiosrequest", config);
     // Add any other transformations you need
-    return config
+    return config;
   },
-  error => {
-    return Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
   },
-)
+);
 
 // Add response interceptor
 axiosInstance.interceptors.response.use(
-  response => {
+  (response) => {
     // Modify the response here (e.g., convert data format)
     // console.log("axiosresponse", response);
     // Add any other transformations you need
-    return response
+    return response;
   },
-  error => {
-    return Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
   },
-)
+);
 
-const openapiConfig = new Configuration()
+const openapiConfig = new Configuration();
 if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
   openapiConfig.baseOptions = {
     headers: {
@@ -49,19 +49,19 @@ if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
         "Bearer " + import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN,
       // Prefer: "dynamic=true",
     },
-  }
+  };
 }
 
-const FleetClient = new FleetApi(openapiConfig, undefined, axiosInstance)
-const AgentsClient = new AgentsApi(openapiConfig, undefined, axiosInstance)
-const SystemsClient = new SystemsApi(openapiConfig, undefined, axiosInstance)
-const FactionsClient = new FactionsApi(openapiConfig, undefined, axiosInstance)
+const FleetClient = new FleetApi(openapiConfig, undefined, axiosInstance);
+const AgentsClient = new AgentsApi(openapiConfig, undefined, axiosInstance);
+const SystemsClient = new SystemsApi(openapiConfig, undefined, axiosInstance);
+const FactionsClient = new FactionsApi(openapiConfig, undefined, axiosInstance);
 const ContractsClient = new ContractsApi(
   openapiConfig,
   undefined,
   axiosInstance,
-)
-const DefaultClient = new DefaultApi(openapiConfig, undefined, axiosInstance)
+);
+const DefaultClient = new DefaultApi(openapiConfig, undefined, axiosInstance);
 
 // const CrawlClient = {
 //   getSystemWaypoints: async (
@@ -112,6 +112,6 @@ const spaceTraderClient = {
   ContractsClient: ContractsClient,
   DefaultClient: DefaultClient,
   LocalCache: localCache,
-}
+};
 
-export default spaceTraderClient
+export default spaceTraderClient;

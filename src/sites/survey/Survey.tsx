@@ -3,7 +3,7 @@ function Survey() {
     <div>
       <h1>Survey</h1>
     </div>
-  )
+  );
 }
 
-export default Survey
+export default Survey;

@@ -1,42 +1,42 @@
-import type { DescriptionsProps } from "antd"
-import { Card, Descriptions, List, Tooltip } from "antd"
-import type { Waypoint } from "../../app/spaceTraderAPI/api"
-import { Link } from "react-router-dom"
+import type { DescriptionsProps } from "antd";
+import { Card, Descriptions, List, Tooltip } from "antd";
+import type { Waypoint } from "../../app/spaceTraderAPI/api";
+import { Link } from "react-router-dom";
 
 function WaypointDisp({
   waypoint,
   moreInfo,
 }: {
-  waypoint: Waypoint
-  moreInfo?: boolean
+  waypoint: Waypoint;
+  moreInfo?: boolean;
 }) {
-  const items: DescriptionsProps["items"] = []
+  const items: DescriptionsProps["items"] = [];
 
   items.push({
     key: "symbol",
     label: "Symbol",
     children: <p>{waypoint.symbol}</p>,
-  })
+  });
 
   items.push({
     key: "System-Symbol",
     label: "systemSymbol",
     children: <p>{waypoint.systemSymbol}</p>,
-  })
+  });
 
   if (waypoint.isUnderConstruction) {
     items.push({
       key: "isUnderConstruction",
       label: "Under Construction",
       children: <p>{waypoint.isUnderConstruction ? "Yes" : "No"}</p>,
-    })
+    });
   }
 
   items.push({
     key: "type",
     label: "Type",
     children: <p>{waypoint.type}</p>,
-  })
+  });
 
   items.push({
     key: "coordinates",
@@ -46,13 +46,13 @@ function WaypointDisp({
         X: {waypoint.x} Y: {waypoint.y}
       </p>
     ),
-  })
+  });
   if (waypoint.faction) {
     items.push({
       key: "faction",
       label: "Faction",
       children: <p>{waypoint.faction?.symbol}</p>,
-    })
+    });
   }
 
   if (waypoint.chart) {
@@ -69,7 +69,7 @@ function WaypointDisp({
           <br /> {waypoint.chart?.waypointSymbol}
         </p>
       ),
-    })
+    });
   }
 
   if (waypoint.orbits) {
@@ -81,7 +81,7 @@ function WaypointDisp({
           {waypoint.orbits}
         </Link>
       ),
-    })
+    });
   }
 
   if (moreInfo) {
@@ -91,21 +91,21 @@ function WaypointDisp({
       children: (
         <List
           size="small"
-          dataSource={waypoint.orbitals.map(orbitals => (
+          dataSource={waypoint.orbitals.map((orbitals) => (
             <Link to={`/system/${waypoint.systemSymbol}/${orbitals.symbol}`}>
               {orbitals.symbol}
             </Link>
           ))}
-          renderItem={item => <List.Item>{item}</List.Item>}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
         ></List>
       ),
-    })
+    });
   } else {
     items.push({
       key: "orbitals",
       label: "Orbitals",
       children: <p>{waypoint.orbitals.length}</p>,
-    })
+    });
   }
 
   if (waypoint.modifiers && waypoint.modifiers.length > 0) {
@@ -115,7 +115,7 @@ function WaypointDisp({
       children: (
         <List
           size="small"
-          dataSource={waypoint.modifiers?.map(modifier => (
+          dataSource={waypoint.modifiers?.map((modifier) => (
             <Tooltip
               key={modifier.symbol}
               title={`${modifier.symbol} - ${modifier.description}`}
@@ -123,10 +123,10 @@ function WaypointDisp({
               <span>{modifier.name}</span>
             </Tooltip>
           ))}
-          renderItem={item => <List.Item>{item}</List.Item>}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
         ></List>
       ),
-    })
+    });
   }
 
   items.push({
@@ -135,7 +135,7 @@ function WaypointDisp({
     children: (
       <List
         size="small"
-        dataSource={waypoint.traits.map(trait => (
+        dataSource={waypoint.traits.map((trait) => (
           <Tooltip
             key={trait.symbol}
             title={`${trait.symbol} - ${trait.description}`}
@@ -143,10 +143,10 @@ function WaypointDisp({
             <span>{trait.name}</span>
           </Tooltip>
         ))}
-        renderItem={item => <List.Item>{item}</List.Item>}
+        renderItem={(item) => <List.Item>{item}</List.Item>}
       ></List>
     ),
-  })
+  });
 
   return (
     <Card
@@ -164,7 +164,7 @@ function WaypointDisp({
         layout={moreInfo ? "horizontal" : "vertical"}
       />
     </Card>
-  )
+  );
 }
 
-export default WaypointDisp
+export default WaypointDisp;

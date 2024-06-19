@@ -1,13 +1,13 @@
-import type { DescriptionsProps } from "antd"
-import { Button, Card, Descriptions } from "antd"
-import type { ShipyardShip } from "../../../app/spaceTraderAPI/api"
+import type { DescriptionsProps } from "antd";
+import { Button, Card, Descriptions } from "antd";
+import type { ShipyardShip } from "../../../app/spaceTraderAPI/api";
 
 function ShipyardShipDisp({
   shipyardShip,
   onBuy,
 }: {
-  shipyardShip: ShipyardShip
-  onBuy: () => void
+  shipyardShip: ShipyardShip;
+  onBuy: () => void;
 }) {
   const items: DescriptionsProps["items"] = [
     {
@@ -74,7 +74,7 @@ function ShipyardShipDisp({
       children: (
         <span>
           {shipyardShip.modules.length} installed <br />(
-          {shipyardShip.modules.map(m => m.symbol).join(", ")})
+          {shipyardShip.modules.map((m) => m.symbol).join(", ")})
         </span>
       ),
     },
@@ -84,7 +84,7 @@ function ShipyardShipDisp({
       children: (
         <span>
           {shipyardShip.mounts.length} installed
-          <br />({shipyardShip.mounts.map(m => m.symbol).join(", ")})
+          <br />({shipyardShip.mounts.map((m) => m.symbol).join(", ")})
         </span>
       ),
     },
@@ -98,7 +98,7 @@ function ShipyardShipDisp({
         </span>
       ),
     },
-  ]
+  ];
   return (
     <Card style={{ width: "fit-content" }}>
       <Descriptions
@@ -109,7 +109,7 @@ function ShipyardShipDisp({
         layout="vertical"
       ></Descriptions>
     </Card>
-  )
+  );
 }
 
-export default ShipyardShipDisp
+export default ShipyardShipDisp;

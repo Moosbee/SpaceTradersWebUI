@@ -1,24 +1,24 @@
-import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import type {
   System,
   Waypoint,
   WaypointType,
-} from "../../app/spaceTraderAPI/api"
-import { WaypointTraitSymbol } from "../../app/spaceTraderAPI/api"
-import type { DescriptionsProps, PaginationProps, SelectProps } from "antd"
-import { Col, Descriptions, Flex, Pagination, Row, Select, Spin } from "antd"
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
-import WaypointDisp from "../../features/disp/WaypointDisp"
+} from "../../app/spaceTraderAPI/api";
+import { WaypointTraitSymbol } from "../../app/spaceTraderAPI/api";
+import type { DescriptionsProps, PaginationProps, SelectProps } from "antd";
+import { Col, Descriptions, Flex, Pagination, Row, Select, Spin } from "antd";
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
+import WaypointDisp from "../../features/disp/WaypointDisp";
 
 const traitsOptions: SelectProps["options"] = Object.values(
   WaypointTraitSymbol,
-).map(value => {
-  return { value: value }
-})
+).map((value) => {
+  return { value: value };
+});
 
 function SystemInfo() {
-  const { systemID } = useParams()
+  const { systemID } = useParams();
   const [system, setSystem] = useState<System>({
     symbol: "",
     type: "WHITE_DWARF",
@@ -27,15 +27,15 @@ function SystemInfo() {
     factions: [],
     sectorSymbol: "",
     waypoints: [],
-  })
+  });
 
   useEffect(() => {
-    if (!systemID) return
-    spaceTraderClient.SystemsClient.getSystem(systemID).then(response => {
-      console.log("my responses", response)
-      setSystem(response.data.data)
-    })
-  }, [systemID])
+    if (!systemID) return;
+    spaceTraderClient.SystemsClient.getSystem(systemID).then((response) => {
+      console.log("my responses", response);
+      setSystem(response.data.data);
+    });
+  }, [systemID]);
 
   const items: DescriptionsProps["items"] = [
     {
@@ -65,51 +65,53 @@ function SystemInfo() {
     {
       key: "factions",
       label: "Factions",
-      children: <p>{system.factions.map(value => value.symbol).join(" - ")}</p>,
+      children: (
+        <p>{system.factions.map((value) => value.symbol).join(" - ")}</p>
+      ),
     },
     {
       key: "waypointsCount",
       label: "Waypoints Count",
       children: <p>{system.waypoints.length}</p>,
     },
-  ]
+  ];
 
-  const [waypoints, setWaypoints] = useState<Waypoint[]>([])
-  const [waypointsPage, setWaypointsPage] = useState(1)
-  const [allWaypoints, setAllWaypoints] = useState(0)
-  const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [loading, setLoading] = useState(true)
-  const [type, setType] = useState<WaypointType>()
-  const [traits, setTraits] = useState<WaypointTraitSymbol>()
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
+  const [waypointsPage, setWaypointsPage] = useState(1);
+  const [allWaypoints, setAllWaypoints] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [type, setType] = useState<WaypointType>();
+  const [traits, setTraits] = useState<WaypointTraitSymbol>();
 
   useEffect(() => {
-    if (!systemID) return
-    console.log(type)
-    setLoading(true)
+    if (!systemID) return;
+    console.log(type);
+    setLoading(true);
     spaceTraderClient.SystemsClient.getSystemWaypoints(
       systemID,
       waypointsPage,
       itemsPerPage,
       type,
       traits,
-    ).then(response => {
-      console.log("my responses", response)
-      setWaypoints(response.data.data)
-      setAllWaypoints(response.data.meta.total)
-      setLoading(false)
-    })
-  }, [itemsPerPage, systemID, traits, type, waypointsPage])
+    ).then((response) => {
+      console.log("my responses", response);
+      setWaypoints(response.data.data);
+      setAllWaypoints(response.data.meta.total);
+      setLoading(false);
+    });
+  }, [itemsPerPage, systemID, traits, type, waypointsPage]);
 
   const onChange: PaginationProps["onChange"] = (page, pageSize) => {
-    console.log(page)
-    setWaypointsPage(page)
-    setItemsPerPage(pageSize)
-  }
+    console.log(page);
+    setWaypointsPage(page);
+    setItemsPerPage(pageSize);
+  };
 
   const handleTraitsChange = (value: string) => {
-    console.log(`selected ${value}`)
-    setTraits(value as WaypointTraitSymbol)
-  }
+    console.log(`selected ${value}`);
+    setTraits(value as WaypointTraitSymbol);
+  };
 
   return (
     <Spin spinning={system.symbol === ""}>
@@ -157,9 +159,9 @@ function SystemInfo() {
               { value: "ARTIFICIAL_GRAVITY_WELL" },
               { value: "FUEL_STATION" },
             ]}
-            onChange={value => {
-              setType(value as WaypointType)
-              setWaypointsPage(1)
+            onChange={(value) => {
+              setType(value as WaypointType);
+              setWaypointsPage(1);
             }}
           />
         </Col>
@@ -188,15 +190,15 @@ function SystemInfo() {
 
       <Spin spinning={loading}>
         <Flex wrap gap="middle" align="center" justify="space-evenly">
-          {waypoints.map(value => {
+          {waypoints.map((value) => {
             return (
               <WaypointDisp key={value.symbol} waypoint={value}></WaypointDisp>
-            )
+            );
           })}
         </Flex>
       </Spin>
     </Spin>
-  )
+  );
 }
 
-export default SystemInfo
+export default SystemInfo;

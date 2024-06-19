@@ -1,6 +1,6 @@
-import type { DescriptionsProps } from "antd"
-import { Card, Descriptions } from "antd"
-import type { Agent } from "../../app/spaceTraderAPI/api"
+import type { DescriptionsProps } from "antd";
+import { Card, Descriptions } from "antd";
+import type { Agent } from "../../app/spaceTraderAPI/api";
 
 function AgentDisp({ agent }: { agent: Agent }) {
   const items: DescriptionsProps["items"] = [
@@ -9,14 +9,14 @@ function AgentDisp({ agent }: { agent: Agent }) {
       label: "Symbol",
       children: <p>{agent.symbol}</p>,
     },
-  ]
+  ];
 
   if (agent.accountId) {
     items.push({
       key: "2",
       label: "Account Id",
       children: <p>{agent.accountId}</p>,
-    })
+    });
   }
   items.push(
     ...[
@@ -41,7 +41,7 @@ function AgentDisp({ agent }: { agent: Agent }) {
         children: <p>{agent.startingFaction}</p>,
       },
     ],
-  )
+  );
 
   return (
     <div>
@@ -54,7 +54,7 @@ function AgentDisp({ agent }: { agent: Agent }) {
         />
       </Card>
     </div>
-  )
+  );
 }
 
-export default AgentDisp
+export default AgentDisp;

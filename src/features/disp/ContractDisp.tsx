@@ -1,45 +1,45 @@
-import { Button, Card, Descriptions, Table } from "antd"
-import type { Contract } from "../../app/spaceTraderAPI/api"
-import { Link } from "react-router-dom"
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
-import { useState, useEffect } from "react"
+import { Button, Card, Descriptions, Table } from "antd";
+import type { Contract } from "../../app/spaceTraderAPI/api";
+import { Link } from "react-router-dom";
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
+import { useState, useEffect } from "react";
 
 function ContractDisp({
   contract,
   onAccept,
   onFulfill,
 }: {
-  contract: Contract
-  onAccept?: () => void
-  onFulfill?: () => void
+  contract: Contract;
+  onAccept?: () => void;
+  onFulfill?: () => void;
 }) {
   const [deliverTerms, setDeliverTerms] = useState<
     {
-      systemSymbol?: string
-      tradeSymbol: string
-      destinationSymbol: string
-      unitsRequired: number
-      unitsFulfilled: number
+      systemSymbol?: string;
+      tradeSymbol: string;
+      destinationSymbol: string;
+      unitsRequired: number;
+      unitsFulfilled: number;
     }[]
-  >(contract.terms.deliver || [])
+  >(contract.terms.deliver || []);
 
   useEffect(() => {
-    if (!contract.terms.deliver) return
+    if (!contract.terms.deliver) return;
     Promise.all(
-      contract.terms.deliver.map(async d => {
+      contract.terms.deliver.map(async (d) => {
         const data = await spaceTraderClient.LocalCache.getSystemByWaypoint(
           d.destinationSymbol,
-        )
-        return { data, d }
+        );
+        return { data, d };
       }),
-    ).then(data => {
-      const deliverTerms = data.map(d => ({
+    ).then((data) => {
+      const deliverTerms = data.map((d) => ({
         ...d.d,
         systemSymbol: d.data[0].symbol,
-      }))
-      setDeliverTerms(deliverTerms)
-    })
-  }, [contract])
+      }));
+      setDeliverTerms(deliverTerms);
+    });
+  }, [contract]);
 
   return (
     <Card style={{ width: "fit-content" }}>
@@ -164,7 +164,7 @@ function ContractDisp({
         ]}
       ></Descriptions>
     </Card>
-  )
+  );
 }
 
-export default ContractDisp
+export default ContractDisp;

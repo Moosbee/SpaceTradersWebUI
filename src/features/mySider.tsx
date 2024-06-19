@@ -1,8 +1,8 @@
-import type { MenuProps } from "antd"
-import { Menu } from "antd"
-import { Link } from "react-router-dom"
+import type { MenuProps } from "antd";
+import { Menu } from "antd";
+import { Link } from "react-router-dom";
 
-type MenuItem = Required<MenuProps>["items"][number]
+type MenuItem = Required<MenuProps>["items"][number];
 
 const items: MenuItem[] = [
   { label: <Link to="/">Spacetraders API</Link>, key: "home" },
@@ -17,7 +17,7 @@ const items: MenuItem[] = [
   { label: <Link to="/contracts">Contracts overview</Link>, key: "contracts" },
   { label: <Link to="/newAgent">New Agent</Link>, key: "newAgent" },
   { label: <Link to="/cache">Cache Config</Link>, key: "cache" },
-]
+];
 
 function MySider() {
   return (
@@ -32,7 +32,7 @@ function MySider() {
         left: 0,
       }}
     ></Menu>
-  )
+  );
 }
 
-export default MySider
+export default MySider;

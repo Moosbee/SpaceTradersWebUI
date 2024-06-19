@@ -1,5 +1,5 @@
-import { Card, Col, Empty, List, Row, Table, Tooltip } from "antd"
-import type { Market } from "../../app/spaceTraderAPI/api"
+import { Card, Col, Empty, List, Row, Table, Tooltip } from "antd";
+import type { Market } from "../../app/spaceTraderAPI/api";
 
 function MarketDisp({ market }: { market: Market }) {
   return (
@@ -10,7 +10,7 @@ function MarketDisp({ market }: { market: Market }) {
             <List
               size="small"
               bordered
-              dataSource={market.exchange.map(ext => (
+              dataSource={market.exchange.map((ext) => (
                 <Tooltip
                   key={ext.symbol}
                   title={`${ext.symbol} - ${ext.description}`}
@@ -18,7 +18,7 @@ function MarketDisp({ market }: { market: Market }) {
                   <span>{ext.name}</span>
                 </Tooltip>
               ))}
-              renderItem={item => <List.Item>{item}</List.Item>}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
             />
           </Card>
         </Col>
@@ -27,7 +27,7 @@ function MarketDisp({ market }: { market: Market }) {
             <List
               size="small"
               bordered
-              dataSource={market.exports.map(expo => (
+              dataSource={market.exports.map((expo) => (
                 <Tooltip
                   key={expo.symbol}
                   title={`${expo.symbol} - ${expo.description}`}
@@ -35,7 +35,7 @@ function MarketDisp({ market }: { market: Market }) {
                   <span>{expo.name}</span>
                 </Tooltip>
               ))}
-              renderItem={item => <List.Item>{item}</List.Item>}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
             />
           </Card>
         </Col>
@@ -44,7 +44,7 @@ function MarketDisp({ market }: { market: Market }) {
             <List
               size="small"
               bordered
-              dataSource={market.imports.map(imp => (
+              dataSource={market.imports.map((imp) => (
                 <Tooltip
                   key={imp.symbol}
                   title={`${imp.symbol} - ${imp.description}`}
@@ -52,7 +52,7 @@ function MarketDisp({ market }: { market: Market }) {
                   <span>{imp.name}</span>
                 </Tooltip>
               ))}
-              renderItem={item => <List.Item>{item}</List.Item>}
+              renderItem={(item) => <List.Item>{item}</List.Item>}
             />
           </Card>
         </Col>
@@ -87,7 +87,7 @@ function MarketDisp({ market }: { market: Market }) {
                       title: "Activity",
                       dataIndex: "activity",
                       key: "activity",
-                      render: activity => activity || "N/A",
+                      render: (activity) => activity || "N/A",
                     },
                     {
                       title: "Purchase Price",
@@ -149,7 +149,8 @@ function MarketDisp({ market }: { market: Market }) {
                       title: "Timestamp",
                       dataIndex: "timestamp",
                       key: "timestamp",
-                      render: timestamp => new Date(timestamp).toLocaleString(),
+                      render: (timestamp) =>
+                        new Date(timestamp).toLocaleString(),
                     },
                   ]}
                 />
@@ -163,7 +164,7 @@ function MarketDisp({ market }: { market: Market }) {
         )}
       </Row>
     </Card>
-  )
+  );
 }
 
-export default MarketDisp
+export default MarketDisp;

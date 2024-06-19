@@ -1,7 +1,16 @@
-import { Card, Row, Col, Descriptions, List, Divider, Table, Empty } from "antd"
-import type { Shipyard } from "../../app/spaceTraderAPI/api"
-import ShipyardShipDisp from "./ship/ShipyardShip"
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
+import {
+  Card,
+  Row,
+  Col,
+  Descriptions,
+  List,
+  Divider,
+  Table,
+  Empty,
+} from "antd";
+import type { Shipyard } from "../../app/spaceTraderAPI/api";
+import ShipyardShipDisp from "./ship/ShipyardShip";
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 
 function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
   return (
@@ -28,10 +37,10 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                 children: (
                   <List
                     size="small"
-                    dataSource={shipyard.shipTypes.map(ship => (
+                    dataSource={shipyard.shipTypes.map((ship) => (
                       <span>{ship.type}</span>
                     ))}
-                    renderItem={item => <List.Item>{item}</List.Item>}
+                    renderItem={(item) => <List.Item>{item}</List.Item>}
                   ></List>
                 ),
               },
@@ -43,7 +52,7 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
             <Col span={24}>
               <Divider>Available Ships</Divider>
               <Row gutter={[8, 8]}>
-                {shipyard.ships?.map(value => {
+                {shipyard.ships?.map((value) => {
                   return (
                     <Col span={12} key={value.name}>
                       <ShipyardShipDisp
@@ -52,13 +61,13 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                           spaceTraderClient.FleetClient.purchaseShip({
                             shipType: value.type,
                             waypointSymbol: shipyard.symbol,
-                          }).then(data => {
-                            console.log("data", data)
-                          })
+                          }).then((data) => {
+                            console.log("data", data);
+                          });
                         }}
                       ></ShipyardShipDisp>
                     </Col>
-                  )
+                  );
                 })}
               </Row>
             </Col>
@@ -92,7 +101,7 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                     title: "Timestamp",
                     dataIndex: "timestamp",
                     key: "timestamp",
-                    render: timestamp => new Date(timestamp).toLocaleString(),
+                    render: (timestamp) => new Date(timestamp).toLocaleString(),
                   },
                 ]}
                 rowKey="timestamp"
@@ -107,7 +116,7 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
         )}
       </Row>
     </Card>
-  )
+  );
 }
 
-export default ShipyardDisp
+export default ShipyardDisp;

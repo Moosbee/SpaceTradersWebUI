@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * SpaceTraders API
- * SpaceTraders is an open-universe game and learning platform that offers a set of HTTP endpoints to control a fleet of ships and explore a multiplayer universe.  The API is documented using [OpenAPI](https://github.com/SpaceTradersAPI/api-docs). You can send your first request right here in your browser to check the status of the game server.  ```json http {   \"method\": \"GET\",   \"url\": \"https://api.spacetraders.io/v2\", } ```  Unlike a traditional game, SpaceTraders does not have a first-party client or app to play the game. Instead, you can use the API to build your own client, write a script to automate your ships, or try an app built by the community.  We have a [Discord channel](https://discord.com/invite/jh6zurdWk5) where you can share your projects, ask questions, and get help from other players.   
+ * SpaceTraders is an open-universe game and learning platform that offers a set of HTTP endpoints to control a fleet of ships and explore a multiplayer universe.  The API is documented using [OpenAPI](https://github.com/SpaceTradersAPI/api-docs). You can send your first request right here in your browser to check the status of the game server.  ```json http {   \"method\": \"GET\",   \"url\": \"https://api.spacetraders.io/v2\", } ```  Unlike a traditional game, SpaceTraders does not have a first-party client or app to play the game. Instead, you can use the API to build your own client, write a script to automate your ships, or try an app built by the community.  We have a [Discord channel](https://discord.com/invite/jh6zurdWk5) where you can share your projects, ask questions, and get help from other players.
  *
  * The version of the OpenAPI document: 2.0.0
  * Contact: joel@spacetraders.io
@@ -12,12 +12,11 @@
  * Do not edit the class manually.
  */
 
-
-import type { Configuration } from './configuration';
+import type { Configuration } from "./configuration";
 // Some imports not used depending on template conditions
 // @ts-ignore
-import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from 'axios';
-import globalAxios from 'axios';
+import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from "axios";
+import globalAxios from "axios";
 
 export const BASE_PATH = "https://api.spacetraders.io/v2".replace(/\/+$/, "");
 
@@ -26,10 +25,10 @@ export const BASE_PATH = "https://api.spacetraders.io/v2".replace(/\/+$/, "");
  * @export
  */
 export const COLLECTION_FORMATS = {
-    csv: ",",
-    ssv: " ",
-    tsv: "\t",
-    pipes: "|",
+  csv: ",",
+  ssv: " ",
+  tsv: "\t",
+  pipes: "|",
 };
 
 /**
@@ -38,8 +37,8 @@ export const COLLECTION_FORMATS = {
  * @interface RequestArgs
  */
 export interface RequestArgs {
-    url: string;
-    options: RawAxiosRequestConfig;
+  url: string;
+  options: RawAxiosRequestConfig;
 }
 
 /**
@@ -48,15 +47,19 @@ export interface RequestArgs {
  * @class BaseAPI
  */
 export class BaseAPI {
-    protected configuration: Configuration | undefined;
+  protected configuration: Configuration | undefined;
 
-    constructor(configuration?: Configuration, protected basePath: string = BASE_PATH, protected axios: AxiosInstance = globalAxios) {
-        if (configuration) {
-            this.configuration = configuration;
-            this.basePath = configuration.basePath ?? basePath;
-        }
+  constructor(
+    configuration?: Configuration,
+    protected basePath: string = BASE_PATH,
+    protected axios: AxiosInstance = globalAxios,
+  ) {
+    if (configuration) {
+      this.configuration = configuration;
+      this.basePath = configuration.basePath ?? basePath;
     }
-};
+  }
+}
 
 /**
  *
@@ -65,22 +68,24 @@ export class BaseAPI {
  * @extends {Error}
  */
 export class RequiredError extends Error {
-    constructor(public field: string, msg?: string) {
-        super(msg);
-        this.name = "RequiredError"
-    }
+  constructor(
+    public field: string,
+    msg?: string,
+  ) {
+    super(msg);
+    this.name = "RequiredError";
+  }
 }
 
 interface ServerMap {
-    [key: string]: {
-        url: string,
-        description: string,
-    }[];
+  [key: string]: {
+    url: string;
+    description: string;
+  }[];
 }
 
 /**
  *
  * @export
  */
-export const operationServerMap: ServerMap = {
-}
+export const operationServerMap: ServerMap = {};

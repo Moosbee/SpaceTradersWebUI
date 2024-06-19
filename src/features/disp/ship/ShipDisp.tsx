@@ -1,7 +1,7 @@
-import type { DescriptionsProps } from "antd"
-import { Card, Descriptions } from "antd"
-import type { Ship } from "../../../app/spaceTraderAPI/api"
-import { Link } from "react-router-dom"
+import type { DescriptionsProps } from "antd";
+import { Card, Descriptions } from "antd";
+import type { Ship } from "../../../app/spaceTraderAPI/api";
+import { Link } from "react-router-dom";
 
 function ShipDisp({ ship }: { ship: Ship }) {
   const items: DescriptionsProps["items"] = [
@@ -113,7 +113,7 @@ function ShipDisp({ ship }: { ship: Ship }) {
         </span>
       ),
     },
-  ]
+  ];
 
   return (
     <Card style={{ width: "fit-content" }}>
@@ -125,7 +125,7 @@ function ShipDisp({ ship }: { ship: Ship }) {
         layout="vertical"
       ></Descriptions>
     </Card>
-  )
+  );
 }
 
-export default ShipDisp
+export default ShipDisp;
