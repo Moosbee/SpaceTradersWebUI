@@ -1,6 +1,6 @@
 import type { DescriptionsProps } from "antd"
 import { Card, Descriptions } from "antd"
-import type { Ship } from "../../../utils/api"
+import type { Ship } from "../../../app/api"
 import { Link } from "react-router-dom"
 
 function ShipDisp({ ship }: { ship: Ship }) {

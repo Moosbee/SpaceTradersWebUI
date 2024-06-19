@@ -1,5 +1,5 @@
 import { Card, Descriptions, List, Tooltip } from "antd"
-import type { Faction } from "../../utils/api"
+import type { Faction } from "../../app/api"
 
 function FactionDisp({ faction }: { faction: Faction }) {
   return (

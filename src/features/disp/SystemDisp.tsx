@@ -1,6 +1,6 @@
 import type { DescriptionsProps } from "antd"
 import { Card, Descriptions } from "antd"
-import type { System } from "../../utils/api"
+import type { System } from "../../app/api"
 import { Link } from "react-router-dom"
 
 function SystemDisp({ system }: { system: System }) {

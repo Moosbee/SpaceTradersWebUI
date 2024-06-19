@@ -1,5 +1,5 @@
 import { Card, Row, Col, Descriptions, List, Divider, Table, Empty } from "antd"
-import type { Shipyard } from "../../utils/api"
+import type { Shipyard } from "../../app/api"
 import ShipyardShipDisp from "./ship/ShipyardShip"
 
 function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {

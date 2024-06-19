@@ -1,6 +1,6 @@
 import type { DescriptionsProps } from "antd"
 import { Card, Descriptions } from "antd"
-import type { ShipyardShip } from "../../../utils/api"
+import type { ShipyardShip } from "../../../app/api"
 
 function ShipyardShipDisp({ shipyardShip }: { shipyardShip: ShipyardShip }) {
   const items: DescriptionsProps["items"] = [
