@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Button, List, Spin } from "antd"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 
 function Caching() {
   const [systemsCount, setSystemsCount] = useState(0)

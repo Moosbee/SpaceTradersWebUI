@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
-import type { Agent } from "../../app/api"
+import type { Agent } from "../../app/spaceTraderAPI/api"
 import type { PaginationProps } from "antd"
 import { Divider, Flex, Pagination, Spin } from "antd"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 import AgentDisp from "../../features/disp/AgentDisp"
 
 function Agents() {

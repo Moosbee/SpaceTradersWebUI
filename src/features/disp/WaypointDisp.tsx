@@ -1,6 +1,6 @@
 import type { DescriptionsProps } from "antd"
 import { Card, Descriptions, List, Tooltip } from "antd"
-import type { Waypoint } from "../../app/api"
+import type { Waypoint } from "../../app/spaceTraderAPI/api"
 import { Link } from "react-router-dom"
 
 function WaypointDisp({

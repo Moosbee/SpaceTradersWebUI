@@ -1,5 +1,8 @@
 import { useState } from "react"
-import type { FactionSymbol, Register201ResponseData } from "../../app/api"
+import type {
+  FactionSymbol,
+  Register201ResponseData,
+} from "../../app/spaceTraderAPI/api"
 import type { FormProps } from "antd"
 import {
   Button,
@@ -13,7 +16,7 @@ import {
   Space,
   Typography,
 } from "antd"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 import AgentDisp from "../../features/disp/AgentDisp"
 import ContractDisp from "../../features/disp/ContractDisp"
 import FactionDisp from "../../features/disp/FactionDisp"

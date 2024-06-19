@@ -1,5 +1,5 @@
 import { Card, Col, Empty, List, Row, Table, Tooltip } from "antd"
-import type { Market } from "../../app/api"
+import type { Market } from "../../app/spaceTraderAPI/api"
 
 function MarketDisp({ market }: { market: Market }) {
   return (

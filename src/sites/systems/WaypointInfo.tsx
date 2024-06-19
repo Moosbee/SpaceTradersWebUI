@@ -6,9 +6,9 @@ import type {
   Market,
   Shipyard,
   Waypoint,
-} from "../../app/api"
+} from "../../app/spaceTraderAPI/api"
 import { Badge, Descriptions, List } from "antd"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 import WaypointDisp from "../../features/disp/WaypointDisp"
 import MarketDisp from "../../features/disp/MarketDisp"
 import ShipyardDisp from "../../features/disp/ShipyardDisp"

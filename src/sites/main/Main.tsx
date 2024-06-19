@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import type { GetStatus200Response } from "../../app/api"
+import type { GetStatus200Response } from "../../app/spaceTraderAPI/api"
 import type { DescriptionsProps } from "antd"
 import {
   Card,
@@ -13,7 +13,7 @@ import {
   Table,
 } from "antd"
 import { Link } from "react-router-dom"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 
 function Main() {
   const [status, setStatus] = useState<GetStatus200Response | null>(null)

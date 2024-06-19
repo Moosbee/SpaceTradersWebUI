@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
-import type { Ship } from "../../app/api"
+import type { Ship } from "../../app/spaceTraderAPI/api"
 import type { DescriptionsProps } from "antd"
 import {
   Button,
@@ -15,7 +15,7 @@ import {
   Table,
   Tooltip,
 } from "antd"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 
 function ShipInfo() {
   const { shipID } = useParams()

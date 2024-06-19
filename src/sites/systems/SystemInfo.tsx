@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import type { System, Waypoint, WaypointType } from "../../app/api"
-import { WaypointTraitSymbol } from "../../app/api"
+import type {
+  System,
+  Waypoint,
+  WaypointType,
+} from "../../app/spaceTraderAPI/api"
+import { WaypointTraitSymbol } from "../../app/spaceTraderAPI/api"
 import type { DescriptionsProps, PaginationProps, SelectProps } from "antd"
 import { Col, Descriptions, Flex, Pagination, Row, Select, Spin } from "antd"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 import WaypointDisp from "../../features/disp/WaypointDisp"
 
 const traitsOptions: SelectProps["options"] = Object.values(

@@ -1,8 +1,8 @@
 import type { PaginationProps } from "antd"
 import { Pagination, Flex, Spin } from "antd"
 import { useState, useEffect } from "react"
-import type { Contract } from "../../app/api"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import type { Contract } from "../../app/spaceTraderAPI/api"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 import ContractDisp from "../../features/disp/ContractDisp"
 
 function Contracts() {

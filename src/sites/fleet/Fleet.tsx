@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
-import type { Ship } from "../../app/api"
+import type { Ship } from "../../app/spaceTraderAPI/api"
 import type { PaginationProps } from "antd"
 import { Flex, Pagination, Spin } from "antd"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 import ShipDisp from "../../features/disp/ship/ShipDisp"
 
 function Fleet() {

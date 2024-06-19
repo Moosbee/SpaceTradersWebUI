@@ -1,8 +1,8 @@
 import type { PaginationProps } from "antd"
 import { Pagination, Flex, Spin } from "antd"
 import { useState, useEffect } from "react"
-import type { System } from "../../app/api"
-import spaceTraderClient from "../../app/spaceTraderClient"
+import type { System } from "../../app/spaceTraderAPI/api"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 import SystemDisp from "../../features/disp/SystemDisp"
 
 function Systems() {
