@@ -25,3 +25,8 @@ npx degit reduxjs/redux-templates/packages/vite-template-redux my-app
 - [Create React App](https://github.com/facebook/create-react-app/tree/main/packages/cra-template)
 - [Vite](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react)
 - [Vitest](https://github.com/vitest-dev/vitest/tree/main/examples/react-testing-lib)
+
+
+# Spacetradrs
+
+`openapi-generator-cli generate -i 'https://stoplight.io/api/v1/projects/spacetraders/spacetraders/nodes/reference/SpaceTraders.json' -g typescript-axios -o ./src/utils/api`
