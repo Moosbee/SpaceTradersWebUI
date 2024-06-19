@@ -1,4 +1,4 @@
-import type { System, Waypoint } from "./api"
+import type { Survey, System } from "./api"
 
 export class DataBase {
   private dbName: string
@@ -19,8 +19,10 @@ export class DataBase {
   public openAsync(): Promise<void> {
     return new Promise((resolve, reject) => {
       const database = indexedDB.open(this.dbName, this.version)
+      console.log("openAsync", database)
       database.onsuccess = () => {
         this._db = database.result
+
         resolve()
       }
       database.onerror = event => {
@@ -33,6 +35,8 @@ export class DataBase {
       database.onupgradeneeded = event => {
         // the existing database version is less than 2 (or it doesn't exist)
         const db = database.result
+        // close all other windows
+        console.log("update", db)
         switch (
           event.oldVersion // existing db version
         ) {
@@ -46,15 +50,25 @@ export class DataBase {
 
             objectStore.createIndex("systemSymbol", "systemSymbol")
 
+            const objectStore2 = db.createObjectStore("survey", {
+              keyPath: "signature",
+            })
+
+            objectStore2.createIndex("symbol", "symbol")
+
             break
           }
           case 1:
-          // client had version 1
+            // client had version 1
+
+            break
           // update
         }
 
         // Create another object store called "names" with the autoIncrement flag set as true.
-        reject(event)
+        setTimeout(() => {
+          reject(event)
+        })
       }
     })
   }
@@ -153,12 +167,165 @@ export class DataBase {
     })
   }
 
-  public clearSystemWaypoints(): Promise<void> {
+  public getSystemByWaypoint(waypointSymbol: string): Promise<System[]> {
     return new Promise((resolve, reject) => {
       this.throwIfNotOpened()
-      const tx = this._db!.transaction(["systemWaypoint"], "readwrite")
-      const store = tx.objectStore("systemWaypoint")
-      store.clear()
+      const transaction = this._db!.transaction(["system"], "readonly")
+
+      // Get the object store
+      const objectStore = transaction.objectStore("system")
+
+      // Open a cursor to iterate over the objects
+      const cursorRequest = objectStore.openCursor()
+
+      const results: System[] = []
+
+      cursorRequest.onsuccess = function (event) {
+        const cursor = (event.target as IDBRequest).result as
+          | IDBCursorWithValue
+          | undefined
+        if (cursor) {
+          const system = cursor.value as System
+          const waypoints = system.waypoints
+
+          // Check if the 'items' array contains the string
+          if (
+            waypoints &&
+            waypoints.length !== 0 &&
+            waypoints.some(waypoint => waypoint.symbol === waypointSymbol)
+          ) {
+            results.push(system)
+          }
+
+          // Continue to the next record
+          cursor.continue()
+        } else {
+          // No more entries
+          resolve(results)
+        }
+      }
+
+      cursorRequest.onerror = function (event) {
+        reject("Cursor request error: " + event.target)
+      }
+    })
+  }
+
+  // public clearSystemWaypoints(): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     store.clear();
+  //     tx.oncomplete = () => {
+  //       resolve();
+  //     };
+  //     tx.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
+
+  // public addSystemWaypoint(waypoint: Waypoint): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     store.add(waypoint);
+  //     tx.oncomplete = () => {
+  //       resolve();
+  //     };
+  //     tx.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
+
+  // public addSystemWaypoints(waypoints: Waypoint[]): Promise<void> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readwrite");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     waypoints.forEach((waypoint) => {
+  //       store.add(waypoint);
+  //     });
+  //     tx.oncomplete = () => {
+  //       resolve();
+  //     };
+  //     tx.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
+
+  // public getSystemWaypoint(symbol: string): Promise<Waypoint> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readonly");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     const request = store.get(symbol);
+  //     request.onsuccess = () => {
+  //       resolve(request.result);
+  //     };
+  //     request.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
+
+  // public getSystemWaypointsBySystemSymbol(
+  //   systemSymbol: string
+  // ): Promise<Waypoint[]> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readonly");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     const index = store.index("systemSymbol");
+  //     const request = index.getAll(systemSymbol);
+  //     request.onsuccess = () => {
+  //       resolve(request.result);
+  //     };
+  //     request.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
+
+  // public getSystemWaypoints(): Promise<Waypoint[]> {
+  //   return new Promise((resolve, reject) => {
+  //     this.throwIfNotOpened();
+  //     const tx = this._db!.transaction(["systemWaypoint"], "readonly");
+  //     const store = tx.objectStore("systemWaypoint");
+  //     const request = store.getAll();
+  //     request.onsuccess = () => {
+  //       resolve(request.result);
+  //     };
+  //     request.onerror = (event) => {
+  //       reject(event);
+  //     };
+  //   });
+  // }
+
+  public getSurveys(): Promise<Survey[]> {
+    return new Promise((resolve, reject) => {
+      this.throwIfNotOpened()
+      const tx = this._db!.transaction(["survey"], "readonly")
+      const store = tx.objectStore("survey")
+      const request = store.getAll()
+      request.onsuccess = () => {
+        resolve(request.result)
+      }
+      request.onerror = event => {
+        reject(event)
+      }
+    })
+  }
+  public addSurvey(survey: Survey) {
+    return new Promise<void>((resolve, reject) => {
+      this.throwIfNotOpened()
+      const tx = this._db!.transaction(["survey"], "readwrite")
+      const store = tx.objectStore("survey")
+      store.add(survey)
       tx.oncomplete = () => {
         resolve()
       }
@@ -168,28 +335,13 @@ export class DataBase {
     })
   }
 
-  public addSystemWaypoint(waypoint: Waypoint): Promise<void> {
-    return new Promise((resolve, reject) => {
+  public addSurveys(surveys: Survey[]) {
+    return new Promise<void>((resolve, reject) => {
       this.throwIfNotOpened()
-      const tx = this._db!.transaction(["systemWaypoint"], "readwrite")
-      const store = tx.objectStore("systemWaypoint")
-      store.add(waypoint)
-      tx.oncomplete = () => {
-        resolve()
-      }
-      tx.onerror = event => {
-        reject(event)
-      }
-    })
-  }
-
-  public addSystemWaypoints(waypoints: Waypoint[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened()
-      const tx = this._db!.transaction(["systemWaypoint"], "readwrite")
-      const store = tx.objectStore("systemWaypoint")
-      waypoints.forEach(waypoint => {
-        store.add(waypoint)
+      const tx = this._db!.transaction(["survey"], "readwrite")
+      const store = tx.objectStore("survey")
+      surveys.forEach(survey => {
+        store.add(survey)
       })
       tx.oncomplete = () => {
         resolve()
@@ -200,50 +352,39 @@ export class DataBase {
     })
   }
 
-  public getSystemWaypoint(symbol: string): Promise<Waypoint> {
-    return new Promise((resolve, reject) => {
+  public pruneSurveys() {
+    return new Promise<void>((resolve, reject) => {
       this.throwIfNotOpened()
-      const tx = this._db!.transaction(["systemWaypoint"], "readonly")
-      const store = tx.objectStore("systemWaypoint")
-      const request = store.get(symbol)
-      request.onsuccess = () => {
-        resolve(request.result)
-      }
-      request.onerror = event => {
-        reject(event)
-      }
-    })
-  }
+      const tx = this._db!.transaction(["survey"], "readwrite")
+      const store = tx.objectStore("survey")
 
-  public getSystemWaypointsBySystemSymbol(
-    systemSymbol: string,
-  ): Promise<Waypoint[]> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened()
-      const tx = this._db!.transaction(["systemWaypoint"], "readonly")
-      const store = tx.objectStore("systemWaypoint")
-      const index = store.index("systemSymbol")
-      const request = index.getAll(systemSymbol)
-      request.onsuccess = () => {
-        resolve(request.result)
-      }
-      request.onerror = event => {
-        reject(event)
-      }
-    })
-  }
+      // Get the object store
 
-  public getSystemWaypoints(): Promise<Waypoint[]> {
-    return new Promise((resolve, reject) => {
-      this.throwIfNotOpened()
-      const tx = this._db!.transaction(["systemWaypoint"], "readonly")
-      const store = tx.objectStore("systemWaypoint")
-      const request = store.getAll()
-      request.onsuccess = () => {
-        resolve(request.result)
+      // Open a cursor to iterate over the objects
+      const cursorRequest = store.openCursor()
+
+      cursorRequest.onsuccess = function (event) {
+        const cursor = (event.target as IDBRequest).result as
+          | IDBCursorWithValue
+          | undefined
+        if (cursor) {
+          const survey = cursor.value as Survey
+
+          if (new Date(survey.expiration).getTime() < Date.now()) {
+            console.log("pruning survey", survey)
+            store.delete(cursor.key as string)
+          }
+
+          // Continue to the next record
+          cursor.continue()
+        } else {
+          // No more entries
+          resolve()
+        }
       }
-      request.onerror = event => {
-        reject(event)
+
+      cursorRequest.onerror = function (event) {
+        reject("Cursor request error: " + event.target)
       }
     })
   }

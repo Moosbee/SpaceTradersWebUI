@@ -1,6 +1,7 @@
 import { Card, Row, Col, Descriptions, List, Divider, Table, Empty } from "antd"
 import type { Shipyard } from "../../app/spaceTraderAPI/api"
 import ShipyardShipDisp from "./ship/ShipyardShip"
+import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 
 function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
   return (
@@ -45,7 +46,17 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                 {shipyard.ships?.map(value => {
                   return (
                     <Col span={12} key={value.name}>
-                      <ShipyardShipDisp shipyardShip={value}></ShipyardShipDisp>
+                      <ShipyardShipDisp
+                        shipyardShip={value}
+                        onBuy={() => {
+                          spaceTraderClient.FleetClient.purchaseShip({
+                            shipType: value.type,
+                            waypointSymbol: shipyard.symbol,
+                          }).then(data => {
+                            console.log("data", data)
+                          })
+                        }}
+                      ></ShipyardShipDisp>
                     </Col>
                   )
                 })}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button, List, Spin } from "antd"
+import { Button, List, Progress, Spin } from "antd"
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
 
 function Caching() {
@@ -55,8 +55,20 @@ function Caching() {
       >
         Clear Systems
       </Button>
+      <Button
+        onClick={() => {
+          console.log(
+            spaceTraderClient.LocalCache.getSystemByWaypoint("X1-J36-A1"),
+          )
+        }}
+      >
+        Printsystems
+      </Button>
+      <Progress
+        percent={Math.round((systemsCount / totalSystemsCount) * 1000) / 10}
+      />
       <List
-        dataSource={systemLogs.map(item => (
+        dataSource={systemLogs.reverse().map(item => (
           <List.Item key={item.timestamp.toISOString()}>
             {item.timestamp.toLocaleString()} - {item.progress} / {item.total}
           </List.Item>

@@ -108,7 +108,7 @@ function WaypointDisp({
     })
   }
 
-  if (!waypoint.modifiers || waypoint.modifiers.length > 0) {
+  if (waypoint.modifiers && waypoint.modifiers.length > 0) {
     items.push({
       key: "modifiers",
       label: "Modifiers",

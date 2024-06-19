@@ -23,7 +23,6 @@ function Agents() {
     spaceTraderClient.AgentsClient.getMyAgent().then(response => {
       console.log("my response", response)
       setMyAgent(response.data.data)
-      response.data.data
     })
     return () => {}
   }, [])
@@ -49,7 +48,7 @@ function Agents() {
   return (
     <div>
       <h2>My Agent</h2>
-      <Spin spinning={myAgent.symbol == ""}>
+      <Spin spinning={myAgent.symbol === ""}>
         <AgentDisp agent={myAgent}></AgentDisp>
       </Spin>
       <Divider />
