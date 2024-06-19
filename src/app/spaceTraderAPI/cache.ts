@@ -1,4 +1,4 @@
-import type { Contract, Survey } from "./api"
+import type { Contract } from "./api"
 import { DataBase } from "./dataBase"
 import spaceTraderClient from "./spaceTraderClient"
 
@@ -82,19 +82,6 @@ const localCache = {
   },
   clearSystems: async () => {
     await cacheDB.clearSystems()
-  },
-
-  getSurveys: async () => {
-    return await cacheDB.getSurveys()
-  },
-  addSurvey: async (survey: Survey) => {
-    await cacheDB.addSurvey(survey)
-  },
-  addSurveys: async (survey: Survey[]) => {
-    await cacheDB.addSurveys(survey)
-  },
-  pruneSurveys: async () => {
-    await cacheDB.pruneSurveys()
   },
 
   getShips: (): { symbol: string; waypointSymbol: string }[] => {

@@ -27,6 +27,11 @@ import {
   message,
 } from "antd"
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient"
+import { useAppDispatch, useAppSelector } from "../../app/hooks"
+import {
+  addSurveys,
+  selectSurveys,
+} from "../../app/spaceTraderAPI/redux/surveySlice"
 
 const { Countdown } = Statistic
 
@@ -35,6 +40,7 @@ function ShipInfo() {
   const [ship, setShip] = useState<Ship | undefined>(undefined)
   const [reload, setReload] = useState<boolean>(false)
   const [loadingShipNav, setLoadingShipNav] = useState<boolean>(false)
+  const dispatch = useAppDispatch()
 
   const [navWaypoint, setNavWaypoint] = useState<string>()
 
@@ -440,11 +446,8 @@ function ShipInfo() {
                         value => {
                           console.log("value", value)
                           setTimeout(() => {
-                            const shp = ship
-                            shp.cooldown = value.data.data.cooldown
-                            spaceTraderClient.LocalCache.addSurveys(
-                              value.data.data.surveys,
-                            )
+                            dispatch(addSurveys(value.data.data.surveys))
+
                             message.success(
                               `Surveys Created\n ${value.data.data.surveys
                                 .map(
@@ -456,7 +459,6 @@ function ShipInfo() {
                                 .join("\n")}`,
                             )
                             setReload(!reload)
-                            setShip(shp)
                             resolve()
                           })
                         },
@@ -1042,18 +1044,11 @@ function ExtractSurvey({
   onSurvey: () => Promise<void>
   onExtraction: (survey: Survey) => Promise<number>
 }) {
-  const [surveys, setSurveys] = useState<Survey[]>([])
   const [survey, setSurvey] = useState<string | undefined>(undefined)
 
-  const [reload, setReload] = useState(false)
-  const [contin, setContin] = useState(false)
+  const surveys = useAppSelector(selectSurveys)
 
-  useEffect(() => {
-    spaceTraderClient.LocalCache.getSurveys().then(response => {
-      setSurveys(response)
-    })
-    spaceTraderClient.LocalCache.pruneSurveys()
-  }, [reload])
+  const [contin, setContin] = useState(false)
 
   const extract = async () => {
     if (!survey) {
@@ -1104,15 +1099,7 @@ function ExtractSurvey({
       >
         Extract Resources with Survey
       </Button>
-      <Button
-        onClick={() => {
-          onSurvey().then(() => {
-            setReload(!reload)
-          })
-        }}
-      >
-        Create Survey
-      </Button>
+      <Button onClick={onSurvey}>Create Survey</Button>
       <Switch
         checkedChildren="continue"
         unCheckedChildren="continue"
