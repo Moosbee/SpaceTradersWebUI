@@ -34,7 +34,7 @@ export const surveySlice = createAppSlice({
     }),
     pruneSurveys: create.reducer((state) => {
       state.surveys = state.surveys.filter(
-        (survey) => new Date(survey.expiration).getTime() < Date.now(),
+        (survey) => new Date(survey.expiration).getTime() > Date.now(),
       );
     }),
   }),

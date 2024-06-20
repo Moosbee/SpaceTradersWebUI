@@ -10,6 +10,15 @@ import { PersistGate } from "redux-persist/integration/react";
 const container = document.getElementById("root");
 
 if (container) {
+  if (navigator.storage && navigator.storage.persist) {
+    const persistent = await navigator.storage.persist();
+    if (persistent) {
+      console.log("Storage will not be cleared except by explicit user action");
+    } else {
+      console.log("Storage may be cleared by the UA under storage pressure.");
+    }
+  }
+
   const root = createRoot(container);
 
   root.render(

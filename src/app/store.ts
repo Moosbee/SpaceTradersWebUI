@@ -8,6 +8,7 @@ import type { PersistConfig } from "redux-persist";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
+import { fleetSlice } from "./spaceTraderAPI/redux/FleetSlice";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
@@ -21,7 +22,12 @@ const persistConfig: PersistConfig<RootState> = {
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
 //const rootReducer = combineSlices(counterSlice, quotesApiSlice, surveySlice);
 // because persist-redux we need to call `combineReducers`
-const rootReducer = combineSlices(counterSlice, quotesApiSlice, surveySlice);
+const rootReducer = combineSlices(
+  counterSlice,
+  quotesApiSlice,
+  surveySlice,
+  fleetSlice,
+);
 
 // Wrap the rootReducer with persistReducer
 const persistedReducer = persistReducer(persistConfig, rootReducer);

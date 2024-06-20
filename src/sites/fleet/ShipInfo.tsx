@@ -24,23 +24,32 @@ import {
   Switch,
   Table,
   Tooltip,
-  message,
 } from "antd";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   addSurveys,
+  pruneSurveys,
   selectSurveys,
 } from "../../app/spaceTraderAPI/redux/surveySlice";
+import { message } from "../../utils/antdMessage";
+import {
+  selectShip,
+  setShip,
+  setShipCargo,
+  setShipCooldown,
+  setShipFuel,
+  setShipNav,
+} from "../../app/spaceTraderAPI/redux/FleetSlice";
 
 const { Countdown } = Statistic;
 
 function ShipInfo() {
   const { shipID } = useParams();
-  const [ship, setShip] = useState<Ship | undefined>(undefined);
-  const [reload, setReload] = useState<boolean>(false);
+  // const [ship, setShip] = useState<Ship | undefined>(undefined);
   const [loadingShipNav, setLoadingShipNav] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const ship = useAppSelector((state) => selectShip(state, shipID));
 
   const [navWaypoint, setNavWaypoint] = useState<string>();
 
@@ -61,14 +70,15 @@ function ShipInfo() {
   useEffect(() => {
     if (!shipID) return;
     spaceTraderClient.FleetClient.getMyShip(shipID).then((response) => {
-      setShip(response.data.data);
+      dispatch(setShip({ ship: response.data.data }));
       spaceTraderClient.LocalCache.getSystem(
         response.data.data.nav.systemSymbol,
       ).then((response) => {
         setSystem(response);
       });
+      dispatch(pruneSurveys());
     });
-  }, [shipID]);
+  }, [dispatch, shipID]);
 
   if (!ship) return <Spin spinning={true} fullscreen></Spin>;
   const itemsGeneral: DescriptionsProps["items"] = [
@@ -91,10 +101,10 @@ function ShipInfo() {
       key: "cooldown",
       label: "Cooldown",
       children: (
-        <span>
-          <Countdown value={new Date(ship.cooldown.expiration).getTime()} /> /{" "}
+        <Space>
+          <Countdown value={new Date(ship.cooldown.expiration).getTime()} /> /
           {ship.cooldown.totalSeconds}
-        </span>
+        </Space>
       ),
     });
   }
@@ -113,11 +123,13 @@ function ShipInfo() {
                   fromCargo: false,
                   units: ship.fuel.capacity - ship.fuel.current,
                 }).then((response) => {
-                  const shp = ship;
-                  shp.fuel = response.data.data.fuel;
+                  dispatch(
+                    setShipFuel({
+                      symbol: ship.symbol,
+                      fuel: response.data.data.fuel,
+                    }),
+                  );
                   message.success(`Refueled`);
-                  setReload(!reload);
-                  setShip(shp);
                 });
               }}
             >
@@ -181,17 +193,21 @@ function ShipInfo() {
         <span>{new Date(ship.nav.route.arrival).toLocaleString()}</span>
       ),
     },
-    {
-      key: "countDown",
-      label: "Remaining Time",
-      children: (
-        <span>
-          <Countdown
-            value={new Date(ship.nav.route.arrival).getTime()}
-          ></Countdown>
-        </span>
-      ),
-    },
+    ...(ship.nav.status === "IN_TRANSIT"
+      ? [
+          {
+            key: "countDown",
+            label: "Remaining Time",
+            children: (
+              <span>
+                <Countdown
+                  value={new Date(ship.nav.route.arrival).getTime()}
+                ></Countdown>
+              </span>
+            ),
+          },
+        ]
+      : []),
   ];
 
   const itemsNav: DescriptionsProps["items"] = [
@@ -207,11 +223,10 @@ function ShipInfo() {
                 if (!shipID) return;
                 spaceTraderClient.FleetClient.orbitShip(shipID).then(
                   (value) => {
-                    const shp = ship;
-                    shp.nav = value.data.data.nav;
+                    dispatch(
+                      setShipNav({ symbol: shipID, nav: value.data.data.nav }),
+                    );
                     console.log("nav", value.data.data.nav);
-                    setReload(!reload);
-                    setShip(shp);
                   },
                 );
               }}
@@ -224,11 +239,10 @@ function ShipInfo() {
               onClick={() => {
                 if (!shipID) return;
                 spaceTraderClient.FleetClient.dockShip(shipID).then((value) => {
-                  const shp = ship;
-                  shp.nav = value.data.data.nav;
-                  console.log("nav", value.data.data.nav, shp.nav);
-                  setReload(!reload);
-                  setShip(shp);
+                  dispatch(
+                    setShipNav({ symbol: shipID, nav: value.data.data.nav }),
+                  );
+                  console.log("nav", value.data.data.nav);
                 });
               }}
             >
@@ -252,9 +266,7 @@ function ShipInfo() {
               spaceTraderClient.FleetClient.patchShipNav(shipID, {
                 flightMode: value,
               }).then((value) => {
-                const shp = ship;
-                shp.nav = value.data.data;
-                setShip(shp);
+                dispatch(setShipNav({ symbol: shipID, nav: value.data.data }));
                 setLoadingShipNav(false);
               });
             }}
@@ -336,12 +348,18 @@ function ShipInfo() {
                     }).then((value) => {
                       console.log("value", value);
                       setTimeout(() => {
-                        const shp = ship;
-                        shp.nav = value.data.data.nav;
-
-                        shp.fuel = value.data.data.fuel;
-                        setReload(!reload);
-                        setShip(shp);
+                        dispatch(
+                          setShipNav({
+                            symbol: shipID,
+                            nav: value.data.data.nav,
+                          }),
+                        );
+                        dispatch(
+                          setShipFuel({
+                            symbol: shipID,
+                            fuel: value.data.data.fuel,
+                          }),
+                        );
                       });
                     });
                   }}
@@ -405,11 +423,18 @@ function ShipInfo() {
                           message.success(
                             `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
                           );
-                          const shp = ship;
-                          shp.cargo = value.data.data.cargo;
-                          shp.cooldown = value.data.data.cooldown;
-                          setReload(!reload);
-                          setShip(shp);
+                          dispatch(
+                            setShipCargo({
+                              symbol: shipID,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
+                          dispatch(
+                            setShipCooldown({
+                              symbol: shipID,
+                              cooldown: value.data.data.cooldown,
+                            }),
+                          );
                         });
                       });
                     }}
@@ -427,11 +452,18 @@ function ShipInfo() {
                           message.success(
                             `Siphoned ${value.data.data.siphon.yield.units} ${value.data.data.siphon.yield.symbol}`,
                           );
-                          const shp = ship;
-                          shp.cargo = value.data.data.cargo;
-                          shp.cooldown = value.data.data.cooldown;
-                          setReload(!reload);
-                          setShip(shp);
+                          dispatch(
+                            setShipCargo({
+                              symbol: shipID,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
+                          dispatch(
+                            setShipCooldown({
+                              symbol: shipID,
+                              cooldown: value.data.data.cooldown,
+                            }),
+                          );
                         });
                       });
                     }}
@@ -447,22 +479,26 @@ function ShipInfo() {
                       spaceTraderClient.FleetClient.createSurvey(shipID).then(
                         (value) => {
                           console.log("value", value);
-                          setTimeout(() => {
-                            dispatch(addSurveys(value.data.data.surveys));
+                          dispatch(addSurveys(value.data.data.surveys));
+                          dispatch(pruneSurveys());
+                          dispatch(
+                            setShipCooldown({
+                              symbol: shipID,
+                              cooldown: value.data.data.cooldown,
+                            }),
+                          );
 
-                            message.success(
-                              `Surveys Created\n ${value.data.data.surveys
-                                .map(
-                                  (w) =>
-                                    `${w.signature}(${
-                                      w.size
-                                    }) - (${w.deposits.map((w) => w.symbol)})`,
-                                )
-                                .join("\n")}`,
-                            );
-                            setReload(!reload);
-                            resolve();
-                          });
+                          message.success(
+                            `Surveys Created\n ${value.data.data.surveys
+                              .map(
+                                (w) =>
+                                  `${w.signature}(${
+                                    w.size
+                                  }) - (${w.deposits.map((w) => w.symbol)})`,
+                              )
+                              .join("\n")}`,
+                          );
+                          resolve();
                         },
                       );
                     });
@@ -479,11 +515,18 @@ function ShipInfo() {
                           message.success(
                             `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
                           );
-                          const shp = ship;
-                          shp.cargo = value.data.data.cargo;
-                          shp.cooldown = value.data.data.cooldown;
-                          setReload(!reload);
-                          setShip(shp);
+                          dispatch(
+                            setShipCargo({
+                              symbol: shipID,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
+                          dispatch(
+                            setShipCooldown({
+                              symbol: shipID,
+                              cooldown: value.data.data.cooldown,
+                            }),
+                          );
                           resolve(value.data.data.cooldown.remainingSeconds);
                         });
                       });
@@ -537,11 +580,13 @@ function ShipInfo() {
                       }).then((value) => {
                         console.log("jett value", value);
                         setTimeout(() => {
-                          const shp = ship;
-                          shp.cargo = value.data.data.cargo;
                           message.success(`${count} ${item} jettisoned`);
-                          setReload(!reload);
-                          setShip(shp);
+                          dispatch(
+                            setShipCargo({
+                              symbol: ship.symbol,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
                         });
                       });
                     }}
@@ -553,14 +598,15 @@ function ShipInfo() {
                       }).then((value) => {
                         console.log("sell value", value);
                         setTimeout(() => {
-                          const shp = ship;
-                          shp.cargo = value.data.data.cargo;
                           message.success(
                             `${count} ${item} sold, new balance: ${value.data.data.agent.credits}`,
                           );
-
-                          setReload(!reload);
-                          setShip(shp);
+                          dispatch(
+                            setShipCargo({
+                              symbol: ship.symbol,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
                         });
                       });
                     }}
@@ -573,13 +619,15 @@ function ShipInfo() {
                       }).then((value) => {
                         console.log("transfer value", value);
                         setTimeout(() => {
-                          const shp = ship;
-                          shp.cargo = value.data.data.cargo;
                           message.success(
                             `${count} ${item} transfered to ${shipSymbol}`,
                           );
-                          setReload(!reload);
-                          setShip(shp);
+                          dispatch(
+                            setShipCargo({
+                              symbol: ship.symbol,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
                         });
                       });
                     }}
@@ -595,13 +643,15 @@ function ShipInfo() {
                       ).then((value) => {
                         console.log("deliver value", value);
                         setTimeout(() => {
-                          const shp = ship;
-                          shp.cargo = value.data.data.cargo;
                           message.success(
                             `${count} ${item} delivered to ${contractID}`,
                           );
-                          setReload(!reload);
-                          setShip(shp);
+                          dispatch(
+                            setShipCargo({
+                              symbol: ship.symbol,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
                         });
                       });
                     }}
@@ -664,19 +714,25 @@ function ShipInfo() {
       label: "Requirements",
       children: (
         <span>
-          {ship.frame.requirements.crew && (
+          {ship.frame.requirements.crew === undefined ? (
+            ""
+          ) : (
             <>
               Crew: {ship.frame.requirements.crew}
               <br />
             </>
           )}
-          {ship.frame.requirements.power && (
+          {ship.frame.requirements.power === undefined ? (
+            ""
+          ) : (
             <>
               Power: {ship.frame.requirements.power}
               <br />
             </>
           )}
-          {ship.frame.requirements.slots && (
+          {ship.frame.requirements.slots === undefined ? (
+            ""
+          ) : (
             <>
               Slots: {ship.frame.requirements.slots}
               <br />
@@ -724,19 +780,25 @@ function ShipInfo() {
       label: "Requirements",
       children: (
         <span>
-          {ship.engine.requirements.crew && (
+          {ship.engine.requirements.crew === undefined ? (
+            ""
+          ) : (
             <>
               Crew: {ship.engine.requirements.crew}
               <br />
             </>
           )}
-          {ship.engine.requirements.power && (
+          {ship.engine.requirements.power === undefined ? (
+            ""
+          ) : (
             <>
               Power: {ship.engine.requirements.power}
               <br />
             </>
           )}
-          {ship.engine.requirements.slots && (
+          {ship.engine.requirements.slots === undefined ? (
+            ""
+          ) : (
             <>
               Slots: {ship.engine.requirements.slots}
               <br />
@@ -783,19 +845,25 @@ function ShipInfo() {
       label: "Requirements",
       children: (
         <span>
-          {ship.reactor.requirements.crew && (
+          {ship.reactor.requirements.crew === undefined ? (
+            ""
+          ) : (
             <>
               Crew: {ship.reactor.requirements.crew}
               <br />
             </>
           )}
-          {ship.reactor.requirements.power && (
+          {ship.reactor.requirements.power === undefined ? (
+            ""
+          ) : (
             <>
               Power: {ship.reactor.requirements.power}
               <br />
             </>
           )}
-          {ship.reactor.requirements.slots && (
+          {ship.reactor.requirements.slots === undefined ? (
+            ""
+          ) : (
             <>
               Slots: {ship.reactor.requirements.slots}
               <br />
@@ -914,19 +982,25 @@ function ShipInfo() {
                       label: "Requirements",
                       children: (
                         <span>
-                          {value.requirements.crew && (
+                          {value.requirements.crew === undefined ? (
+                            ""
+                          ) : (
                             <span style={{ wordBreak: "keep-all" }}>
                               Crew:&nbsp;{value.requirements.crew}
                               <br />
                             </span>
                           )}
-                          {value.requirements.power && (
+                          {value.requirements.power === undefined ? (
+                            ""
+                          ) : (
                             <span style={{ wordBreak: "keep-all" }}>
                               Power:&nbsp;{value.requirements.power}
                               <br />
                             </span>
                           )}
-                          {value.requirements.slots && (
+                          {value.requirements.slots === undefined ? (
+                            ""
+                          ) : (
                             <span style={{ wordBreak: "keep-all" }}>
                               Slots:&nbsp;{ship.reactor.requirements.slots}
                               <br />
@@ -1004,19 +1078,25 @@ function ShipInfo() {
                       label: "Requirements",
                       children: (
                         <span>
-                          {value.requirements.crew && (
+                          {value.requirements.crew === undefined ? (
+                            ""
+                          ) : (
                             <>
                               Crew:{value.requirements.crew}
                               <br />
                             </>
                           )}
-                          {value.requirements.power && (
+                          {value.requirements.power === undefined ? (
+                            ""
+                          ) : (
                             <>
                               Power:{value.requirements.power}
                               <br />
                             </>
                           )}
-                          {value.requirements.slots && (
+                          {value.requirements.slots === undefined ? (
+                            ""
+                          ) : (
                             <>
                               Slots:{ship.reactor.requirements.slots}
                               <br />

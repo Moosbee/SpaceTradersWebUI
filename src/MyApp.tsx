@@ -1,4 +1,4 @@
-import { Layout, theme, ConfigProvider, App, Button, message } from "antd";
+import { Layout, theme, ConfigProvider, App, Button } from "antd";
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./MyApp.css";
@@ -15,19 +15,19 @@ import Systems from "./sites/systems/Systems";
 import WaypointInfo from "./sites/systems/WaypointInfo";
 import ErrorPage from "./sites/ErrorPage";
 import MySider from "./features/mySider";
+import Message from "./utils/message";
 const { Header, Content, Sider } = Layout;
 
 function MyApp() {
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
-  const contextHolder = message.useMessage()[1];
 
   const { defaultAlgorithm, darkAlgorithm } = theme;
   const [isDarkMode, setIsDarkMode] = useState(true);
   return (
     <>
-      {contextHolder}
+      <Message />
       <ConfigProvider
         theme={{
           algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,

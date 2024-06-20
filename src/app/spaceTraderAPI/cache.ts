@@ -4,15 +4,6 @@ import spaceTraderClient from "./spaceTraderClient";
 
 const cacheDB = new DataBase("cache", 1);
 
-if (navigator.storage && navigator.storage.persist) {
-  const persistent = await navigator.storage.persist();
-  if (persistent) {
-    console.log("Storage will not be cleared except by explicit user action");
-  } else {
-    console.log("Storage may be cleared by the UA under storage pressure.");
-  }
-}
-
 await cacheDB.openAsync();
 // .then(() => {
 //   console.log("cacheDB opened");
