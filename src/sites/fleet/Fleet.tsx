@@ -7,7 +7,7 @@ import ShipDisp from "../../features/disp/ship/ShipDisp";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import {
   selectShips,
-  putShips,
+  addShips,
 } from "../../app/spaceTraderAPI/redux/fleetSlice";
 
 function Fleet() {
@@ -24,7 +24,7 @@ function Fleet() {
     spaceTraderClient.FleetClient.getMyShips(shipsPage, itemsPerPage).then(
       (response) => {
         console.log("my responses", response);
-        dispatch(putShips(response.data.data));
+        dispatch(addShips(response.data.data));
         setAllShips(response.data.meta.total);
         setLoading(false);
       },

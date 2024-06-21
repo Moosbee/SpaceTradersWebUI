@@ -3,11 +3,11 @@ import { createAppSlice } from "../../createAppSlice";
 import type { Cooldown, Ship, ShipCargo, ShipFuel, ShipNav } from "../api";
 
 export interface FleetSliceState {
-  ships: Ship[];
+  ships: { [key: string]: Ship };
 }
 
 const initialState: FleetSliceState = {
-  ships: [],
+  ships: {},
 };
 
 // If you are not using async thunks you can use the standalone `createSlice`.
@@ -18,76 +18,45 @@ export const fleetSlice = createAppSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: (create) => ({
     addShips: create.reducer((state, action: PayloadAction<Ship[]>) => {
-      state.ships.push(...action.payload);
-    }),
-
-    putShips: create.reducer((state, action: PayloadAction<Ship[]>) => {
-      // adds ships to fleet not already in it and updates if already in it
-      state.ships = state.ships.filter(
-        (ship) => !action.payload.some((s) => s.symbol === ship.symbol),
-      );
-      state.ships.push(...action.payload);
+      for (const ship of action.payload) {
+        state.ships[ship.symbol] = ship;
+      }
     }),
 
     setShips: create.reducer((state, action: PayloadAction<Ship[]>) => {
-      state.ships = action.payload;
+      state.ships = {};
+      for (const ship of action.payload) {
+        state.ships[ship.symbol] = ship;
+      }
     }),
     clearShips: create.reducer((state) => {
-      state.ships = [];
+      state.ships = {};
     }),
     // Use the `PayloadAction` type to declare the contents of `action.payload`
-    addShip: create.reducer((state, action: PayloadAction<Ship>) => {
+    setShip: create.reducer((state, action: PayloadAction<Ship>) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
       // doesn't actually mutate the state because it uses the Immer library,
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
 
-      state.ships.push(action.payload);
+      state.ships[action.payload.symbol] = action.payload;
     }),
-
-    putShip: create.reducer(
-      (state, action: PayloadAction<{ symbol?: string; ship: Ship }>) => {
-        const { symbol, ship } = action.payload;
-        const shipsSymbol = symbol || ship.symbol;
-        const id = state.ships.findIndex((w) => w.symbol === shipsSymbol);
-        if (id >= 0) {
-          state.ships[id] = ship;
-        } else {
-          state.ships.push(ship);
-        }
-      },
-    ),
     setShipFuel: create.reducer(
       (state, action: PayloadAction<{ symbol: string; fuel: ShipFuel }>) => {
         const { symbol, fuel } = action.payload;
-        state.ships.map((w) => {
-          if (w.symbol === symbol) {
-            w.fuel = fuel;
-          }
-          return w;
-        });
+        state.ships[symbol].fuel = fuel;
       },
     ),
     setShipNav: create.reducer(
       (state, action: PayloadAction<{ symbol: string; nav: ShipNav }>) => {
         const { symbol, nav } = action.payload;
-        state.ships.map((w) => {
-          if (w.symbol === symbol) {
-            w.nav = nav;
-          }
-          return w;
-        });
+        state.ships[symbol].nav = nav;
       },
     ),
     setShipCargo: create.reducer(
       (state, action: PayloadAction<{ symbol: string; cargo: ShipCargo }>) => {
         const { symbol, cargo } = action.payload;
-        state.ships.map((w) => {
-          if (w.symbol === symbol) {
-            w.cargo = cargo;
-          }
-          return w;
-        });
+        state.ships[symbol].cargo = cargo;
       },
     ),
     setShipCooldown: create.reducer(
@@ -96,21 +65,16 @@ export const fleetSlice = createAppSlice({
         action: PayloadAction<{ symbol: string; cooldown: Cooldown }>,
       ) => {
         const { symbol, cooldown } = action.payload;
-        state.ships.map((w) => {
-          if (w.symbol === symbol) {
-            w.cooldown = cooldown;
-          }
-          return w;
-        });
+        state.ships[symbol].cooldown = cooldown;
       },
     ),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
   selectors: {
-    selectShips: (fleet) => fleet.ships,
+    selectShips: (fleet) => Object.values<Ship>(fleet.ships),
     selectShip: (fleet, symbol?: string) =>
-      fleet.ships.find((w) => w.symbol === symbol),
+      symbol ? fleet.ships[symbol] : undefined,
   },
 });
 
@@ -118,10 +82,8 @@ export const fleetSlice = createAppSlice({
 export const {
   addShips,
   setShips,
-  putShips,
+  setShip,
   clearShips,
-  addShip,
-  putShip,
   setShipFuel,
   setShipNav,
   setShipCargo,

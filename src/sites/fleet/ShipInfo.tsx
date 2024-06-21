@@ -42,8 +42,8 @@ import {
   setShipNav,
   setShipCargo,
   setShipCooldown,
-  putShip,
   selectShips,
+  setShip,
 } from "../../app/spaceTraderAPI/redux/fleetSlice";
 import {
   selectSystem,
@@ -873,7 +873,7 @@ function ShipInfo() {
               if (!shipID) return;
               spaceTraderClient.FleetClient.getMyShip(shipID).then(
                 (response) => {
-                  dispatch(putShip({ ship: response.data.data }));
+                  dispatch(setShip(response.data.data));
 
                   dispatch(pruneSurveys());
                 },
