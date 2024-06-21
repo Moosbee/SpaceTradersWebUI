@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type {
+  Contract,
   Ship,
   ShipCargoItem,
   Survey,
@@ -35,12 +36,14 @@ import {
 import { message } from "../../utils/antdMessage";
 import {
   selectShip,
-  setShip,
+  putShip,
   setShipCargo,
   setShipCooldown,
   setShipFuel,
   setShipNav,
+  selectShips,
 } from "../../app/spaceTraderAPI/redux/FleetSlice";
+import { selectOpenContracts } from "../../app/spaceTraderAPI/redux/ContractSlice";
 
 const { Countdown } = Statistic;
 
@@ -68,17 +71,13 @@ function ShipInfo() {
   );
 
   useEffect(() => {
-    if (!shipID) return;
-    spaceTraderClient.FleetClient.getMyShip(shipID).then((response) => {
-      dispatch(setShip({ ship: response.data.data }));
-      spaceTraderClient.LocalCache.getSystem(
-        response.data.data.nav.systemSymbol,
-      ).then((response) => {
+    if (!ship) return;
+    spaceTraderClient.LocalCache.getSystem(ship.nav.systemSymbol).then(
+      (response) => {
         setSystem(response);
-      });
-      dispatch(pruneSurveys());
-    });
-  }, [dispatch, shipID]);
+      },
+    );
+  }, [ship]);
 
   if (!ship) return <Spin spinning={true} fullscreen></Spin>;
   const itemsGeneral: DescriptionsProps["items"] = [
@@ -876,7 +875,26 @@ function ShipInfo() {
 
   return (
     <div>
-      <Card style={{ width: "fit-content" }} title={`Ship ${ship.symbol}`}>
+      <Card
+        style={{ width: "fit-content" }}
+        title={`Ship ${ship.symbol}`}
+        extra={
+          <Button
+            onClick={() => {
+              if (!shipID) return;
+              spaceTraderClient.FleetClient.getMyShip(shipID).then(
+                (response) => {
+                  dispatch(putShip({ ship: response.data.data }));
+
+                  dispatch(pruneSurveys());
+                },
+              );
+            }}
+          >
+            Reload
+          </Button>
+        }
+      >
         <Row gutter={[16, 16]} style={{ width: "100%" }}>
           <Col span={24}>
             <Descriptions
@@ -1207,31 +1225,19 @@ function CargoActions({
 }) {
   const [count, setCount] = useState(1);
 
-  const items = useMemo(() => {
-    return [
-      ...spaceTraderClient.LocalCache.getShips().map((w) => {
-        return {
-          key: w.symbol,
-          label: w.symbol,
-        };
-      }),
-    ];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count]);
+  const items = useAppSelector(selectShips).map((w) => {
+    return {
+      key: w.symbol,
+      label: w.symbol,
+    };
+  });
 
-  const contracts = useMemo(() => {
-    return [
-      ...spaceTraderClient.LocalCache.getContracts()
-        .filter((w) => w.terms && !w.fulfilled)
-        .map((w) => {
-          return {
-            key: w.id,
-            label: w.id,
-          };
-        }),
-    ];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count]);
+  const contracts = useAppSelector(selectOpenContracts).map((w: Contract) => {
+    return {
+      key: w.id,
+      label: w.id,
+    };
+  });
 
   return (
     <Space>

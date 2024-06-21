@@ -20,6 +20,15 @@ export const fleetSlice = createAppSlice({
     addShips: create.reducer((state, action: PayloadAction<Ship[]>) => {
       state.ships.push(...action.payload);
     }),
+
+    putShips: create.reducer((state, action: PayloadAction<Ship[]>) => {
+      // adds ships to fleet not already in it and updates if already in it
+      state.ships = state.ships.filter(
+        (ship) => !action.payload.some((s) => s.symbol === ship.symbol),
+      );
+      state.ships.push(...action.payload);
+    }),
+
     setShips: create.reducer((state, action: PayloadAction<Ship[]>) => {
       state.ships = action.payload;
     }),
@@ -36,7 +45,7 @@ export const fleetSlice = createAppSlice({
       state.ships.push(action.payload);
     }),
 
-    setShip: create.reducer(
+    putShip: create.reducer(
       (state, action: PayloadAction<{ symbol?: string; ship: Ship }>) => {
         const { symbol, ship } = action.payload;
         const shipsSymbol = symbol || ship.symbol;
@@ -109,9 +118,10 @@ export const fleetSlice = createAppSlice({
 export const {
   addShips,
   setShips,
+  putShips,
   clearShips,
   addShip,
-  setShip,
+  putShip,
   setShipFuel,
   setShipNav,
   setShipCargo,

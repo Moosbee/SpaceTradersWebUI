@@ -1,37 +1,35 @@
 import { useEffect, useState } from "react";
-import type { Ship } from "../../app/spaceTraderAPI/api";
 import type { PaginationProps } from "antd";
 import { Flex, Pagination, Spin } from "antd";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 import ShipDisp from "../../features/disp/ship/ShipDisp";
+import {
+  putShips,
+  selectShips,
+} from "../../app/spaceTraderAPI/redux/FleetSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 function Fleet() {
-  const [ships, setShips] = useState<Ship[]>([]);
   const [shipsPage, setShipsPage] = useState(1);
   const [allShips, setAllShips] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [loading, setLoading] = useState(true);
+
+  const dispatch = useAppDispatch();
+  const ships = useAppSelector(selectShips);
 
   useEffect(() => {
     setLoading(true);
     spaceTraderClient.FleetClient.getMyShips(shipsPage, itemsPerPage).then(
       (response) => {
         console.log("my responses", response);
-        setShips(response.data.data);
+        dispatch(putShips(response.data.data));
         setAllShips(response.data.meta.total);
         setLoading(false);
-        spaceTraderClient.LocalCache.setShips(
-          response.data.data.map((value) => {
-            return {
-              symbol: value.symbol,
-              waypointSymbol: value.nav.waypointSymbol,
-            };
-          }),
-        );
       },
     );
     return () => {};
-  }, [itemsPerPage, shipsPage]);
+  }, [dispatch, itemsPerPage, shipsPage]);
 
   const onChange: PaginationProps["onChange"] = (page, pageSize) => {
     console.log(page);

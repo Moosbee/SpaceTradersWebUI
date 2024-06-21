@@ -1,16 +1,22 @@
 import type { PaginationProps } from "antd";
 import { Pagination, Flex, Spin } from "antd";
 import { useState, useEffect } from "react";
-import type { Contract } from "../../app/spaceTraderAPI/api";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 import ContractDisp from "../../features/disp/ContractDisp";
+import {
+  putContracts,
+  selectContracts,
+} from "../../app/spaceTraderAPI/redux/ContractSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 function Contracts() {
-  const [contracts, setContracts] = useState<Contract[]>([]);
   const [contractsPage, setContractsPage] = useState(1);
   const [contractsAll, setContractsAll] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [loading, setLoading] = useState(true);
+
+  const dispatch = useAppDispatch();
+  const contracts = useAppSelector(selectContracts);
 
   useEffect(() => {
     setLoading(true);
@@ -19,12 +25,11 @@ function Contracts() {
       itemsPerPage,
     ).then((response) => {
       console.log("response", response);
-      setContracts(response.data.data);
+      dispatch(putContracts(response.data.data));
       setContractsAll(response.data.meta.total);
       setLoading(false);
-      spaceTraderClient.LocalCache.setContracts(response.data.data);
     });
-  }, [contractsPage, itemsPerPage]);
+  }, [contractsPage, dispatch, itemsPerPage]);
 
   const onChange: PaginationProps["onChange"] = (page, pageSize) => {
     console.log(page);

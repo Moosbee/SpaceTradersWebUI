@@ -1,4 +1,3 @@
-import type { Contract } from "./api";
 import { DataBase } from "./dataBase";
 import spaceTraderClient from "./spaceTraderClient";
 
@@ -73,29 +72,6 @@ const localCache = {
   },
   clearSystems: async () => {
     await cacheDB.clearSystems();
-  },
-
-  getShips: (): { symbol: string; waypointSymbol: string }[] => {
-    const ships = JSON.parse(sessionStorage.getItem("ships") || "[]");
-    // console.log("ships", ships);
-    return ships;
-  },
-
-  setShips: (ships: { symbol: string; waypointSymbol: string }[]) => {
-    sessionStorage.setItem("ships", JSON.stringify(ships));
-  },
-  getContracts: (): Contract[] => {
-    const ships = JSON.parse(sessionStorage.getItem("contracts") || "[]");
-    // console.log("ships", ships);
-    return ships;
-  },
-  addContract: async (contract: Contract) => {
-    const ships = JSON.parse(sessionStorage.getItem("contracts") || "[]");
-    ships.push(contract);
-    sessionStorage.setItem("contracts", JSON.stringify(ships));
-  },
-  setContracts: async (contracts: Contract[]) => {
-    sessionStorage.setItem("contracts", JSON.stringify(contracts));
   },
 };
 export { cacheDB };
