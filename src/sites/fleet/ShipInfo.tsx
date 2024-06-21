@@ -34,16 +34,21 @@ import {
   selectSurveys,
 } from "../../app/spaceTraderAPI/redux/surveySlice";
 import { message } from "../../utils/antdMessage";
+
+import { selectOpenContracts } from "../../app/spaceTraderAPI/redux/contractSlice";
 import {
   selectShip,
-  putShip,
-  setShipCargo,
-  setShipCooldown,
   setShipFuel,
   setShipNav,
+  setShipCargo,
+  setShipCooldown,
+  putShip,
   selectShips,
-} from "../../app/spaceTraderAPI/redux/FleetSlice";
-import { selectOpenContracts } from "../../app/spaceTraderAPI/redux/ContractSlice";
+} from "../../app/spaceTraderAPI/redux/fleetSlice";
+import {
+  selectSystem,
+  selectSystems,
+} from "../../app/spaceTraderAPI/redux/systemSlice";
 
 const { Countdown } = Statistic;
 
@@ -53,31 +58,15 @@ function ShipInfo() {
   const [loadingShipNav, setLoadingShipNav] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const ship = useAppSelector((state) => selectShip(state, shipID));
+  const system = useAppSelector((state) =>
+    selectSystem(state, ship?.nav.systemSymbol),
+  );
 
   const [navWaypoint, setNavWaypoint] = useState<string>();
-
-  const [system, setSystem] = useState<System>({
-    symbol: "",
-    type: "WHITE_DWARF",
-    x: 0,
-    y: 0,
-    waypoints: [],
-    factions: [],
-    sectorSymbol: "",
-  });
 
   const wayPoint = system?.waypoints.find(
     (x) => x.symbol === ship?.nav.waypointSymbol,
   );
-
-  useEffect(() => {
-    if (!ship) return;
-    spaceTraderClient.LocalCache.getSystem(ship.nav.systemSymbol).then(
-      (response) => {
-        setSystem(response);
-      },
-    );
-  }, [ship]);
 
   if (!ship) return <Spin spinning={true} fullscreen></Spin>;
   const itemsGeneral: DescriptionsProps["items"] = [
@@ -325,7 +314,7 @@ function ShipInfo() {
             {ship.nav.status === "IN_ORBIT" && (
               <>
                 <Select
-                  options={system.waypoints.map((w) => {
+                  options={system?.waypoints.map((w) => {
                     return {
                       value: w.symbol,
                       label: <Tooltip title={w.type}>{w.symbol}</Tooltip>,
@@ -1278,12 +1267,13 @@ function CargoActions({
 }
 
 function WarpShip({ ship }: { ship: Ship }) {
-  const [systems, setSystems] = useState<System[]>([]);
   const [system, setSystem] = useState<System | undefined>(undefined);
 
   const [waypoint, setWaypoint] = useState<SystemWaypoint | undefined>(
     undefined,
   );
+
+  const systems = useAppSelector(selectSystems);
 
   function handleChangeSystem(value: string) {
     // console.log(`selected`, value);
@@ -1298,15 +1288,12 @@ function WarpShip({ ship }: { ship: Ship }) {
   }
 
   useEffect(() => {
-    spaceTraderClient.LocalCache.getSystems().then((data) => {
-      setSystems(data);
-      const info = data.find((w) => w.symbol === ship.nav.systemSymbol);
-      setSystem(info);
-      setWaypoint(
-        info?.waypoints.find((w) => w.symbol === ship.nav.waypointSymbol),
-      );
-    });
-  }, [ship.nav.systemSymbol, ship.nav.waypointSymbol]);
+    const info = systems.find((w) => w.symbol === ship.nav.systemSymbol);
+    setSystem(info);
+    setWaypoint(
+      info?.waypoints.find((w) => w.symbol === ship.nav.waypointSymbol),
+    );
+  }, [ship.nav.systemSymbol, ship.nav.waypointSymbol, systems]);
 
   return (
     <Space>

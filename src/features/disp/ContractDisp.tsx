@@ -1,8 +1,11 @@
 import { Button, Card, Descriptions, Table } from "antd";
-import type { Contract } from "../../app/spaceTraderAPI/api";
+import type {
+  Contract,
+  ContractDeliverGood,
+} from "../../app/spaceTraderAPI/api";
 import { Link } from "react-router-dom";
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
-import { useState, useEffect } from "react";
+import { useAppSelector } from "../../app/hooks";
+import { selectSystemByWaypoint } from "../../app/spaceTraderAPI/redux/systemSlice";
 
 function ContractDisp({
   contract,
@@ -13,34 +16,6 @@ function ContractDisp({
   onAccept?: () => void;
   onFulfill?: () => void;
 }) {
-  const [deliverTerms, setDeliverTerms] = useState<
-    {
-      systemSymbol?: string;
-      tradeSymbol: string;
-      destinationSymbol: string;
-      unitsRequired: number;
-      unitsFulfilled: number;
-    }[]
-  >(contract.terms.deliver || []);
-
-  useEffect(() => {
-    if (!contract.terms.deliver) return;
-    Promise.all(
-      contract.terms.deliver.map(async (d) => {
-        const data = await spaceTraderClient.LocalCache.getSystemByWaypoint(
-          d.destinationSymbol,
-        );
-        return { data, d };
-      }),
-    ).then((data) => {
-      const deliverTerms = data.map((d) => ({
-        ...d.d,
-        systemSymbol: d.data[0].symbol,
-      }));
-      setDeliverTerms(deliverTerms);
-    });
-  }, [contract]);
-
   return (
     <Card style={{ width: "fit-content" }}>
       <Descriptions
@@ -119,11 +94,10 @@ function ContractDisp({
                           dataIndex: "destinationSymbol",
                           key: "destinationSymbol",
                           render: (symbol: string, record) => (
-                            <Link
-                              to={`/system/${record.systemSymbol}/${symbol}`}
-                            >
-                              {symbol}
-                            </Link>
+                            <DestinationSymbolLink
+                              symbol={symbol}
+                              record={record}
+                            />
                           ),
                         },
                         {
@@ -142,7 +116,7 @@ function ContractDisp({
                           key: "unitsRequired",
                         },
                       ]}
-                      dataSource={deliverTerms}
+                      dataSource={contract.terms.deliver}
                     ></Table>
                   ),
                 },
@@ -165,6 +139,19 @@ function ContractDisp({
       ></Descriptions>
     </Card>
   );
+}
+
+function DestinationSymbolLink({
+  symbol,
+  record,
+}: {
+  symbol: string;
+  record: ContractDeliverGood;
+}) {
+  const data = useAppSelector((state) =>
+    selectSystemByWaypoint(state, record.destinationSymbol),
+  );
+  return <Link to={`/system/${data?.symbol}/${symbol}`}>{symbol}</Link>;
 }
 
 export default ContractDisp;

@@ -3,11 +3,12 @@ import type { PaginationProps } from "antd";
 import { Flex, Pagination, Spin } from "antd";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 import ShipDisp from "../../features/disp/ship/ShipDisp";
-import {
-  putShips,
-  selectShips,
-} from "../../app/spaceTraderAPI/redux/FleetSlice";
+
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import {
+  selectShips,
+  putShips,
+} from "../../app/spaceTraderAPI/redux/fleetSlice";
 
 function Fleet() {
   const [shipsPage, setShipsPage] = useState(1);

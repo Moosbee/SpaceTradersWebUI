@@ -1,3 +1,4 @@
+import type { Waypoint } from "./api/api";
 import {
   FleetApi,
   AgentsApi,
@@ -8,8 +9,10 @@ import {
 } from "./api/api";
 import { Configuration } from "./api/configuration";
 
+import type { RawAxiosRequestConfig } from "axios";
 import axios from "axios";
-import localCache from "./cache";
+import { store } from "../store";
+import { putSystems } from "./redux/systemSlice";
 
 // Create an Axios instance
 const axiosInstance = axios.create();
@@ -63,46 +66,69 @@ const ContractsClient = new ContractsApi(
 );
 const DefaultClient = new DefaultApi(openapiConfig, undefined, axiosInstance);
 
-// const CrawlClient = {
-//   getSystemWaypoints: async (
-//     systemSymbol: string,
-//     onProgress?: (progress: number, total: number) => void,
-//     options?: RawAxiosRequestConfig
-//   ) => {
-//     const limit = 20;
-//     let page = 1;
-//     let total = 0;
+const CrawlClient = {
+  getSystemWaypoints: async (
+    systemSymbol: string,
+    onProgress?: (progress: number, total: number) => void,
+    options?: RawAxiosRequestConfig,
+  ) => {
+    const limit = 20;
+    let page = 1;
+    let total = 0;
 
-//     let finished = false;
+    let finished = false;
 
-//     let waypoints: Waypoint[] = [];
+    let waypoints: Waypoint[] = [];
 
-//     while (!finished) {
-//       const response = await SystemsClient.getSystemWaypoints(
-//         systemSymbol,
-//         page,
-//         limit,
-//         undefined,
-//         undefined,
-//         options
-//       );
-//       total = response.data.meta.total;
+    while (!finished) {
+      const response = await SystemsClient.getSystemWaypoints(
+        systemSymbol,
+        page,
+        limit,
+        undefined,
+        undefined,
+        options,
+      );
+      total = response.data.meta.total;
 
-//       waypoints = waypoints.concat(response.data.data);
+      waypoints = waypoints.concat(response.data.data);
 
-//       onProgress?.((page - 1) * limit + response.data.data.length, total);
+      onProgress?.((page - 1) * limit + response.data.data.length, total);
 
-//       if (response.data.data.length === 0) {
-//         finished = true;
-//       }
-//       if (page * limit >= total) {
-//         finished = true;
-//       }
-//       page++;
-//     }
-//     return waypoints;
-//   },
-// };
+      if (response.data.data.length === 0) {
+        finished = true;
+      }
+      if (page * limit >= total) {
+        finished = true;
+      }
+      page++;
+    }
+    return waypoints;
+  },
+  cacheSystems: async (
+    onProgress?: (progress: number, total: number) => void,
+  ) => {
+    const limit = 20;
+    let page = 1;
+    let total = 0;
+    let finished = false;
+    while (!finished) {
+      await new Promise((resolve) => setTimeout(resolve, 510)); // rate limiting :D
+      const response = await SystemsClient.getSystems(page, limit);
+      total = response.data.meta.total;
+      store.dispatch(putSystems(response.data.data));
+
+      onProgress?.((page - 1) * limit + response.data.data.length, total);
+      if (response.data.data.length === 0) {
+        finished = true;
+      }
+      if (page * limit >= total) {
+        finished = true;
+      }
+      page++;
+    }
+  },
+};
 
 const spaceTraderClient = {
   FleetClient: FleetClient,
@@ -111,7 +137,7 @@ const spaceTraderClient = {
   FactionsClient: FactionsClient,
   ContractsClient: ContractsClient,
   DefaultClient: DefaultClient,
-  LocalCache: localCache,
+  CrawlClient: CrawlClient,
 };
 
 export default spaceTraderClient;

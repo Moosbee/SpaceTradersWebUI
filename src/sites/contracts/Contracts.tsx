@@ -6,7 +6,7 @@ import ContractDisp from "../../features/disp/ContractDisp";
 import {
   putContracts,
   selectContracts,
-} from "../../app/spaceTraderAPI/redux/ContractSlice";
+} from "../../app/spaceTraderAPI/redux/contractSlice";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
 function Contracts() {

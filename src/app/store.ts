@@ -6,17 +6,21 @@ import { quotesApiSlice } from "../features/quotes/quotesApiSlice";
 import { surveySlice } from "./spaceTraderAPI/redux/surveySlice";
 import type { PersistConfig } from "redux-persist";
 import { persistReducer, persistStore } from "redux-persist";
-import storage from "redux-persist/lib/storage";
 import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
-import { fleetSlice } from "./spaceTraderAPI/redux/FleetSlice";
-import { contractSlice } from "./spaceTraderAPI/redux/ContractSlice";
+import { contractSlice } from "./spaceTraderAPI/redux/contractSlice";
+import { systemSlice } from "./spaceTraderAPI/redux/systemSlice";
+import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
+import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
   key: "root", // Key for the persisted data
-  storage, // The storage engine to use (default is localStorage for web)
   stateReconciler: autoMergeLevel2, // see "Merge Process" section for details.
   // blacklist: [],
+  storage: createIdbStorage({ name: "myApp", storeName: "keyval" }),
+  serialize: false, // Data serialization is not required and disabling it allows you to inspect storage value in DevTools; Available since redux-persist@5.4.0
+  // @ts-ignore
+  deserialize: false, // Required to bear same value as `serialize` since redux-persist@6.0
 };
 
 // `combineSlices` automatically combines the reducers using
@@ -29,6 +33,7 @@ const rootReducer = combineSlices(
   surveySlice,
   fleetSlice,
   contractSlice,
+  systemSlice,
 );
 
 // Wrap the rootReducer with persistReducer
