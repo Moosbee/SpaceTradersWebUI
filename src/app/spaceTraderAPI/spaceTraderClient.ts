@@ -20,10 +20,11 @@ axiosInstance.interceptors.request.use(
     // config.headers["Authorization"] = `Bearer your-token`;
     // console.log("axiosrequest", config);
     // Add any other transformations you need
+    console.log("axiosrequest", config);
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return error;
   },
 );
 
@@ -33,10 +34,11 @@ axiosInstance.interceptors.response.use(
     // Modify the response here (e.g., convert data format)
     // console.log("axiosresponse", response);
     // Add any other transformations you need
+    console.log("axiosresponse", response);
     return response;
   },
   (error) => {
-    return Promise.reject(error);
+    return error;
   },
 );
 

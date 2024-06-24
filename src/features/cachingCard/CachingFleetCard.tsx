@@ -39,6 +39,7 @@ const CachingFleetCard = () => {
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
+    dispatch(clearShips());
     cacheControllerRef.current?.reset();
     setRemainingTime(0);
 
@@ -57,7 +58,7 @@ const CachingFleetCard = () => {
         setLoading(false);
         cacheControllerRef.current?.reset();
       });
-  }, [startTime]);
+  }, [dispatch, startTime]);
 
   const pauseFetching = useCallback(() => {
     cacheControllerRef.current?.pause();

@@ -24,7 +24,15 @@ const CachingSystemsCard = () => {
 
   useEffect(() => {
     cacheControllerRef.current = new CacheController<System>(
-      spaceTraderClient.SystemsClient.getSystems,
+      (page, limit, options) => {
+        return spaceTraderClient.SystemsClient.getSystems(page, limit, {
+          ...options,
+          transformRequest: (data, headers) => {
+            delete headers["Authorization"];
+            return data;
+          },
+        });
+      },
       (systems) => {
         store.dispatch(putSystems(systems));
       },
@@ -37,6 +45,7 @@ const CachingSystemsCard = () => {
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
+    dispatch(clearSystems());
     cacheControllerRef.current?.reset();
     setRemainingTime(0);
 
@@ -55,7 +64,7 @@ const CachingSystemsCard = () => {
         setLoading(false);
         cacheControllerRef.current?.reset();
       });
-  }, [startTime]);
+  }, [dispatch, startTime]);
 
   const pauseFetching = useCallback(() => {
     cacheControllerRef.current?.pause();

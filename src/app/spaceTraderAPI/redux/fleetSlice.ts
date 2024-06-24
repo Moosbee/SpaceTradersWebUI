@@ -1,4 +1,4 @@
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, type PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
 import type { Cooldown, Ship, ShipCargo, ShipFuel, ShipNav } from "../api";
 
@@ -72,7 +72,10 @@ export const fleetSlice = createAppSlice({
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
   selectors: {
-    selectShips: (fleet) => Object.values<Ship>(fleet.ships),
+    selectShips: createSelector(
+      (fleet) => fleet.ships,
+      (ships) => Object.values<Ship>(ships),
+    ),
     selectShip: (fleet, symbol?: string) =>
       symbol ? fleet.ships[symbol] : undefined,
   },

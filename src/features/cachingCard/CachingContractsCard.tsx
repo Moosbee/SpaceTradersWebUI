@@ -43,6 +43,7 @@ const CachingContractsCard = () => {
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
+    dispatch(clearContracts());
     cacheControllerRef.current?.reset();
     setRemainingTime(0);
 
@@ -61,7 +62,7 @@ const CachingContractsCard = () => {
         setLoading(false);
         cacheControllerRef.current?.reset();
       });
-  }, [startTime]);
+  }, [dispatch, startTime]);
 
   const pauseFetching = useCallback(() => {
     cacheControllerRef.current?.pause();
