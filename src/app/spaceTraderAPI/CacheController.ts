@@ -120,4 +120,12 @@ export class CacheController<T> {
     this.canceled = true;
     this.finished = true; // Ensure the loop exits
   }
+
+  reset() {
+    this.page = 1;
+    this.total = 0;
+    this.finished = false;
+    this.paused = false;
+    this.canceled = false;
+  }
 }

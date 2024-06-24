@@ -1,10 +1,17 @@
+import { Space } from "antd";
+import CachingContractsCard from "../../features/cachingCard/CachingContractsCard";
+import CachingFleetCard from "../../features/cachingCard/CachingFleetCard";
 import CachingSystemsCard from "../../features/cachingCard/CachingSystemsCard";
 
 function Caching() {
   return (
     <div>
       <h1>Caching</h1>
-      <CachingSystemsCard />
+      <Space>
+        <CachingSystemsCard />
+        <CachingContractsCard />
+        <CachingFleetCard />
+      </Space>
     </div>
   );
 }

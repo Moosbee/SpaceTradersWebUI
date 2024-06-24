@@ -1,32 +1,38 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import {
-  clearSystems,
-  putSystems,
-  selectSystems,
-} from "../../app/spaceTraderAPI/redux/systemSlice";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 import { CacheController } from "../../app/spaceTraderAPI/CacheController";
+import type { Contract } from "../../app/spaceTraderAPI/api";
 import { store } from "../../app/store";
+import {
+  clearContracts,
+  putContracts,
+  selectContracts,
+} from "../../app/spaceTraderAPI/redux/contractSlice";
 import CachingCard from "../disp/CachingCardDisp";
-import type { System } from "../../app/spaceTraderAPI/api";
 
-const CachingSystemsCard = () => {
+const CachingContractsCard = () => {
   const dispatch = useAppDispatch();
-  const cachedSystems = useAppSelector(selectSystems);
+  const cachedContracts = useAppSelector(selectContracts);
 
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   const [remainingTime, setRemainingTime] = useState(0);
   const [total, setTotal] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const cacheControllerRef = useRef<CacheController<System>>();
+  const cacheControllerRef = useRef<CacheController<Contract>>();
 
   useEffect(() => {
-    cacheControllerRef.current = new CacheController<System>(
-      spaceTraderClient.SystemsClient.getSystems,
-      (systems) => {
-        store.dispatch(putSystems(systems));
+    cacheControllerRef.current = new CacheController<Contract>(
+      (page, limit, options) => {
+        return spaceTraderClient.ContractsClient.getContracts(
+          page,
+          limit,
+          options,
+        );
+      },
+      (contracts) => {
+        store.dispatch(putContracts(contracts));
       },
     );
     return () => {
@@ -86,19 +92,19 @@ const CachingSystemsCard = () => {
 
   return (
     <CachingCard
-      progress={cachedSystems.length}
+      progress={cachedContracts.length}
       loading={loading}
       isPaused={isPaused}
       total={total}
       remainingTimeString={remainingTimeString}
-      title="Cache Systems"
+      title="Cache Contracts"
       startFetching={startFetching}
       pauseFetching={pauseFetching}
       continueFetching={continueFetching}
       cancelFetching={cancelFetching}
-      clearSystems={() => dispatch(clearSystems())}
+      clearSystems={() => dispatch(clearContracts())}
     />
   );
 };
 
-export default CachingSystemsCard;
+export default CachingContractsCard;
