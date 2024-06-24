@@ -90,8 +90,14 @@ export const contractSlice = createAppSlice({
 });
 
 // Action creators are generated for each case reducer function.
-export const { addContracts, putContracts, setContracts, clearContracts } =
-  contractSlice.actions;
+export const {
+  addContracts,
+  putContracts,
+  setContracts,
+  clearContracts,
+  addContract,
+  putContract,
+} = contractSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const {
   selectContracts,

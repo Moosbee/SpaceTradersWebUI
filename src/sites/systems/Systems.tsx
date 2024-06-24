@@ -1,29 +1,68 @@
-import type { PaginationProps } from "antd";
-import { Pagination, Flex, Spin } from "antd";
-import { useState, useEffect } from "react";
-import type { System } from "../../app/spaceTraderAPI/api";
-import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
+import type { AutoCompleteProps, PaginationProps, SelectProps } from "antd";
+import {
+  AutoComplete,
+  Card,
+  Descriptions,
+  Divider,
+  Flex,
+  Pagination,
+  Select,
+} from "antd";
+import { selectSystems } from "../../app/spaceTraderAPI/redux/systemSlice";
+import { useAppSelector } from "../../app/hooks";
+import CachingSystemsCard from "../../features/cachingCard/CachingSystemsCard";
+import { useMemo, useState } from "react";
 import SystemDisp from "../../features/disp/SystemDisp";
+import type { System } from "../../app/spaceTraderAPI/api";
 
 function Systems() {
-  const [systems, setSystems] = useState<System[]>([]);
-  const [systemsPage, setSystemsPage] = useState(1);
-  const [allSystems, setAllSystems] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [loading, setLoading] = useState(true);
+  const unfilteredSystems: System[] = useAppSelector(selectSystems);
 
-  useEffect(() => {
-    setLoading(true);
-    spaceTraderClient.SystemsClient.getSystems(systemsPage, itemsPerPage).then(
-      (response) => {
-        console.log("my responses", response);
-        setSystems(response.data.data);
-        setAllSystems(response.data.meta.total);
-        setLoading(false);
-      },
+  const [searchType, setSearchType] = useState<string[]>([]);
+  const [searchFaction, setSearchFaction] = useState<string[]>([]);
+  const [searchSector, setSearchSector] = useState<string[]>([]);
+  const [searchAutoComplete, setSearchAutoComplete] = useState("");
+
+  const systems = useMemo(
+    () =>
+      unfilteredSystems.filter((system) => {
+        const typeMatch =
+          searchType.length === 0 || searchType.includes(system.type);
+        const sectorMatch =
+          searchSector.length === 0 ||
+          searchSector.includes(system.sectorSymbol);
+        const factionMatch =
+          searchFaction.length === 0 ||
+          system.factions.some((faction) =>
+            searchFaction.includes(faction.symbol),
+          );
+
+        const autoCompleteMatch =
+          searchAutoComplete === "" ||
+          system.symbol
+            .toLowerCase()
+            .includes(searchAutoComplete.toLowerCase());
+
+        return typeMatch && sectorMatch && factionMatch && autoCompleteMatch;
+      }),
+    [
+      searchAutoComplete,
+      searchFaction,
+      searchSector,
+      searchType,
+      unfilteredSystems,
+    ],
+  );
+
+  const [systemsPage, setSystemsPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
+  const systemsPaging = useMemo(() => {
+    return systems.slice(
+      (systemsPage - 1) * itemsPerPage,
+      systemsPage * itemsPerPage,
     );
-    return () => {};
-  }, [itemsPerPage, systemsPage]);
+  }, [itemsPerPage, systems, systemsPage]);
 
   const onChange: PaginationProps["onChange"] = (page, pageSize) => {
     console.log(page);
@@ -31,26 +70,132 @@ function Systems() {
     setItemsPerPage(pageSize);
   };
 
+  const options: {
+    sectors: SelectProps["options"];
+    type: SelectProps["options"];
+    factions: SelectProps["options"];
+  } = useMemo(() => {
+    return {
+      sectors: [...new Set(unfilteredSystems.map((w) => w.sectorSymbol))].map(
+        (w) => ({
+          value: w,
+          label: w,
+          key: w,
+        }),
+      ),
+      type: [...new Set(unfilteredSystems.map((w) => w.type))].map((w) => ({
+        value: w,
+        label: w,
+        key: w,
+      })),
+      factions: [
+        ...new Set(
+          unfilteredSystems.flatMap((w) => w.factions).map((w) => w.symbol),
+        ),
+      ].map((w) => ({
+        value: w,
+        label: w,
+        key: w,
+      })),
+    };
+  }, [unfilteredSystems]);
+
+  const options_auto: {
+    autoComplete: AutoCompleteProps["options"];
+  } = useMemo(() => {
+    return {
+      autoComplete: systems.map((w) => ({
+        key: w.symbol,
+        value: w.symbol,
+      })),
+    };
+  }, [systems]);
+
   return (
     <div>
       <h2>All Systems</h2>
+      <Flex justify="space-around" gap={8}>
+        <Card style={{ width: "fit-content" }} title={"Search"}>
+          <Descriptions
+            column={2}
+            items={[
+              {
+                key: "1",
+                label: "Sector",
+                children: (
+                  <Select
+                    mode="multiple"
+                    placeholder="Please select"
+                    onChange={setSearchSector}
+                    style={{ width: 250 }}
+                    options={options.sectors}
+                  />
+                ),
+              },
+              {
+                key: "2",
+                label: "Symbol",
+                children: (
+                  <AutoComplete
+                    options={options_auto.autoComplete}
+                    style={{ width: 250 }}
+                    onSelect={setSearchAutoComplete}
+                    onSearch={setSearchAutoComplete}
+                    placeholder="Search for a system"
+                  />
+                ),
+              },
+              {
+                key: "3",
+                label: "Type",
+                children: (
+                  <Select
+                    mode="multiple"
+                    placeholder="Please select"
+                    onChange={setSearchType}
+                    style={{ width: 250 }}
+                    options={options.type}
+                  />
+                ),
+              },
+              {
+                key: "4",
+                label: "Factions",
+                children: (
+                  <Select
+                    mode="multiple"
+                    placeholder="Please select"
+                    onChange={setSearchFaction}
+                    style={{ width: 250 }}
+                    options={options.factions}
+                  />
+                ),
+              },
+            ]}
+          />
+        </Card>
+        <CachingSystemsCard />
+      </Flex>
+      <Divider></Divider>
       <Pagination
         current={systemsPage}
         onChange={onChange}
-        total={allSystems}
-        pageSizeOptions={[5, 10, 15, 20]}
+        total={systems.length}
+        pageSizeOptions={[10, 25, 50, 75, 100]}
+        pageSize={itemsPerPage}
         showTotal={(total, range) =>
           `${range[0]}-${range[1]} of ${total} items`
         }
         style={{ padding: "16px", textAlign: "center" }}
       />
-      <Spin spinning={loading}>
-        <Flex wrap gap="middle" align="center" justify="space-evenly">
-          {systems.map((value) => {
-            return <SystemDisp key={value.symbol} system={value}></SystemDisp>;
-          })}
-        </Flex>
-      </Spin>
+      <Flex wrap gap="middle" align="center" justify="space-evenly">
+        {systemsPaging.map((value) => {
+          return <SystemDisp key={value.symbol} system={value}></SystemDisp>;
+        })}
+        {/* {systemsPaging.map((value) => {
+          return <div key={value.symbol}>{value.symbol}</div>;
+        })} */}
+      </Flex>
     </div>
   );
 }
