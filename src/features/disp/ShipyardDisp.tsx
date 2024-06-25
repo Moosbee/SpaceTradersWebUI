@@ -11,8 +11,12 @@ import {
 import type { Shipyard } from "../../app/spaceTraderAPI/api";
 import ShipyardShipDisp from "./ship/ShipyardShip";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
+import { setMyAgent } from "../../app/spaceTraderAPI/redux/agentSlice";
+import { useAppDispatch } from "../../app/hooks";
 
 function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
+  const dispatch = useAppDispatch();
+
   return (
     <Card title={`Market Info ${shipyard.symbol}`}>
       <Row justify="space-evenly" gutter={[8, 8]}>
@@ -63,6 +67,7 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                             waypointSymbol: shipyard.symbol,
                           }).then((data) => {
                             console.log("data", data);
+                            dispatch(setMyAgent(data.data.data.agent));
                           });
                         }}
                       ></ShipyardShipDisp>

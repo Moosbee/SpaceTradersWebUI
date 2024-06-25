@@ -7,6 +7,7 @@ import {
 } from "../../app/spaceTraderAPI/redux/contractSlice";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import CachingContractsCard from "../../features/cachingCard/CachingContractsCard";
+import { setMyAgent } from "../../app/spaceTraderAPI/redux/agentSlice";
 
 function Contracts() {
   const dispatch = useAppDispatch();
@@ -28,7 +29,10 @@ function Contracts() {
               spaceTraderClient.ContractsClient.acceptContract(value.id).then(
                 (response) => {
                   console.log("response", response);
-                  dispatch(putContract(response.data.data));
+                  dispatch(
+                    putContract({ contract: response.data.data.contract }),
+                  );
+                  dispatch(setMyAgent(response.data.data.agent));
                 },
               );
             }}
@@ -36,7 +40,10 @@ function Contracts() {
               spaceTraderClient.ContractsClient.fulfillContract(value.id).then(
                 (response) => {
                   console.log("response", response);
-                  dispatch(putContract(response.data.data));
+                  dispatch(
+                    putContract({ contract: response.data.data.contract }),
+                  );
+                  dispatch(setMyAgent(response.data.data.agent));
                 },
               );
             }}

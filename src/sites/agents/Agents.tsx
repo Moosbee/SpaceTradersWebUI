@@ -4,28 +4,30 @@ import type { PaginationProps } from "antd";
 import { Divider, Flex, Pagination, Spin } from "antd";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 import AgentDisp from "../../features/disp/AgentDisp";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import {
+  selectMyAgent,
+  setMyAgent,
+} from "../../app/spaceTraderAPI/redux/agentSlice";
 
 function Agents() {
-  const [myAgent, setMyAgent] = useState<Agent>({
-    credits: 0,
-    headquarters: "",
-    shipCount: 0,
-    startingFaction: "",
-    symbol: "",
-  });
   const [agents, setAgents] = useState<Agent[]>([]);
   const [agentsPage, setAgentsPage] = useState(1);
   const [agentsAll, setAgentsAll] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [loading, setLoading] = useState(true);
 
+  const dispatch = useAppDispatch();
+
+  const myAgent = useAppSelector(selectMyAgent);
+
   useEffect(() => {
     spaceTraderClient.AgentsClient.getMyAgent().then((response) => {
       console.log("my response", response);
-      setMyAgent(response.data.data);
+      dispatch(setMyAgent(response.data.data));
     });
     return () => {};
-  }, []);
+  }, [dispatch]);
   useEffect(() => {
     setLoading(true);
     spaceTraderClient.AgentsClient.getAgents(agentsPage, itemsPerPage).then(

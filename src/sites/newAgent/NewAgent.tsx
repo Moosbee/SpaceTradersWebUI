@@ -21,6 +21,10 @@ import AgentDisp from "../../features/disp/AgentDisp";
 import ContractDisp from "../../features/disp/ContractDisp";
 import FactionDisp from "../../features/disp/FactionDisp";
 import ShipDisp from "../../features/disp/ship/ShipDisp";
+import { setMyAgent } from "../../app/spaceTraderAPI/redux/agentSlice";
+import { useAppDispatch } from "../../app/hooks";
+import { setShip } from "../../app/spaceTraderAPI/redux/fleetSlice";
+import { putContract } from "../../app/spaceTraderAPI/redux/contractSlice";
 
 const layout = {
   labelCol: { span: 8 },
@@ -46,6 +50,8 @@ function NewAgent() {
 
   const [form] = Form.useForm();
 
+  const dispatch = useAppDispatch();
+
   const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
     console.log("Success:", values);
 
@@ -64,6 +70,9 @@ function NewAgent() {
     ).then((answer) => {
       console.log(answer);
       setNewAgent(answer.data.data);
+      dispatch(setMyAgent(answer.data.data.agent));
+      dispatch(putContract({ contract: answer.data.data.contract }));
+      dispatch(setShip(answer.data.data.ship));
     });
   };
 

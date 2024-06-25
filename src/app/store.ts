@@ -12,6 +12,8 @@ import { systemSlice } from "./spaceTraderAPI/redux/systemSlice";
 import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import { waypointSlice } from "./spaceTraderAPI/redux/waypointSlice";
+import { configSlice } from "./spaceTraderAPI/redux/configSlice";
+import { agentSlice } from "./spaceTraderAPI/redux/agentSlice";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
@@ -29,6 +31,7 @@ const persistConfig: PersistConfig<RootState> = {
 //const rootReducer = combineSlices(counterSlice, quotesApiSlice, surveySlice);
 // because persist-redux we need to call `combineReducers`
 const rootReducer = combineSlices(
+  configSlice,
   counterSlice,
   quotesApiSlice,
   surveySlice,
@@ -36,6 +39,7 @@ const rootReducer = combineSlices(
   contractSlice,
   systemSlice,
   waypointSlice,
+  agentSlice,
 );
 
 // Wrap the rootReducer with persistReducer
@@ -56,6 +60,12 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
         serializableCheck: {
           // Ignore these action types
           ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
+          ignoredPaths: ["systems.systems"],
+        },
+
+        immutableCheck: {
+          // Ignore state paths, e.g. state for 'items':
+          ignoredPaths: ["systems.systems"],
         },
       }).concat(quotesApiSlice.middleware),
   });

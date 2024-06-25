@@ -35,7 +35,10 @@ import {
 } from "../../app/spaceTraderAPI/redux/surveySlice";
 import { message } from "../../utils/antdMessage";
 
-import { selectOpenContracts } from "../../app/spaceTraderAPI/redux/contractSlice";
+import {
+  putContract,
+  selectOpenContracts,
+} from "../../app/spaceTraderAPI/redux/contractSlice";
 import {
   selectShip,
   setShipFuel,
@@ -49,6 +52,7 @@ import {
   selectSystem,
   selectSystems,
 } from "../../app/spaceTraderAPI/redux/systemSlice";
+import { setMyAgent } from "../../app/spaceTraderAPI/redux/agentSlice";
 
 const { Countdown } = Statistic;
 
@@ -117,6 +121,8 @@ function ShipInfo() {
                       fuel: response.data.data.fuel,
                     }),
                   );
+                  dispatch(setMyAgent(response.data.data.agent));
+
                   message.success(`Refueled`);
                 });
               }}
@@ -595,6 +601,7 @@ function ShipInfo() {
                               cargo: value.data.data.cargo,
                             }),
                           );
+                          dispatch(setMyAgent(value.data.data.agent));
                         });
                       });
                     }}
@@ -639,6 +646,9 @@ function ShipInfo() {
                               symbol: ship.symbol,
                               cargo: value.data.data.cargo,
                             }),
+                          );
+                          dispatch(
+                            putContract({ contract: value.data.data.contract }),
                           );
                         });
                       });
@@ -1295,6 +1305,8 @@ function WarpShip({ ship }: { ship: Ship }) {
     );
   }, [ship.nav.systemSymbol, ship.nav.waypointSymbol, systems]);
 
+  const dispatch = useAppDispatch();
+
   return (
     <Space>
       <Select
@@ -1323,6 +1335,15 @@ function WarpShip({ ship }: { ship: Ship }) {
             })
               .then((data) => {
                 console.log("data", data);
+                dispatch(
+                  setShipFuel({
+                    symbol: ship.symbol,
+                    fuel: data.data.data.fuel,
+                  }),
+                );
+                dispatch(
+                  setShipNav({ symbol: ship.symbol, nav: data.data.data.nav }),
+                );
               })
               .catch((err) => {
                 console.log("err", err);

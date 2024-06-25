@@ -1,5 +1,4 @@
-import { Layout, theme, ConfigProvider, App, Button } from "antd";
-import { useState } from "react";
+import { Layout, theme, ConfigProvider, App } from "antd";
 import { Routes, Route } from "react-router-dom";
 import "./MyApp.css";
 import Agents from "./sites/agents/Agents";
@@ -16,7 +15,13 @@ import WaypointInfo from "./sites/systems/WaypointInfo";
 import ErrorPage from "./sites/ErrorPage";
 import MySider from "./features/mySider";
 import Message from "./utils/message";
+import { useAppSelector } from "./app/hooks";
+import { selectDarkMode } from "./app/spaceTraderAPI/redux/configSlice";
+import MyHeader from "./features/myHeader";
 const { Header, Content, Sider } = Layout;
+
+export { Sider as AntSiderSider };
+export { Header as AntHeaderHeader };
 
 function MyApp() {
   const {
@@ -24,7 +29,7 @@ function MyApp() {
   } = theme.useToken();
 
   const { defaultAlgorithm, darkAlgorithm } = theme;
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const isDarkMode = useAppSelector(selectDarkMode);
   return (
     <>
       <Message />
@@ -35,29 +40,9 @@ function MyApp() {
       >
         <App>
           <Layout>
-            <Header
-              style={{
-                position: "sticky",
-                top: 0,
-                zIndex: 1,
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "end",
-              }}
-            >
-              <Button
-                onClick={() => {
-                  setIsDarkMode(!isDarkMode);
-                }}
-              >
-                {isDarkMode ? "Light" : "Dark"}-Mode
-              </Button>
-            </Header>
+            <MyHeader Header={Header} />
             <Layout>
-              <Sider width={256} theme="light">
-                <MySider></MySider>
-              </Sider>
+              <MySider Slider={Sider}></MySider>
               <Layout style={{ padding: "24px 24px" }}>
                 <Content
                   style={{
