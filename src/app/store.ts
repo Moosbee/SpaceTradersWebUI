@@ -1,8 +1,6 @@
 import type { Action, ThunkAction } from "@reduxjs/toolkit";
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { counterSlice } from "../features/counter/counterSlice";
-import { quotesApiSlice } from "../features/quotes/quotesApiSlice";
 import { surveySlice } from "./spaceTraderAPI/redux/surveySlice";
 import type { PersistConfig } from "redux-persist";
 import { persistReducer, persistStore } from "redux-persist";
@@ -32,8 +30,6 @@ const persistConfig: PersistConfig<RootState> = {
 // because persist-redux we need to call `combineReducers`
 const rootReducer = combineSlices(
   configSlice,
-  counterSlice,
-  quotesApiSlice,
   surveySlice,
   fleetSlice,
   contractSlice,
@@ -67,7 +63,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
           // Ignore state paths, e.g. state for 'items':
           ignoredPaths: ["systems.systems"],
         },
-      }).concat(quotesApiSlice.middleware),
+      }),
   });
   // configure listeners using the provided defaults
   // optional, but required for `refetchOnFocus`/`refetchOnReconnect` behaviors
