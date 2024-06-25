@@ -33,7 +33,7 @@ function Factions() {
   };
 
   return (
-    <div>
+    <div style={{ padding: "24px 24px" }}>
       <h2>All Factions</h2>
       <Pagination
         current={factionsPage}

@@ -81,7 +81,7 @@ function Main() {
   ];
 
   return (
-    <Spin spinning={status === null}>
+    <Spin spinning={status === null} style={{ padding: "24px 24px" }}>
       <h2>Announcements</h2>
       <Flex gap="14px">
         {status?.announcements.map((value) => {

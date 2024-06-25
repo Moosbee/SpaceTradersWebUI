@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import type { WaypointType } from "../../app/spaceTraderAPI/api";
 import { WaypointTraitSymbol } from "../../app/spaceTraderAPI/api";
 import type { DescriptionsProps, PaginationProps, SelectProps } from "antd";
@@ -113,63 +113,69 @@ function SystemInfo() {
   };
 
   return (
-    <Spin spinning={system?.symbol === ""}>
-      <h2>System {systemID}</h2>
-      <Descriptions bordered items={items} />
+    <div style={{ padding: "24px 24px" }}>
+      <Spin spinning={system?.symbol === ""}>
+        <h2>System {systemID}</h2>
+        <Descriptions
+          bordered
+          items={items}
+          extra={<Link to={`/system/map/${systemID}`}>Map</Link>}
+        />
 
-      <h2>Waypoints</h2>
-      <Flex justify="space-around" gap={8}>
-        <Card style={{ width: "fit-content" }} title={"Search"}>
-          <Select
-            placeholder="Select Waypoint Type"
-            style={{ width: 250 }}
-            allowClear
-            options={[...new Set(waypoints.map((value) => value.type))].map(
-              (value) => {
-                return {
-                  value: value,
-                };
-              },
-            )}
-            onChange={(value) => {
-              setSearchType(value as WaypointType);
-              setWaypointsPage(1);
-            }}
-          />
-          <Select
-            allowClear
-            placeholder="Select Traits"
-            mode="multiple"
-            onChange={(value) => {
-              console.log("selected", value);
-              setSearchTraits(value as WaypointTraitSymbol[]);
-            }}
-            options={traitsOptions}
-            style={{ width: 400 }}
-          />
-        </Card>
-        <CachingSystemWaypointsCard systemSymbol={systemID!} />
-      </Flex>
+        <h2>Waypoints</h2>
+        <Flex justify="space-around" gap={8}>
+          <Card style={{ width: "fit-content" }} title={"Search"}>
+            <Select
+              placeholder="Select Waypoint Type"
+              style={{ width: 250 }}
+              allowClear
+              options={[...new Set(waypoints.map((value) => value.type))].map(
+                (value) => {
+                  return {
+                    value: value,
+                  };
+                },
+              )}
+              onChange={(value) => {
+                setSearchType(value as WaypointType);
+                setWaypointsPage(1);
+              }}
+            />
+            <Select
+              allowClear
+              placeholder="Select Traits"
+              mode="multiple"
+              onChange={(value) => {
+                console.log("selected", value);
+                setSearchTraits(value as WaypointTraitSymbol[]);
+              }}
+              options={traitsOptions}
+              style={{ width: 400 }}
+            />
+          </Card>
+          <CachingSystemWaypointsCard systemSymbol={systemID!} />
+        </Flex>
 
-      <Pagination
-        current={waypointsPage}
-        onChange={onChange}
-        total={waypoints.length}
-        pageSizeOptions={[10, 25, 50, 75, 100]}
-        showTotal={(total, range) =>
-          `${range[0]}-${range[1]} of ${total} items`
-        }
-        style={{ padding: "16px", textAlign: "center" }}
-      />
+        <Pagination
+          current={waypointsPage}
+          onChange={onChange}
+          total={waypoints.length}
+          pageSizeOptions={[10, 25, 50, 75, 100]}
+          showTotal={(total, range) =>
+            `${range[0]}-${range[1]} of ${total} items`
+          }
+          style={{ padding: "16px", textAlign: "center" }}
+        />
 
-      <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {waypointsPaging.map((value) => {
-          return (
-            <WaypointDisp key={value.symbol} waypoint={value}></WaypointDisp>
-          );
-        })}
-      </Flex>
-    </Spin>
+        <Flex wrap gap="middle" align="center" justify="space-evenly">
+          {waypointsPaging.map((value) => {
+            return (
+              <WaypointDisp key={value.symbol} waypoint={value}></WaypointDisp>
+            );
+          })}
+        </Flex>
+      </Spin>
+    </div>
   );
 }
 

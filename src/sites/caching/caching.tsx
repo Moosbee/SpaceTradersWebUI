@@ -5,7 +5,7 @@ import CachingSystemsCard from "../../features/cachingCard/CachingSystemsCard";
 
 function Caching() {
   return (
-    <div>
+    <div style={{ padding: "24px 24px" }}>
       <h1>Caching</h1>
       <Space>
         <CachingSystemsCard />

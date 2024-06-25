@@ -139,7 +139,7 @@ function Systems() {
   }, [systems]);
 
   return (
-    <div>
+    <div style={{ padding: "24px 24px" }}>
       <h2>All Systems</h2>
       <Flex justify="space-around" gap={8}>
         <Card style={{ width: "fit-content" }} title={"Search"}>

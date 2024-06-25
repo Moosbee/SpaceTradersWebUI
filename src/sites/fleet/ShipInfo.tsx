@@ -1308,7 +1308,7 @@ function WarpShip({ ship }: { ship: Ship }) {
   const dispatch = useAppDispatch();
 
   return (
-    <Space>
+    <Space style={{ padding: "24px 24px" }}>
       <Select
         options={systems.map((w) => {
           return { value: w.symbol, label: w.symbol };

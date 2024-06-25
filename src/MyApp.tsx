@@ -18,6 +18,7 @@ import Message from "./utils/message";
 import { useAppSelector } from "./app/hooks";
 import { selectDarkMode } from "./app/spaceTraderAPI/redux/configSlice";
 import MyHeader from "./features/myHeader";
+import WpMap from "./sites/map/waypoint/wpMap";
 const { Header, Content, Sider } = Layout;
 
 export { Sider as AntSiderSider };
@@ -43,12 +44,13 @@ function MyApp() {
             <MyHeader Header={Header} />
             <Layout>
               <MySider Slider={Sider}></MySider>
-              <Layout style={{ padding: "24px 24px" }}>
+              <Layout>
                 <Content
                   style={{
-                    padding: 24,
+                    padding: 0,
+                    // padding: 24,
                     margin: 0,
-                    minHeight: 280,
+                    minHeight: "calc(100vh - 64px)",
                     borderRadius: borderRadiusLG,
                   }}
                 >
@@ -74,9 +76,14 @@ function MyApp() {
                       path="/system/:systemID/:waypointID"
                       element={<WaypointInfo></WaypointInfo>}
                     />
+
                     <Route
                       path="/system/:systemID"
                       element={<SystemInfo></SystemInfo>}
+                    />
+                    <Route
+                      path="/system/map/:systemID"
+                      element={<WpMap></WpMap>}
                     />
                     <Route path="/systems" element={<Systems></Systems>} />
                     <Route path="/cache" element={<Caching></Caching>} />
