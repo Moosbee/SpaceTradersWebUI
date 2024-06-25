@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import type {
-  System,
-  Waypoint,
-  WaypointType,
-} from "../../app/spaceTraderAPI/api";
+import type { WaypointType } from "../../app/spaceTraderAPI/api";
 import { WaypointTraitSymbol } from "../../app/spaceTraderAPI/api";
 import type { DescriptionsProps, PaginationProps, SelectProps } from "antd";
-import { Col, Descriptions, Flex, Pagination, Row, Select, Spin } from "antd";
+import { Card, Descriptions, Flex, Pagination, Select, Spin } from "antd";
 import spaceTraderClient from "../../app/spaceTraderAPI/spaceTraderClient";
 import WaypointDisp from "../../features/disp/WaypointDisp";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { selectSystemWaypoints } from "../../app/spaceTraderAPI/redux/waypointSlice";
+import {
+  putSystem,
+  selectSystem,
+} from "../../app/spaceTraderAPI/redux/systemSlice";
+import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystemWaypointsCard";
 
 const traitsOptions: SelectProps["options"] = Object.values(
   WaypointTraitSymbol,
@@ -19,46 +22,44 @@ const traitsOptions: SelectProps["options"] = Object.values(
 
 function SystemInfo() {
   const { systemID } = useParams();
-  const [system, setSystem] = useState<System>({
-    symbol: "",
-    type: "WHITE_DWARF",
-    x: 0,
-    y: 0,
-    factions: [],
-    sectorSymbol: "",
-    waypoints: [],
-  });
+  const system = useAppSelector((state) => selectSystem(state, systemID));
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!systemID) return;
     spaceTraderClient.SystemsClient.getSystem(systemID).then((response) => {
       console.log("my responses", response);
-      setSystem(response.data.data);
+      dispatch(
+        putSystem({
+          symbol: response.data.data.symbol,
+          system: response.data.data,
+        }),
+      );
     });
-  }, [systemID]);
+  }, [dispatch, systemID]);
 
   const items: DescriptionsProps["items"] = [
     {
       key: "symbol",
       label: "Symbol",
-      children: <p>{system.symbol}</p>,
+      children: <p>{system?.symbol}</p>,
     },
     {
       key: "sectorSymbol",
       label: "Sector Symbol",
-      children: <p>{system.sectorSymbol}</p>,
+      children: <p>{system?.sectorSymbol}</p>,
     },
     {
       key: "type",
       label: "Type",
-      children: <p>{system.type}</p>,
+      children: <p>{system?.type}</p>,
     },
     {
       key: "coordinates",
       label: "Coordinates",
       children: (
         <p>
-          X: {system.x} Y: {system.y}
+          X: {system?.x} Y: {system?.y}
         </p>
       ),
     },
@@ -66,41 +67,44 @@ function SystemInfo() {
       key: "factions",
       label: "Factions",
       children: (
-        <p>{system.factions.map((value) => value.symbol).join(" - ")}</p>
+        <p>{system?.factions.map((value) => value.symbol).join(" - ")}</p>
       ),
     },
     {
       key: "waypointsCount",
       label: "Waypoints Count",
-      children: <p>{system.waypoints.length}</p>,
+      children: <p>{system?.waypoints.length}</p>,
     },
   ];
 
-  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
-  const [waypointsPage, setWaypointsPage] = useState(1);
-  const [allWaypoints, setAllWaypoints] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [loading, setLoading] = useState(true);
-  const [type, setType] = useState<WaypointType>();
-  const [traits, setTraits] = useState<WaypointTraitSymbol>();
+  const unfilteredWaypoints = useAppSelector((state) =>
+    selectSystemWaypoints(state, systemID!),
+  );
 
-  useEffect(() => {
-    if (!systemID) return;
-    console.log(type);
-    setLoading(true);
-    spaceTraderClient.SystemsClient.getSystemWaypoints(
-      systemID,
-      waypointsPage,
-      itemsPerPage,
-      type,
-      traits,
-    ).then((response) => {
-      console.log("my responses", response);
-      setWaypoints(response.data.data);
-      setAllWaypoints(response.data.meta.total);
-      setLoading(false);
+  const [searchType, setSearchType] = useState<WaypointType>();
+  const [searchTraits, setSearchTraits] = useState<WaypointTraitSymbol[]>([]);
+
+  const waypoints = useMemo(() => {
+    return unfilteredWaypoints.filter((waypoint) => {
+      const typeMatch = !searchType || waypoint.type === searchType;
+      const traitsMatch =
+        searchTraits.length === 0 ||
+        searchTraits.every((trait) =>
+          waypoint.traits.map((t) => t.symbol).includes(trait),
+        );
+      return typeMatch && traitsMatch;
     });
-  }, [itemsPerPage, systemID, traits, type, waypointsPage]);
+  }, [searchTraits, searchType, unfilteredWaypoints]);
+
+  const [waypointsPage, setWaypointsPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const waypointsPaging = useMemo(() => {
+    return waypoints.slice(
+      (waypointsPage - 1) * itemsPerPage,
+      waypointsPage * itemsPerPage,
+    );
+  }, [itemsPerPage, waypoints, waypointsPage]);
 
   const onChange: PaginationProps["onChange"] = (page, pageSize) => {
     console.log(page);
@@ -108,95 +112,63 @@ function SystemInfo() {
     setItemsPerPage(pageSize);
   };
 
-  const handleTraitsChange = (value: string) => {
-    console.log(`selected ${value}`);
-    setTraits(value as WaypointTraitSymbol);
-  };
-
   return (
-    <Spin spinning={system.symbol === ""}>
+    <Spin spinning={system?.symbol === ""}>
       <h2>System {systemID}</h2>
       <Descriptions bordered items={items} />
 
       <h2>Waypoints</h2>
-      {/* <Button
-        type="primary"
-        onClick={() => {
-          if (!systemID) return;
-          spaceTraderClient.CrawlClient.getSystemWaypoints(
-            systemID,
-            (progress, total) => {
-              console.log("my progress", progress);
-              console.log("my total", total);
-            }
-          ).then((response) => {
-            console.log("my responses", response);
-          });
-        }}
-      >
-        Primary Button
-      </Button> */}
-      {/* !todo rewrite with crawler */}
-      <Row align="middle">
-        <Col span={6} style={{ textAlign: "center" }}>
+      <Flex justify="space-around" gap={8}>
+        <Card style={{ width: "fit-content" }} title={"Search"}>
           <Select
             placeholder="Select Waypoint Type"
             style={{ width: 250 }}
             allowClear
-            options={[
-              { value: "PLANET" },
-              { value: "GAS_GIANT" },
-              { value: "MOON" },
-              { value: "ORBITAL_STATION" },
-              { value: "JUMP_GATE" },
-              { value: "ASTEROID_FIELD" },
-              { value: "ASTEROID" },
-              { value: "ENGINEERED_ASTEROID" },
-              { value: "ASTEROID_BASE" },
-              { value: "NEBULA" },
-              { value: "DEBRIS_FIELD" },
-              { value: "GRAVITY_WELL" },
-              { value: "ARTIFICIAL_GRAVITY_WELL" },
-              { value: "FUEL_STATION" },
-            ]}
+            options={[...new Set(waypoints.map((value) => value.type))].map(
+              (value) => {
+                return {
+                  value: value,
+                };
+              },
+            )}
             onChange={(value) => {
-              setType(value as WaypointType);
+              setSearchType(value as WaypointType);
               setWaypointsPage(1);
             }}
           />
-        </Col>
-        <Col span={11}>
-          <Pagination
-            current={waypointsPage}
-            onChange={onChange}
-            total={allWaypoints}
-            pageSizeOptions={[5, 10, 15, 20]}
-            showTotal={(total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`
-            }
-            style={{ padding: "16px", textAlign: "center" }}
-          />
-        </Col>
-        <Col span={7}>
           <Select
             allowClear
             placeholder="Select Traits"
-            onChange={handleTraitsChange}
+            mode="multiple"
+            onChange={(value) => {
+              console.log("selected", value);
+              setSearchTraits(value as WaypointTraitSymbol[]);
+            }}
             options={traitsOptions}
             style={{ width: 400 }}
           />
-        </Col>
-      </Row>
+        </Card>
+        <CachingSystemWaypointsCard systemSymbol={systemID!} />
+      </Flex>
 
-      <Spin spinning={loading}>
-        <Flex wrap gap="middle" align="center" justify="space-evenly">
-          {waypoints.map((value) => {
-            return (
-              <WaypointDisp key={value.symbol} waypoint={value}></WaypointDisp>
-            );
-          })}
-        </Flex>
-      </Spin>
+      <Pagination
+        current={waypointsPage}
+        onChange={onChange}
+        total={waypoints.length}
+        pageSizeOptions={[10, 25, 50, 75, 100]}
+        showTotal={(total, range) =>
+          `${range[0]}-${range[1]} of ${total} items`
+        }
+        style={{ padding: "16px", textAlign: "center" }}
+      />
+
+      <Flex wrap gap="middle" align="center" justify="space-evenly">
+        {waypointsPaging.map((value) => {
+          return (
+            <WaypointDisp key={value.symbol} waypoint={value}></WaypointDisp>
+          );
+        })}
+      </Flex>
     </Spin>
   );
 }

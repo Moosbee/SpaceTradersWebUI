@@ -22,34 +22,54 @@ function Systems() {
   const [searchFaction, setSearchFaction] = useState<string[]>([]);
   const [searchSector, setSearchSector] = useState<string[]>([]);
   const [searchAutoComplete, setSearchAutoComplete] = useState("");
+  const [sortType, setSortType] = useState<
+    "sectorSymbol" | "symbol" | "type" | "waypoints"
+  >("symbol");
+  const [sortOrder, setSortOrder] = useState<"ascend" | "descend">("ascend");
 
   const systems = useMemo(
     () =>
-      unfilteredSystems.filter((system) => {
-        const typeMatch =
-          searchType.length === 0 || searchType.includes(system.type);
-        const sectorMatch =
-          searchSector.length === 0 ||
-          searchSector.includes(system.sectorSymbol);
-        const factionMatch =
-          searchFaction.length === 0 ||
-          system.factions.some((faction) =>
-            searchFaction.includes(faction.symbol),
-          );
+      unfilteredSystems
+        .filter((system) => {
+          const typeMatch =
+            searchType.length === 0 || searchType.includes(system.type);
+          const sectorMatch =
+            searchSector.length === 0 ||
+            searchSector.includes(system.sectorSymbol);
+          const factionMatch =
+            searchFaction.length === 0 ||
+            system.factions.some((faction) =>
+              searchFaction.includes(faction.symbol),
+            );
 
-        const autoCompleteMatch =
-          searchAutoComplete === "" ||
-          system.symbol
-            .toLowerCase()
-            .includes(searchAutoComplete.toLowerCase());
+          const autoCompleteMatch =
+            searchAutoComplete === "" ||
+            system.symbol
+              .toLowerCase()
+              .includes(searchAutoComplete.toLowerCase());
 
-        return typeMatch && sectorMatch && factionMatch && autoCompleteMatch;
-      }),
+          return typeMatch && sectorMatch && factionMatch && autoCompleteMatch;
+        })
+        .sort((a, b) => {
+          if (sortOrder === "ascend") {
+            if (sortType === "waypoints") {
+              return a.waypoints.length - b.waypoints.length;
+            }
+            return a[sortType].localeCompare(b[sortType]);
+          } else {
+            if (sortType === "waypoints") {
+              return b.waypoints.length - a.waypoints.length;
+            }
+            return b[sortType].localeCompare(a[sortType]);
+          }
+        }),
     [
       searchAutoComplete,
       searchFaction,
       searchSector,
       searchType,
+      sortOrder,
+      sortType,
       unfilteredSystems,
     ],
   );
@@ -68,6 +88,13 @@ function Systems() {
     console.log(page);
     setSystemsPage(page);
     setItemsPerPage(pageSize);
+  };
+
+  const onSortChange = (
+    value: "sectorSymbol" | "symbol" | "type" | "waypoints",
+  ) => {
+    setSortType(value);
+    setSortOrder(sortOrder === "ascend" ? "descend" : "ascend");
   };
 
   const options: {
@@ -171,6 +198,56 @@ function Systems() {
                   />
                 ),
               },
+              {
+                key: "5",
+                label: "Sort By",
+                children: (
+                  <Select
+                    style={{ width: 250 }}
+                    onChange={onSortChange}
+                    placeholder="Please select sort key"
+                    options={[
+                      {
+                        value: "symbol",
+                        label: "Symbol",
+                      },
+                      {
+                        value: "sectorSymbol",
+                        label: "Sector Symbol",
+                      },
+                      {
+                        value: "type",
+                        label: "Type",
+                      },
+                      {
+                        value: "waypoints",
+                        label: "Waypoints",
+                      },
+                    ]}
+                  />
+                ),
+              },
+              {
+                key: "6",
+                label: "Order",
+                children: (
+                  <Select
+                    style={{ width: 250 }}
+                    onChange={setSortOrder}
+                    placeholder="Please direction"
+                    options={[
+                      {
+                        value: "ascend",
+                        label: "Ascending",
+                      },
+                      {
+                        value: "descend",
+                        label: "Descending",
+                      },
+                    ]}
+                  />
+                ),
+              },
             ]}
           />
         </Card>
@@ -192,9 +269,6 @@ function Systems() {
         {systemsPaging.map((value) => {
           return <SystemDisp key={value.symbol} system={value}></SystemDisp>;
         })}
-        {/* {systemsPaging.map((value) => {
-          return <div key={value.symbol}>{value.symbol}</div>;
-        })} */}
       </Flex>
     </div>
   );

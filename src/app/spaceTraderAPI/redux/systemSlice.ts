@@ -95,8 +95,14 @@ export const systemSlice = createAppSlice({
 });
 
 // Action creators are generated for each case reducer function.
-export const { addSystems, putSystems, setSystems, clearSystems } =
-  systemSlice.actions;
+export const {
+  addSystems,
+  putSystems,
+  setSystems,
+  clearSystems,
+  addSystem,
+  putSystem,
+} = systemSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectSystems, selectSystem, selectSystemByWaypoint } =
   systemSlice.selectors;

@@ -11,6 +11,7 @@ import { contractSlice } from "./spaceTraderAPI/redux/contractSlice";
 import { systemSlice } from "./spaceTraderAPI/redux/systemSlice";
 import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
 import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
+import { waypointSlice } from "./spaceTraderAPI/redux/waypointSlice";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
@@ -34,6 +35,7 @@ const rootReducer = combineSlices(
   fleetSlice,
   contractSlice,
   systemSlice,
+  waypointSlice,
 );
 
 // Wrap the rootReducer with persistReducer
