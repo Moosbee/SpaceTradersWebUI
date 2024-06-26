@@ -3,10 +3,12 @@ import { createAppSlice } from "../../createAppSlice";
 
 export interface ConfigSliceState {
   darkMode: boolean;
+  siderCollapsed: boolean;
 }
 
 const initialState: ConfigSliceState = {
   darkMode: true,
+  siderCollapsed: false,
 };
 
 // If you are not using async thunks you can use the standalone `createSlice`.
@@ -25,16 +27,23 @@ export const configSlice = createAppSlice({
 
       state.darkMode = action.payload;
     }),
+
+    setSiderCollapsed: create.reducer(
+      (state, action: PayloadAction<boolean>) => {
+        state.siderCollapsed = action.payload;
+      },
+    ),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
   selectors: {
     selectDarkMode: (state) => state.darkMode,
+    selectSiderCollapsed: (state) => state.siderCollapsed,
   },
 });
 
 // Action creators are generated for each case reducer function.
-export const { setDarkMode } = configSlice.actions;
+export const { setDarkMode, setSiderCollapsed } = configSlice.actions;
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.
-export const { selectDarkMode } = configSlice.selectors;
+export const { selectDarkMode, selectSiderCollapsed } = configSlice.selectors;

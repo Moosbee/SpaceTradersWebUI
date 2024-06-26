@@ -16,6 +16,7 @@
   aspect-ratio: 1 / 1;
   background-color: grey;
   position: absolute;
+  /* translate: -25% -25%; */
   /* scale: 0.5; */
 }
 

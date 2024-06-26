@@ -1,8 +1,11 @@
 import { StarOutlined } from "@ant-design/icons";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useAppSelector } from "../../app/hooks";
 import { selectSystem } from "../../app/spaceTraderAPI/redux/systemSlice";
 import classes from "./WaypointMap.module.css";
+
+const zoomMin = 10;
+const zoomMax = 1000;
 
 function WaypointMap({ systemID }: { systemID: string }) {
   const system = useAppSelector((state) => selectSystem(state, systemID));
@@ -24,10 +27,12 @@ function WaypointMap({ systemID }: { systemID: string }) {
       .map((w) => w.y)
       .reduce((acc, cur) => Math.max(acc, cur), 0);
 
-    const wbCalcX =
-      Math.ceil(Math.max(Math.abs(wpMaxX), Math.abs(wpMinX)) / 100) * 100;
-    const wbCalcY =
-      Math.ceil(Math.max(Math.abs(wpMaxY), Math.abs(wpMinY)) / 100) * 100;
+    const wbCalcX = Math.ceil(
+      Math.max(Math.abs(wpMaxX), Math.abs(wpMinX)) * 1.05,
+    );
+    const wbCalcY = Math.ceil(
+      Math.max(Math.abs(wpMaxY), Math.abs(wpMinY)) * 1.05,
+    );
 
     return system.waypoints.map((w) => {
       return {
@@ -42,8 +47,85 @@ function WaypointMap({ systemID }: { systemID: string }) {
   const [top, setTop] = useState(0);
   const [left, setLeft] = useState(0);
 
+  const frameRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const onWheel = (e: React.WheelEvent) => {
+    if (!frameRef.current || !rootRef.current) return;
+
+    let newZoom;
+    if (e.deltaY > 0) {
+      newZoom = Math.max(zoom - 5, zoomMin);
+    } else {
+      newZoom = Math.min(zoom + 5, zoomMax);
+    }
+
+    // const zoomDiff = newZoom - zoom;
+
+    setZoom(newZoom);
+  };
+
+  const [lastPosX, setLastPosX] = useState(0);
+  const [lastPosY, setLastPosY] = useState(0);
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (e.buttons !== 1 || !frameRef.current || !rootRef.current) {
+      return;
+    }
+
+    let lastXPos = lastPosX;
+    let lastYPos = lastPosY;
+
+    // console.log(startRef.current);
+
+    let diffX = e.clientX - lastXPos;
+    let diffY = e.clientY - lastYPos;
+    // let zoom = 50 / 100;
+
+    setLastPosX(e.clientX);
+    setLastPosY(e.clientY);
+
+    console.log(diffX, diffY, zoom);
+
+    // let bounding = rootRef.current.getBoundingClientRect();
+
+    // bounding.width;
+
+    // map the absolute div position to the relative one
+    setLeft(left + scaleNum(diffX, 0, rootRef.current.clientWidth, 0, 100));
+    setTop(top + scaleNum(diffY, 0, rootRef.current.clientHeight, 0, 100));
+  };
+
   return (
-    <div className={classes.root}>
+    <div
+      className={classes.root}
+      ref={rootRef}
+      onWheel={onWheel}
+      onMouseMove={onMouseMove}
+      onMouseDown={(e) => {
+        setLastPosX(e.clientX);
+        setLastPosY(e.clientY);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowLeft") {
+          setLeft((prev) => prev - 10);
+        } else if (e.key === "ArrowRight") {
+          setLeft((prev) => prev + 10);
+        } else if (e.key === "ArrowUp") {
+          setTop((prev) => prev - 10);
+        } else if (e.key === "ArrowDown") {
+          setTop((prev) => prev + 10);
+        } else if (e.key === "r") {
+          setZoom(100);
+          setTop(0);
+          setLeft(0);
+          setTop(0);
+          setLeft(0);
+        }
+      }}
+      // for focus
+      tabIndex={0}
+    >
       <div
         className={classes.waypointMapOut}
         style={
@@ -53,6 +135,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
             "--left": `${left}%`,
           } as React.CSSProperties
         }
+        ref={frameRef}
       >
         <div className={classes.waypointMapIn}>
           {waypointsMp.map((w) => (
