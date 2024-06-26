@@ -13,19 +13,10 @@ function WaypointMap({ systemID }: { systemID: string }) {
   const waypointsMp = useMemo(() => {
     if (!system) return [];
 
-    const wpMinX = system.waypoints
-      .map((w) => w.x)
-      .reduce((acc, cur) => Math.min(acc, cur), 0);
-    const wpMinY = system.waypoints
-      .map((w) => w.y)
-      .reduce((acc, cur) => Math.min(acc, cur), 0);
-
-    const wpMaxX = system.waypoints
-      .map((w) => w.x)
-      .reduce((acc, cur) => Math.max(acc, cur), 0);
-    const wpMaxY = system.waypoints
-      .map((w) => w.y)
-      .reduce((acc, cur) => Math.max(acc, cur), 0);
+    const wpMinX = Math.min(...system.waypoints.map((w) => w.x));
+    const wpMinY = Math.min(...system.waypoints.map((w) => w.y));
+    const wpMaxX = Math.max(...system.waypoints.map((w) => w.x));
+    const wpMaxY = Math.max(...system.waypoints.map((w) => w.y));
 
     const wbCalcX = Math.ceil(
       Math.max(Math.abs(wpMaxX), Math.abs(wpMinX)) * 1.05,
@@ -52,48 +43,84 @@ function WaypointMap({ systemID }: { systemID: string }) {
 
   const onWheel = (e: React.WheelEvent) => {
     if (!frameRef.current || !rootRef.current) return;
+    e.preventDefault();
 
-    let newZoom;
-    if (e.deltaY > 0) {
-      newZoom = Math.max(zoom - 5, zoomMin);
-    } else {
-      newZoom = Math.min(zoom + 5, zoomMax);
-    }
+    // let newZoom;
+    // if (e.deltaY > 0) {
+    //   newZoom = Math.max(zoom - 5, zoomMin);
+    // } else {
+    //   newZoom = Math.min(zoom + 5, zoomMax);
+    // }
 
+    const zoomFactor = 0.1;
+    const newZoom = Math.min(
+      Math.max(
+        zoom + (e.deltaY > 0 ? -zoom * zoomFactor : zoom * zoomFactor),
+        zoomMin,
+      ),
+      zoomMax,
+    );
     // const zoomDiff = newZoom - zoom;
 
     setZoom(newZoom);
+
+    const zoomDiff = newZoom - zoom;
+
+    // newZoom=(Math.min(Math.max(zoom - e.deltaY / 100, zoomMin), zoomMax));
+
+    const bounding = frameRef.current.getBoundingClientRect();
+    // this is the position of the mouse relative to the frame 0 top of the frame 1 bottom of the frame
+    const mausPercentPosY =
+      (e.clientY - bounding.y) / frameRef.current.offsetHeight;
+    // this is the position of the mouse relative to the frame 0 left of the frame 1 right of the frame
+    const mausPercentPosX =
+      (e.clientX - bounding.x) / frameRef.current.offsetWidth;
+
+    // const mausPercentPosY = 0.5;
+    // const mausPercentPosX = 0.5;
+
+    const WdH = rootRef.current.clientWidth / rootRef.current.clientHeight;
+    const HdW = rootRef.current.clientHeight / rootRef.current.clientWidth;
+
+    console.log(
+      rootRef.current.clientWidth,
+      rootRef.current.clientHeight,
+      WdH,
+      HdW,
+    );
+
+    // this is the ammount to move the frame up or down to compensate the change in zoom
+    const topDiff = zoomDiff * mausPercentPosY * Math.max(WdH, 1);
+    // this is the ammount to move the frame left or right to compensate the change in zoom
+    const leftDiff = zoomDiff * mausPercentPosX * Math.max(HdW, 1);
+
+    const newTop = top - topDiff;
+    const newLeft = left - leftDiff;
+
+    setZoom(newZoom);
+    setTop(Number.isFinite(newTop) ? newTop : 0);
+    setLeft(Number.isFinite(newLeft) ? newLeft : 0);
   };
 
   const [lastPosX, setLastPosX] = useState(0);
   const [lastPosY, setLastPosY] = useState(0);
 
   const onMouseMove = (e: React.MouseEvent) => {
-    if (e.buttons !== 1 || !frameRef.current || !rootRef.current) {
-      return;
-    }
+    if (e.buttons !== 1 || !frameRef.current || !rootRef.current) return;
 
-    let lastXPos = lastPosX;
-    let lastYPos = lastPosY;
-
-    // console.log(startRef.current);
-
-    let diffX = e.clientX - lastXPos;
-    let diffY = e.clientY - lastYPos;
-    // let zoom = 50 / 100;
+    const diffX = e.clientX - lastPosX;
+    const diffY = e.clientY - lastPosY;
 
     setLastPosX(e.clientX);
     setLastPosY(e.clientY);
 
-    console.log(diffX, diffY, zoom);
+    const newLeft =
+      left + scaleNum(diffX, 0, rootRef.current.clientWidth, 0, 100);
+    const newTop =
+      top + scaleNum(diffY, 0, rootRef.current.clientHeight, 0, 100);
 
-    // let bounding = rootRef.current.getBoundingClientRect();
-
-    // bounding.width;
-
-    // map the absolute div position to the relative one
-    setLeft(left + scaleNum(diffX, 0, rootRef.current.clientWidth, 0, 100));
-    setTop(top + scaleNum(diffY, 0, rootRef.current.clientHeight, 0, 100));
+    setLeft(Number.isFinite(newLeft) ? newLeft : 0);
+    setTop(Number.isFinite(newTop) ? newTop : 0);
   };
 
   return (

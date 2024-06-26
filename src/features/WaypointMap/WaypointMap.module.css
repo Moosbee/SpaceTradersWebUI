@@ -9,8 +9,8 @@
 }
 
 .waypointMapOut {
-  /* height: 100%; */
-  width: var(--zoom);
+  /* width: var(--zoom); */
+  /* height: var(--zoom); */
   top: var(--top);
   left: var(--left);
   aspect-ratio: 1 / 1;
@@ -18,6 +18,22 @@
   position: absolute;
   /* translate: -25% -25%; */
   /* scale: 0.5; */
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .waypointMapOut {
+    width: var(--zoom);
+  }
+}
+@media (aspect-ratio: 1/1) {
+  .waypointMapOut {
+    width: var(--zoom);
+  }
+}
+@media (max-aspect-ratio: 1/1) {
+  .waypointMapOut {
+    height: var(--zoom);
+  }
 }
 
 .waypointMapIn {
