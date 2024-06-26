@@ -1,0 +1,16 @@
+.waypointContainer {
+  position: absolute;
+  translate: -50% -50%;
+  width: 2rem;
+  height: 2rem;
+}
+
+.waypointIcon {
+  position: absolute;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

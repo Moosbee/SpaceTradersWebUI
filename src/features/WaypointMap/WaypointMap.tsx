@@ -1,10 +1,10 @@
-import { StarOutlined } from "@ant-design/icons";
 import { useMemo, useRef, useState } from "react";
 import { useAppSelector } from "../../app/hooks";
 import { selectSystem } from "../../app/spaceTraderAPI/redux/systemSlice";
 import classes from "./WaypointMap.module.css";
+import WaypointMapWaypoint from "../WaypointMapWaypoint/WaypointMapWaypoint";
 
-const zoomMin = 10;
+const zoomMin = 20;
 const zoomMax = 1000;
 
 function WaypointMap({ systemID }: { systemID: string }) {
@@ -27,7 +27,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
 
     return system.waypoints.map((w) => {
       return {
-        ...w,
+        waypoint: w,
         xOne: scaleNum(w.x, -wbCalcX, wbCalcX, 0, 100),
         yOne: scaleNum(w.y, -wbCalcY, wbCalcY, 0, 100),
       };
@@ -166,18 +166,14 @@ function WaypointMap({ systemID }: { systemID: string }) {
       >
         <div className={classes.waypointMapIn}>
           {waypointsMp.map((w) => (
-            <div
-              key={w.symbol}
-              style={{
-                position: "absolute",
-                left: w.xOne + "%",
-                top: w.yOne + "%",
-                translate: "-50% -50%",
-              }}
+            <WaypointMapWaypoint
+              key={w.waypoint.symbol}
+              waypoint={w.waypoint}
+              xOne={w.xOne}
+              yOne={w.yOne}
             >
-              <StarOutlined />
               {/* {w.x}, {w.y} */}
-            </div>
+            </WaypointMapWaypoint>
           ))}
         </div>
       </div>
