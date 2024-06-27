@@ -1,0 +1,35 @@
+.root {
+  position: absolute;
+  inset: 0;
+  /* display: flex; */
+  /* justify-content: center; */
+  /* align-items: center; */
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  overflow: hidden;
+}
+
+.waypointMapOut {
+  /* width: var(--zoom); */
+  /* height: var(--zoom); */
+  top: var(--top);
+  left: var(--left);
+  aspect-ratio: 1 / 1;
+  /* background-color: grey; */
+  position: absolute;
+}
+
+@media (min-aspect-ratio: 1/1) {
+  .waypointMapOut {
+    width: var(--zoom);
+  }
+}
+@media (aspect-ratio: 1/1) {
+  .waypointMapOut {
+    width: var(--zoom);
+  }
+}
+@media (max-aspect-ratio: 1/1) {
+  .waypointMapOut {
+    height: var(--zoom);
+  }
+}
