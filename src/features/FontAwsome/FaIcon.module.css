@@ -1,0 +1,53 @@
+.faIcon {
+  width: 1em;
+  height: 1em;
+  font-size: 1em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.faIcon.solid {
+  font-family: "Font Awesome 6 Pro Solid";
+}
+
+.faIcon.regular {
+  font-family: "Font Awesome 6 Pro Regular";
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro Solid";
+  src: url("/fontawsome/fa-solid-900.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Font Awesome 6 Pro Regular";
+  src: url("/fontawsome/fa-regular-400.woff2") format("woff2");
+  font-display: swap;
+}
+
+.NounIcon {
+  color: currentColor;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 5%;
+  width: 1em;
+  height: 1em;
+  /* font-size: 100%; */
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+.NounIconSlim {
+  color: currentColor;
+  fill: currentColor;
+  /* stroke: currentColor; */
+  /* stroke-width: 5%; */
+  width: 1em;
+  height: 1em;
+  font-size: 1em;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
