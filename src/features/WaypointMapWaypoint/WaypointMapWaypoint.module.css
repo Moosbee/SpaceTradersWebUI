@@ -1,16 +1,42 @@
 .waypointContainer {
   position: absolute;
   translate: -50% -50%;
-  width: 2rem;
-  height: 2rem;
+  min-width: 1rem;
+  min-height: 1rem;
+  width: calc(2% / 6);
+  height: calc(2% / 6);
+  max-width: 3.5rem;
+  max-height: 3.5rem;
+  cursor: default;
+  z-index: 0;
+}
+/* 
+.waypoint {
+} */
+
+.waypointContainer:hover {
+  background-color: rgb(30, 253, 0);
+  z-index: 1;
 }
 
 .waypointIcon {
   position: absolute;
-
-  width: 1.5rem;
-  height: 1.5rem;
+  font-size: var(--waypoint-icon-size);
+  /* width: 2rem; */
+  /* height: 1.5rem; */
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
+
+.star {
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  width: calc(2% / 4);
+  height: calc(2% / 4);
+  max-width: 4.5rem;
+  max-height: 4.5rem;
 }

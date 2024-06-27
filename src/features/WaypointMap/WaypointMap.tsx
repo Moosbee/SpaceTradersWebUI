@@ -13,6 +13,8 @@ function WaypointMap({ systemID }: { systemID: string }) {
   const waypointsMp = useMemo(() => {
     if (!system) return [];
 
+    console.log(system.waypoints);
+
     const wpMinX = Math.min(...system.waypoints.map((w) => w.x));
     const wpMinY = Math.min(...system.waypoints.map((w) => w.y));
     const wpMaxX = Math.max(...system.waypoints.map((w) => w.x));
@@ -25,11 +27,63 @@ function WaypointMap({ systemID }: { systemID: string }) {
       Math.max(Math.abs(wpMaxY), Math.abs(wpMinY)) * 1.05,
     );
 
+    let orbitals = 1;
+
     return system.waypoints.map((w) => {
+      let xOne = 0;
+      let yOne = 0;
+
+      if (w.orbits) {
+        const wayX =
+          orbitals % 8 === 0
+            ? 1
+            : orbitals % 8 === 1
+              ? 0
+              : orbitals % 8 === 2
+                ? -1
+                : orbitals % 8 === 3
+                  ? -1
+                  : orbitals % 8 === 4
+                    ? 0
+                    : orbitals % 8 === 5
+                      ? 1
+                      : orbitals % 8 === 6
+                        ? 1
+                        : orbitals % 8 === 7
+                          ? 0
+                          : 0;
+        const wayY =
+          orbitals % 8 === 0
+            ? 0
+            : orbitals % 8 === 1
+              ? 1
+              : orbitals % 8 === 2
+                ? 1
+                : orbitals % 8 === 3
+                  ? 0
+                  : orbitals % 8 === 4
+                    ? -1
+                    : orbitals % 8 === 5
+                      ? -1
+                      : orbitals % 8 === 6
+                        ? 0
+                        : orbitals % 8 === 7
+                          ? -1
+                          : 0;
+        const newX = w.x + wbCalcX * 0.01 * wayX;
+        const newY = w.y + wbCalcY * 0.01 * wayY;
+
+        xOne = scaleNum(newX, -wbCalcX, wbCalcX, 0, 100);
+        yOne = scaleNum(newY, -wbCalcY, wbCalcY, 0, 100);
+        orbitals = orbitals + 1;
+      } else {
+        xOne = scaleNum(w.x, -wbCalcX, wbCalcX, 0, 100);
+        yOne = scaleNum(w.y, -wbCalcY, wbCalcY, 0, 100);
+      }
       return {
         waypoint: w,
-        xOne: scaleNum(w.x, -wbCalcX, wbCalcX, 0, 100),
-        yOne: scaleNum(w.y, -wbCalcY, wbCalcY, 0, 100),
+        xOne,
+        yOne,
       };
     });
   }, [system]);
@@ -169,12 +223,12 @@ function WaypointMap({ systemID }: { systemID: string }) {
             <WaypointMapWaypoint
               key={w.waypoint.symbol}
               waypoint={w.waypoint}
+              system={system!}
               xOne={w.xOne}
               yOne={w.yOne}
-            >
-              {/* {w.x}, {w.y} */}
-            </WaypointMapWaypoint>
+            />
           ))}
+          <WaypointMapWaypoint system={system!} xOne={50} yOne={50} />
         </div>
       </div>
     </div>
