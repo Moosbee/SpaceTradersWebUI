@@ -174,7 +174,21 @@ function WaypointMapWaypoint({
       >
         {waypointIcon}
       </div>
-      {/* {waypoint.x}, {waypoint.y} */}
+      <div className={classes.waypointInfo}>
+        {/* {waypoint.x}, {waypoint.y} */}
+        {waypoint?.symbol.replace(system.symbol + "-", "")}
+        <br />
+        <div
+          className={classes.waypointInfoMore}
+          style={
+            {
+              "--waypoint-icon-size": `${Math.floor(size * 0.85)}px`,
+            } as React.CSSProperties
+          }
+        >
+          {waypoint?.type}
+        </div>
+      </div>
     </div>
   );
 }

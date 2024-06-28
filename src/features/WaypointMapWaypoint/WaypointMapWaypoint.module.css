@@ -7,7 +7,7 @@
   height: calc(2% / 6);
   max-width: 3.5rem;
   max-height: 3.5rem;
-  cursor: default;
+  cursor: pointer;
   z-index: 0;
 }
 /* 
@@ -15,7 +15,7 @@
 } */
 
 .waypointContainer:hover {
-  background-color: rgb(30, 253, 0);
+  background-color: color-mix(in srgb, currentColor 80%, #f0f0f0 100%);
   z-index: 1;
 }
 
@@ -39,4 +39,20 @@
   height: calc(2% / 4);
   max-width: 4.5rem;
   max-height: 4.5rem;
+}
+
+.waypointInfo {
+  position: relative;
+  left: 100%;
+  width: max-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: large;
+  flex-direction: column;
+}
+
+.waypointInfoMore {
+  width: calc(var(--zoom) / 20 - 50%);
+  overflow: hidden;
 }
