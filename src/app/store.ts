@@ -12,6 +12,10 @@ import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import { waypointSlice } from "./spaceTraderAPI/redux/waypointSlice";
 import { configSlice } from "./spaceTraderAPI/redux/configSlice";
 import { agentSlice } from "./spaceTraderAPI/redux/agentSlice";
+import {
+  createStateSyncMiddleware,
+  initMessageListener,
+} from "redux-state-sync";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
@@ -51,7 +55,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
     reducer: persistedReducer,
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
-    middleware: (getDefaultMiddleware) =>
+    middleware: (getDefaultMiddleware: GetDefaultMiddleware<RootState>) =>
       getDefaultMiddleware({
         serializableCheck: {
           // Ignore these action types
@@ -63,7 +67,11 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
           // Ignore state paths, e.g. state for 'items':
           ignoredPaths: ["systems.systems"],
         },
-      }),
+      }).concat(
+        createStateSyncMiddleware({
+          blacklist: ["persist/PERSIST", "persist/REHYDRATE"],
+        }),
+      ),
   });
   // configure listeners using the provided defaults
   // optional, but required for `refetchOnFocus`/`refetchOnReconnect` behaviors
@@ -72,6 +80,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
 };
 
 export const store = makeStore();
+initMessageListener(store);
 export const persistor = persistStore(store);
 
 // Infer the type of `store`
