@@ -55,8 +55,8 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
     reducer: persistedReducer,
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
-    middleware: (getDefaultMiddleware: GetDefaultMiddleware<RootState>) =>
-      getDefaultMiddleware({
+    middleware: (getDefaultMiddleware: any) => {
+      const data1 = getDefaultMiddleware({
         serializableCheck: {
           // Ignore these action types
           ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
@@ -67,11 +67,14 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
           // Ignore state paths, e.g. state for 'items':
           ignoredPaths: ["systems.systems"],
         },
-      }).concat(
+      });
+      const data2 = data1.concat(
         createStateSyncMiddleware({
           blacklist: ["persist/PERSIST", "persist/REHYDRATE"],
         }),
-      ),
+      );
+      return data2;
+    },
   });
   // configure listeners using the provided defaults
   // optional, but required for `refetchOnFocus`/`refetchOnReconnect` behaviors
