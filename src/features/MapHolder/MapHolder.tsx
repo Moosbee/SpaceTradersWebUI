@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { useState, useRef } from "react";
 import classes from "./MapHolder.module.css";
-import { scaleNum } from "../../utils/mathUtils";
+import { scaleNum } from "../../utils/utils";
 
 function MapHolder({
   children,

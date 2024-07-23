@@ -16,6 +16,7 @@ import {
   createStateSyncMiddleware,
   initMessageListener,
 } from "redux-state-sync";
+import type { Prettify } from "../utils/utils";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
@@ -79,7 +80,8 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
   // configure listeners using the provided defaults
   // optional, but required for `refetchOnFocus`/`refetchOnReconnect` behaviors
   setupListeners(store.dispatch);
-  return store;
+  const tStore = store as Prettify<typeof store>;
+  return tStore;
 };
 
 export const store = makeStore();
@@ -87,7 +89,7 @@ initMessageListener(store);
 export const persistor = persistStore(store);
 
 // Infer the type of `store`
-export type AppStore = typeof store;
+export type AppStore = Prettify<typeof store>;
 // Infer the `AppDispatch` type from the store itself
 export type AppDispatch = AppStore["dispatch"];
 export type AppThunk<ThunkReturnType = void> = ThunkAction<

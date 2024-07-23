@@ -19,3 +19,9 @@ function scaleNum(
 }
 
 export { scaleNum };
+
+type Prettify<T> = {
+  [K in keyof T]: T[K];
+} & {};
+
+export type { Prettify };

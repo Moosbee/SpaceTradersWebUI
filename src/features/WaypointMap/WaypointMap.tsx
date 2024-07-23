@@ -4,7 +4,7 @@ import { selectSystem } from "../../app/spaceTraderAPI/redux/systemSlice";
 import classes from "./WaypointMap.module.css";
 import WaypointMapWaypoint from "../WaypointMapWaypoint/WaypointMapWaypoint";
 import WaypointMapWaypointOrbit from "../WaypointMapWaypointOrbit/WaypointMapWaypointOrbit";
-import { scaleNum } from "../../utils/mathUtils";
+import { scaleNum } from "../../utils/utils";
 import { theme } from "antd";
 
 function WaypointMap({ systemID }: { systemID: string }) {
