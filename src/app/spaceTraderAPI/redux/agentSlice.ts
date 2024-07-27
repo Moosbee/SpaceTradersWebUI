@@ -4,6 +4,10 @@ import type { Agent } from "../api";
 
 export interface AgentSliceState {
   myAgent: Agent;
+  agents: {
+    symbol: string;
+    token: string;
+  }[];
 }
 
 const initialState: AgentSliceState = {
@@ -15,6 +19,7 @@ const initialState: AgentSliceState = {
     symbol: "",
     accountId: "",
   },
+  agents: [],
 };
 
 // If you are not using async thunks you can use the standalone `createSlice`.
@@ -33,16 +38,22 @@ export const agentSlice = createAppSlice({
 
       state.myAgent = action.payload;
     }),
+    addAgent: create.reducer(
+      (state, action: PayloadAction<{ symbol: string; token: string }>) => {
+        state.agents.push(action.payload);
+      },
+    ),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
   selectors: {
     selectMyAgent: (state) => state.myAgent,
+    selectAgents: (state) => state.agents,
   },
 });
 
 // Action creators are generated for each case reducer function.
-export const { setMyAgent } = agentSlice.actions;
+export const { setMyAgent, addAgent } = agentSlice.actions;
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.
-export const { selectMyAgent } = agentSlice.selectors;
+export const { selectMyAgent, selectAgents } = agentSlice.selectors;

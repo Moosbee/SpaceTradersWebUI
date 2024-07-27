@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   FactionSymbol,
   Register201ResponseData,
@@ -40,19 +40,29 @@ function NewAgent() {
     null,
   );
 
-  type FieldType = {
+  const [callsign, setCallsign] = useState("");
+
+  type createAgentType = {
     callsign: string;
     email?: string;
     faction: FactionSymbol;
   };
+  type addAgentType = {
+    token: string;
+  };
 
   const { Text } = Typography;
 
-  const [form] = Form.useForm();
+  const [createForm] = Form.useForm<createAgentType>();
+  const [addForm] = Form.useForm<addAgentType>();
 
   const dispatch = useAppDispatch();
 
-  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
+  const onAdd: FormProps<addAgentType>["onFinish"] = (values) => {
+    console.log("Success:", values);
+  };
+
+  const onCreate: FormProps<createAgentType>["onFinish"] = (values) => {
     console.log("Success:", values);
 
     spaceTraderClient.DefaultClient.register(
@@ -78,12 +88,51 @@ function NewAgent() {
 
   return (
     <div>
+      <h2>Add Agent</h2>
+      <Form
+        {...layout}
+        form={addForm}
+        onFinish={onAdd}
+        name="addAgent"
+        style={{ maxWidth: 600 }}
+      >
+        <Form.Item
+          name="token"
+          label="Token"
+          validateDebounce={1000}
+          rules={[
+            { required: true },
+            {
+              message: "This is not a valid token",
+              validator: async (rule, value) => {
+                console.log("value", value);
+                const resp = await spaceTraderClient.AgentsClient.getMyAgent({
+                  transformRequest: (data, headers) => {
+                    headers["Authorization"] = `Bearer ${value}`;
+                    return data;
+                  },
+                });
+              },
+            },
+          ]}
+        >
+          <Input placeholder="Enter the agent token" />
+        </Form.Item>
+        <Form.Item {...tailLayout}>
+          <Space>
+            <Button type="primary" htmlType="submit">
+              Add
+            </Button>
+            <Button htmlType="button">Reset</Button>
+          </Space>
+        </Form.Item>
+      </Form>
       <h2>Create NewAgent</h2>
       <Form
         {...layout}
-        form={form}
-        onFinish={onFinish}
-        name="control-hooks"
+        form={createForm}
+        onFinish={onCreate}
+        name="createAgent"
         style={{ maxWidth: 600 }}
       >
         <Form.Item
