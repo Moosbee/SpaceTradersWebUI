@@ -16,7 +16,7 @@ import {
   createStateSyncMiddleware,
   initMessageListener,
 } from "redux-state-sync";
-import type { Prettify } from "../utils/utils";
+import type { Prettify } from "./utils/utils";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {

@@ -43,6 +43,18 @@ export const agentSlice = createAppSlice({
         state.agents.push(action.payload);
       },
     ),
+    removeAgent: create.reducer(
+      (state, action: PayloadAction<{ token: string }>) => {
+        state.agents = state.agents.filter(
+          (agent) => agent.token !== action.payload.token,
+        );
+      },
+    ),
+    setAgents: create.reducer(
+      (state, action: PayloadAction<{ symbol: string; token: string }[]>) => {
+        state.agents = action.payload;
+      },
+    ),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
@@ -53,7 +65,8 @@ export const agentSlice = createAppSlice({
 });
 
 // Action creators are generated for each case reducer function.
-export const { setMyAgent, addAgent } = agentSlice.actions;
+export const { setMyAgent, addAgent, removeAgent, setAgents } =
+  agentSlice.actions;
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectMyAgent, selectAgents } = agentSlice.selectors;

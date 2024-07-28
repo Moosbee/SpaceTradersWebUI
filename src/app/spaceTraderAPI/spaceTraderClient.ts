@@ -9,6 +9,8 @@ import {
 import { Configuration } from "./api/configuration";
 
 import axios from "axios";
+import { selectAgentToken } from "./redux/configSlice";
+import { store } from "../store";
 
 // Create an Axios instance
 const axiosInstance = axios.create();
@@ -20,6 +22,11 @@ axiosInstance.interceptors.request.use(
     // config.headers["Authorization"] = `Bearer your-token`;
     // console.log("axiosrequest", config);
     // Add any other transformations you need
+
+    const token = selectAgentToken(store.getState());
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
     console.log("axiosrequest", config);
     return config;
   },
@@ -43,15 +50,15 @@ axiosInstance.interceptors.response.use(
 );
 
 const openapiConfig = new Configuration();
-if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
-  openapiConfig.baseOptions = {
-    headers: {
-      Authorization:
-        "Bearer " + import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN,
-      // Prefer: "dynamic=true",
-    },
-  };
-}
+// if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
+//   openapiConfig.baseOptions = {
+//     headers: {
+//       Authorization:
+//         "Bearer " + import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN,
+//       // Prefer: "dynamic=true",
+//     },
+//   };
+// }
 
 const FleetClient = new FleetApi(openapiConfig, undefined, axiosInstance);
 const AgentsClient = new AgentsApi(openapiConfig, undefined, axiosInstance);

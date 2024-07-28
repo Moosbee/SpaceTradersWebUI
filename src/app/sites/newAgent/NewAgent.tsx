@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type {
+  Agent,
   FactionSymbol,
   Register201ResponseData,
 } from "../../spaceTraderAPI/api";
@@ -21,10 +22,11 @@ import AgentDisp from "../../features/disp/AgentDisp";
 import ContractDisp from "../../features/disp/ContractDisp";
 import FactionDisp from "../../features/disp/FactionDisp";
 import ShipDisp from "../../features/disp/ship/ShipDisp";
-import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import { addAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { useAppDispatch } from "../../hooks";
 import { setShip } from "../../spaceTraderAPI/redux/fleetSlice";
 import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
+import { setAgentToken } from "../../spaceTraderAPI/redux/configSlice";
 
 const layout = {
   labelCol: { span: 8 },
@@ -39,6 +41,7 @@ function NewAgent() {
   const [newAgent, setNewAgent] = useState<Register201ResponseData | null>(
     null,
   );
+  const [agent, setAgent] = useState<Agent | null>(null);
 
   const [callsign, setCallsign] = useState("");
 
@@ -60,6 +63,21 @@ function NewAgent() {
 
   const onAdd: FormProps<addAgentType>["onFinish"] = (values) => {
     console.log("Success:", values);
+    spaceTraderClient.AgentsClient.getMyAgent({
+      transformRequest: (data, headers) => {
+        headers["Authorization"] = `Bearer ${values.token}`;
+        return data;
+      },
+    }).then((answer) => {
+      console.log(answer);
+      setAgent(answer.data.data);
+      setCallsign(answer.data.data.symbol);
+      dispatch(
+        addAgent({ symbol: answer.data.data.symbol, token: values.token }),
+      );
+      dispatch(setAgentToken(values.token));
+      dispatch(setMyAgent(answer.data.data));
+    });
   };
 
   const onCreate: FormProps<createAgentType>["onFinish"] = (values) => {
@@ -80,6 +98,13 @@ function NewAgent() {
     ).then((answer) => {
       console.log(answer);
       setNewAgent(answer.data.data);
+      dispatch(setAgentToken(answer.data.data.token));
+      dispatch(
+        addAgent({
+          symbol: answer.data.data.agent.symbol,
+          token: answer.data.data.token,
+        }),
+      );
       dispatch(setMyAgent(answer.data.data.agent));
       dispatch(putContract({ contract: answer.data.data.contract }));
       dispatch(setShip(answer.data.data.ship));
@@ -87,7 +112,7 @@ function NewAgent() {
   };
 
   return (
-    <div>
+    <div style={{ padding: "24px 24px" }}>
       <h2>Add Agent</h2>
       <Form
         {...layout}
@@ -96,6 +121,11 @@ function NewAgent() {
         name="addAgent"
         style={{ maxWidth: 600 }}
       >
+        {callsign !== "" && (
+          <Typography>
+            <pre>Name: {callsign}</pre>
+          </Typography>
+        )}
         <Form.Item
           name="token"
           label="Token"
@@ -112,6 +142,8 @@ function NewAgent() {
                     return data;
                   },
                 });
+                setCallsign(resp.data.data.symbol);
+                console.log("resp", resp);
               },
             },
           ]}
@@ -127,6 +159,18 @@ function NewAgent() {
           </Space>
         </Form.Item>
       </Form>
+      {agent && (
+        <Result
+          status="success"
+          title="Successfully Registered"
+          subTitle="Agent Created"
+          extra={[
+            <Card title="New Agent">
+              <AgentDisp agent={agent}></AgentDisp>
+            </Card>,
+          ]}
+        />
+      )}
       <h2>Create NewAgent</h2>
       <Form
         {...layout}
