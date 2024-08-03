@@ -122,6 +122,23 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         label: "Revalidate Agents",
         itemIcon: <FaIcon type="solid" icon="fa-rotate" />,
       },
+      {
+        key: "download",
+        label: "Download",
+        itemIcon: <FaIcon type="solid" icon="fa-download" />,
+        onClick: () => {
+          const text = JSON.stringify(agents);
+          const element = document.createElement("a");
+          const file = new Blob([text], {
+            type: "text/plain",
+          });
+          element.href = URL.createObjectURL(file);
+          element.download = "agents.json";
+          document.body.appendChild(element);
+          element.click();
+          document.body.removeChild(element);
+        },
+      },
     ]);
   }, [agents, dispatch, token]);
 
@@ -138,19 +155,17 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         background: colorBgContainer,
       }}
     >
-      <Space>
-        <Dropdown menu={{ items }} trigger={["click"]}>
-          {myAgent.symbol !== "" ? (
-            <div style={{ cursor: "pointer" }}>
-              <Avatar>{myAgent.symbol.slice(0, 1)}</Avatar>
-              {myAgent.symbol}{" "}
-              <span>Funds: {myAgent.credits.toLocaleString()}</span>
-            </div>
-          ) : (
-            <div style={{ cursor: "pointer" }}>Choose Agent</div>
-          )}
-        </Dropdown>
-      </Space>
+      <Dropdown menu={{ items }} trigger={["click"]}>
+        {myAgent.symbol !== "" ? (
+          <Space style={{ cursor: "pointer" }}>
+            <Avatar>{myAgent.symbol.slice(0, 1)}</Avatar>
+            {myAgent.symbol}
+            <span>Funds: {myAgent.credits.toLocaleString()}</span>
+          </Space>
+        ) : (
+          <Space style={{ cursor: "pointer" }}>Choose Agent</Space>
+        )}
+      </Dropdown>
       <div>
         <Button
           onClick={() => {
