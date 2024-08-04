@@ -202,83 +202,87 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
         ></Descriptions>
       ),
     },
-    {
-      key: "newRoute",
-      label: "New Route",
-      span: 2,
-
-      children: (
-        <Flex vertical gap={4}>
-          <Space>
-            {ship.nav.status === "IN_ORBIT" && (
-              <>
-                <Select
-                  options={system?.waypoints.map((w) => {
-                    return {
-                      value: w.symbol,
-                      label: <Tooltip title={w.type}>{w.symbol}</Tooltip>,
-                    };
-                  })}
-                  showSearch
-                  style={{ width: 130 }}
-                  onChange={(value) => {
-                    setNavWaypoint(value);
-                  }}
-                  value={navWaypoint}
-                />
-                <Button
-                  onClick={() => {
-                    console.log("Navigate Ship to", navWaypoint);
-                    if (!navWaypoint) return;
-                    spaceTraderClient.FleetClient.navigateShip(ship.symbol, {
-                      waypointSymbol: navWaypoint,
-                    }).then((value) => {
-                      console.log("value", value);
-                      setTimeout(() => {
-                        dispatch(
-                          setShipNav({
-                            symbol: ship.symbol,
-                            nav: value.data.data.nav,
-                          }),
-                        );
-                        dispatch(
-                          setShipFuel({
-                            symbol: ship.symbol,
-                            fuel: value.data.data.fuel,
-                          }),
-                        );
-                      });
-                    });
-                  }}
-                >
-                  Navigate Ship
-                </Button>
-              </>
-            )}
-          </Space>
-          <br />
-          <Space>
-            {wayPoint?.type === "JUMP_GATE" &&
-              ship.nav.status === "IN_ORBIT" && (
-                <>
-                  <Select style={{ width: 100 }} />
-                  <Button>Jump Ship</Button>
-                </>
-              )}
-          </Space>
-          <br />
-          {ship !== undefined &&
-            ship.nav.status === "IN_ORBIT" &&
-            ship.modules.some(
-              (m) =>
-                m.symbol === "MODULE_WARP_DRIVE_I" ||
-                m.symbol === "MODULE_WARP_DRIVE_II" ||
-                m.symbol === "MODULE_WARP_DRIVE_III",
-            ) && <WarpShip ship={ship} />}
-        </Flex>
-      ),
-    },
   ];
+  if (ship.nav.status === "IN_ORBIT") {
+    itemsNav.concat([
+      {
+        key: "newRoute",
+        label: "New Route",
+        span: 2,
+
+        children: (
+          <Flex vertical gap={4}>
+            <Space>
+              {
+                <>
+                  <Select
+                    options={system?.waypoints.map((w) => {
+                      return {
+                        value: w.symbol,
+                        label: <Tooltip title={w.type}>{w.symbol}</Tooltip>,
+                      };
+                    })}
+                    showSearch
+                    style={{ width: 130 }}
+                    onChange={(value) => {
+                      setNavWaypoint(value);
+                    }}
+                    value={navWaypoint}
+                  />
+                  <Button
+                    onClick={() => {
+                      console.log("Navigate Ship to", navWaypoint);
+                      if (!navWaypoint) return;
+                      spaceTraderClient.FleetClient.navigateShip(ship.symbol, {
+                        waypointSymbol: navWaypoint,
+                      }).then((value) => {
+                        console.log("value", value);
+                        setTimeout(() => {
+                          dispatch(
+                            setShipNav({
+                              symbol: ship.symbol,
+                              nav: value.data.data.nav,
+                            }),
+                          );
+                          dispatch(
+                            setShipFuel({
+                              symbol: ship.symbol,
+                              fuel: value.data.data.fuel,
+                            }),
+                          );
+                        });
+                      });
+                    }}
+                  >
+                    Navigate Ship
+                  </Button>
+                </>
+              }
+            </Space>
+            <br />
+            <Space>
+              {wayPoint?.type === "JUMP_GATE" &&
+                ship.nav.status === "IN_ORBIT" && (
+                  <>
+                    <Select style={{ width: 100 }} />
+                    <Button>Jump Ship</Button>
+                  </>
+                )}
+            </Space>
+            <br />
+            {ship !== undefined &&
+              ship.nav.status === "IN_ORBIT" &&
+              ship.modules.some(
+                (m) =>
+                  m.symbol === "MODULE_WARP_DRIVE_I" ||
+                  m.symbol === "MODULE_WARP_DRIVE_II" ||
+                  m.symbol === "MODULE_WARP_DRIVE_III",
+              ) && <WarpShip ship={ship} />}
+          </Flex>
+        ),
+      },
+    ]);
+  }
 
   return (
     <Descriptions
