@@ -32,6 +32,13 @@ export const fleetSlice = createAppSlice({
     clearShips: create.reducer((state) => {
       state.ships = {};
     }),
+    clearAgentShips: create.reducer((state, action: PayloadAction<string>) => {
+      Object.keys(state.ships).forEach((key) => {
+        if (key.startsWith(action.payload)) {
+          delete state.ships[key];
+        }
+      });
+    }),
     // Use the `PayloadAction` type to declare the contents of `action.payload`
     setShip: create.reducer((state, action: PayloadAction<Ship>) => {
       // Redux Toolkit allows us to write "mutating" logic in reducers. It
@@ -91,6 +98,7 @@ export const {
   setShipNav,
   setShipCargo,
   setShipCooldown,
+  clearAgentShips,
 } = fleetSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectShips, selectShip } = fleetSlice.selectors;

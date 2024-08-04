@@ -4,9 +4,13 @@ import ShipDisp from "../../features/disp/ship/ShipDisp";
 import { useAppSelector } from "../../hooks";
 import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
 import CachingFleetCard from "../../features/cachingCard/CachingFleetCard";
+import { selectMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 
 function Fleet() {
-  const ships = useAppSelector(selectShips);
+  const agent = useAppSelector(selectMyAgent);
+  const ships = useAppSelector(selectShips).filter((w) =>
+    w.symbol.startsWith(agent.symbol),
+  );
 
   return (
     <div style={{ padding: "24px 24px" }}>

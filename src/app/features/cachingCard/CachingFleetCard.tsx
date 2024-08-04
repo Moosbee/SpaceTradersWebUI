@@ -8,13 +8,18 @@ import {
   selectShips,
   addShips,
   clearShips,
+  clearAgentShips,
 } from "../../spaceTraderAPI/redux/fleetSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
+import { selectMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 
 const CachingFleetCard = () => {
   const dispatch = useAppDispatch();
-  const cachedFleet = useAppSelector(selectShips);
+  const agent = useAppSelector(selectMyAgent);
+  const cachedFleet = useAppSelector(selectShips).filter((value) =>
+    value.symbol.startsWith(agent.symbol),
+  );
 
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
@@ -40,7 +45,7 @@ const CachingFleetCard = () => {
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
-    dispatch(clearShips());
+    dispatch(clearAgentShips(agent.symbol));
     cacheControllerRef.current?.reset();
     setRemainingTime(0);
 
@@ -59,7 +64,7 @@ const CachingFleetCard = () => {
         setLoading(false);
         cacheControllerRef.current?.reset();
       });
-  }, [dispatch, startTime]);
+  }, [agent.symbol, dispatch, startTime]);
 
   const pauseFetching = useCallback(() => {
     cacheControllerRef.current?.pause();
