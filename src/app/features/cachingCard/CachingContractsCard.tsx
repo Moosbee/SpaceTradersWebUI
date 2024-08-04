@@ -11,10 +11,12 @@ import {
 } from "../../spaceTraderAPI/redux/contractSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
+import { selectMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 
 const CachingContractsCard = () => {
   const dispatch = useAppDispatch();
   const cachedContracts = useAppSelector(selectContracts);
+  const agent = useAppSelector(selectMyAgent);
 
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
@@ -24,6 +26,7 @@ const CachingContractsCard = () => {
   const cacheControllerRef = useRef<CacheController<Contract>>();
 
   useEffect(() => {
+    // todo rewite use setfunction
     cacheControllerRef.current = new CacheController<Contract>(
       (page, limit, options) => {
         return spaceTraderClient.ContractsClient.getContracts(
@@ -33,13 +36,22 @@ const CachingContractsCard = () => {
         );
       },
       (contracts) => {
-        store.dispatch(putContracts(contracts));
+        store.dispatch(
+          putContracts(
+            contracts.map((c) => {
+              return {
+                agentSymbol: agent.symbol,
+                contract: c,
+              };
+            }),
+          ),
+        );
       },
     );
     return () => {
       cacheControllerRef.current?.cancel();
     };
-  }, []);
+  }, [agent.symbol]);
 
   const startFetching = useCallback(() => {
     setStartTime(Date.now());

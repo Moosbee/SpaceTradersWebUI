@@ -23,10 +23,6 @@ axiosInstance.interceptors.request.use(
     // console.log("axiosrequest", config);
     // Add any other transformations you need
 
-    const token = selectAgentToken(store.getState());
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
     console.log("axiosrequest", config);
     return config;
   },
@@ -49,7 +45,15 @@ axiosInstance.interceptors.response.use(
   },
 );
 
-const openapiConfig = new Configuration();
+const openapiConfig = new Configuration({
+  accessToken: async () => {
+    const token = selectAgentToken(store.getState());
+    if (token) {
+      return token;
+    }
+    return "";
+  },
+});
 // if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
 //   openapiConfig.baseOptions = {
 //     headers: {

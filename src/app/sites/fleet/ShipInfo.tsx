@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type {
-  Contract,
   Ship,
   ShipCargoItem,
   Survey,
@@ -52,7 +51,10 @@ import {
   selectSystem,
   selectSystems,
 } from "../../spaceTraderAPI/redux/systemSlice";
-import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import {
+  selectMyAgent,
+  setMyAgent,
+} from "../../spaceTraderAPI/redux/agentSlice";
 
 const { Countdown } = Statistic;
 
@@ -62,6 +64,7 @@ function ShipInfo() {
   const [loadingShipNav, setLoadingShipNav] = useState<boolean>(false);
   const dispatch = useAppDispatch();
   const ship = useAppSelector((state) => selectShip(state, shipID));
+  const agent = useAppSelector(selectMyAgent);
   const system = useAppSelector((state) =>
     selectSystem(state, ship?.nav.systemSymbol),
   );
@@ -648,7 +651,10 @@ function ShipInfo() {
                             }),
                           );
                           dispatch(
-                            putContract({ contract: value.data.data.contract }),
+                            putContract({
+                              contract: value.data.data.contract,
+                              agentSymbol: agent.symbol,
+                            }),
                           );
                         });
                       });
@@ -1223,6 +1229,7 @@ function CargoActions({
   onFulfill: (count: number, item: string, contractID: string) => void;
 }) {
   const [count, setCount] = useState(1);
+  const agent = useAppSelector(selectMyAgent);
 
   const items = useAppSelector(selectShips).map((w) => {
     return {
@@ -1231,12 +1238,14 @@ function CargoActions({
     };
   });
 
-  const contracts = useAppSelector(selectOpenContracts).map((w: Contract) => {
-    return {
-      key: w.id,
-      label: w.id,
-    };
-  });
+  const contracts = useAppSelector(selectOpenContracts)
+    .filter((w) => w.agentSymbol === agent.symbol)
+    .map((w) => {
+      return {
+        key: w.contract.id,
+        label: w.contract.id,
+      };
+    });
 
   return (
     <Space>

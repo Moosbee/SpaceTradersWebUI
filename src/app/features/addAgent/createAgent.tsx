@@ -78,7 +78,12 @@ function CreateAgent() {
         }),
       );
       dispatch(setMyAgent(answer.data.data.agent));
-      dispatch(putContract({ contract: answer.data.data.contract }));
+      dispatch(
+        putContract({
+          contract: answer.data.data.contract,
+          agentSymbol: answer.data.data.agent.symbol,
+        }),
+      );
       dispatch(setShip(answer.data.data.ship));
     });
   };

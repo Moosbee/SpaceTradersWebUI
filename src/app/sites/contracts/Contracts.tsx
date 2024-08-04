@@ -7,11 +7,23 @@ import {
 } from "../../spaceTraderAPI/redux/contractSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import CachingContractsCard from "../../features/cachingCard/CachingContractsCard";
-import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import {
+  selectMyAgent,
+  setMyAgent,
+} from "../../spaceTraderAPI/redux/agentSlice";
+import { useMemo } from "react";
 
 function Contracts() {
   const dispatch = useAppDispatch();
   const contracts = useAppSelector(selectContracts);
+  const agent = useAppSelector(selectMyAgent);
+  const myContracts = useMemo(
+    () =>
+      contracts
+        .filter((value) => value.agentSymbol === agent.symbol)
+        .map((w) => w.contract),
+    [agent.symbol, contracts],
+  );
 
   return (
     <div style={{ padding: "24px 24px" }}>
@@ -21,7 +33,7 @@ function Contracts() {
       </Flex>
       <Divider></Divider>
       <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {contracts.map((value) => (
+        {myContracts.map((value) => (
           <ContractDisp
             key={value.id}
             contract={value}
@@ -30,7 +42,10 @@ function Contracts() {
                 (response) => {
                   console.log("response", response);
                   dispatch(
-                    putContract({ contract: response.data.data.contract }),
+                    putContract({
+                      contract: response.data.data.contract,
+                      agentSymbol: agent.symbol,
+                    }),
                   );
                   dispatch(setMyAgent(response.data.data.agent));
                 },
@@ -41,7 +56,10 @@ function Contracts() {
                 (response) => {
                   console.log("response", response);
                   dispatch(
-                    putContract({ contract: response.data.data.contract }),
+                    putContract({
+                      contract: response.data.data.contract,
+                      agentSymbol: agent.symbol,
+                    }),
                   );
                   dispatch(setMyAgent(response.data.data.agent));
                 },
