@@ -177,7 +177,7 @@ function WaypointMapWaypoint({
       <div className={classes.waypointInfo}>
         {/* {waypoint.x}, {waypoint.y} */}
         {waypoint?.symbol.replace(system.symbol + "-", "")}
-        <br />
+        {/* <br />
         <div
           className={classes.waypointInfoMore}
           style={
@@ -187,7 +187,7 @@ function WaypointMapWaypoint({
           }
         >
           {waypoint?.type}
-        </div>
+        </div> */}
       </div>
     </div>
   );

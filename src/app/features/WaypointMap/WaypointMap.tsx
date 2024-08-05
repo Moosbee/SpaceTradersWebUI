@@ -33,69 +33,74 @@ function WaypointMap({ systemID }: { systemID: string }) {
 
     let orbitals = 0;
 
-    return system.waypoints.map((w) => {
-      let xOne = scaleNum(w.x, -wbCalcX, wbCalcX, 0, 100);
-      let yOne = scaleNum(w.y, -wbCalcY, wbCalcY, 0, 100);
+    return system.waypoints
+      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+      .map((w) => {
+        let xOne = scaleNum(w.x, -wbCalcX, wbCalcX, 0, 100);
+        let yOne = scaleNum(w.y, -wbCalcY, wbCalcY, 0, 100);
 
-      let xOneOrbitCenter = 50;
-      let yOneOrbitCenter = 50;
+        let xOneOrbitCenter = 50;
+        let yOneOrbitCenter = 50;
 
-      if (w.orbits) {
-        orbitals = orbitals + 1;
+        if (w.orbits) {
+          orbitals = orbitals + 1;
 
-        xOneOrbitCenter = xOne;
-        yOneOrbitCenter = yOne;
+          xOneOrbitCenter = xOne;
+          yOneOrbitCenter = yOne;
 
-        const wayX =
-          orbitals % 8 === 0
-            ? 1
-            : orbitals % 8 === 1
-              ? 0
-              : orbitals % 8 === 2
-                ? -1
-                : orbitals % 8 === 3
-                  ? -1
-                  : orbitals % 8 === 4
-                    ? 0
-                    : orbitals % 8 === 5
-                      ? 1
-                      : orbitals % 8 === 6
-                        ? 1
-                        : orbitals % 8 === 7
-                          ? 0
-                          : 0;
-        const wayY =
-          orbitals % 8 === 0
-            ? 0
-            : orbitals % 8 === 1
+          const orbHash = orbitals;
+
+          const wayX =
+            orbHash % 8 === 0
               ? 1
-              : orbitals % 8 === 2
-                ? 1
-                : orbitals % 8 === 3
-                  ? 0
-                  : orbitals % 8 === 4
+              : orbHash % 8 === 1
+                ? 0
+                : orbHash % 8 === 2
+                  ? -1
+                  : orbHash % 8 === 3
                     ? -1
-                    : orbitals % 8 === 5
+                    : orbHash % 8 === 4
+                      ? 0
+                      : orbHash % 8 === 5
+                        ? 1
+                        : orbHash % 8 === 6
+                          ? 1
+                          : orbHash % 8 === 7
+                            ? 0
+                            : 0;
+          const wayY =
+            orbHash % 8 === 0
+              ? 0
+              : orbHash % 8 === 1
+                ? 1
+                : orbHash % 8 === 2
+                  ? 1
+                  : orbHash % 8 === 3
+                    ? 0
+                    : orbHash % 8 === 4
                       ? -1
-                      : orbitals % 8 === 6
-                        ? 0
-                        : orbitals % 8 === 7
-                          ? -1
-                          : 0;
-        const newX = w.x + wbCalcX * 0.01 * wayX;
-        const newY = w.y + wbCalcY * 0.01 * wayY;
+                      : orbHash % 8 === 5
+                        ? -1
+                        : orbHash % 8 === 6
+                          ? 0
+                          : orbHash % 8 === 7
+                            ? -1
+                            : 0;
 
-        xOne = scaleNum(newX, -wbCalcX, wbCalcX, 0, 100);
-        yOne = scaleNum(newY, -wbCalcY, wbCalcY, 0, 100);
-      }
-      return {
-        waypoint: w,
-        xOne,
-        yOne,
-        xOneOrbitCenter,
-        yOneOrbitCenter,
-      };
-    });
+          const newX = w.x + wbCalcX * 0.01 * wayX;
+          const newY = w.y + wbCalcY * 0.01 * wayY;
+
+          xOne = scaleNum(newX, -wbCalcX, wbCalcX, 0, 100);
+          yOne = scaleNum(newY, -wbCalcY, wbCalcY, 0, 100);
+        }
+        return {
+          waypoint: w,
+          xOne,
+          yOne,
+          xOneOrbitCenter,
+          yOneOrbitCenter,
+        };
+      });
   }, [system]);
 
   return (

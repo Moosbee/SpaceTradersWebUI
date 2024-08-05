@@ -54,5 +54,5 @@
 
 .waypointInfoMore {
   width: calc(var(--zoom) / 20 - 50%);
-  overflow: hidden;
+  /* overflow: hidden; */
 }
