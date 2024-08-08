@@ -3,23 +3,16 @@ import { createAppSlice } from "../../createAppSlice";
 import type { Agent } from "../api";
 
 export interface AgentSliceState {
-  myAgent: Agent;
-  agents: {
-    symbol: string;
-    token: string;
-  }[];
+  myAgents: {
+    [symbol: string]: {
+      agent: Agent;
+      token: string;
+    };
+  };
 }
 
 const initialState: AgentSliceState = {
-  myAgent: {
-    credits: 0,
-    headquarters: "",
-    shipCount: 0,
-    startingFaction: "",
-    symbol: "",
-    accountId: "",
-  },
-  agents: [],
+  myAgents: {},
 };
 
 // If you are not using async thunks you can use the standalone `createSlice`.
