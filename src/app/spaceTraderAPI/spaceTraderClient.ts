@@ -9,8 +9,9 @@ import {
 import { Configuration } from "./api/configuration";
 
 import axios from "axios";
-import { selectAgentToken } from "./redux/configSlice";
 import { store } from "../store";
+import { selectAgentSymbol } from "./redux/configSlice";
+import { selectAgent } from "./redux/agentSlice";
 
 // Create an Axios instance
 const axiosInstance = axios.create();
@@ -47,7 +48,8 @@ axiosInstance.interceptors.response.use(
 
 const openapiConfig = new Configuration({
   accessToken: async () => {
-    const token = selectAgentToken(store.getState());
+    const myAgentSymbol = selectAgentSymbol(store.getState());
+    const token = selectAgent(store.getState(), myAgentSymbol)?.token;
     if (token) {
       return token;
     }

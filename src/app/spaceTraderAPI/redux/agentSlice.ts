@@ -1,4 +1,4 @@
-import type { PayloadAction } from "@reduxjs/toolkit";
+import { createSelector, type PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
 import type { Agent } from "../api";
 
@@ -29,31 +29,38 @@ export const agentSlice = createAppSlice({
       // which detects changes to a "draft state" and produces a brand new
       // immutable state based off those changes
 
-      state.myAgent = action.payload;
+      state.myAgents[action.payload.symbol] = {
+        agent: action.payload,
+        token: state.myAgents[action.payload.symbol].token,
+      };
     }),
     addAgent: create.reducer(
-      (state, action: PayloadAction<{ symbol: string; token: string }>) => {
-        state.agents.push(action.payload);
+      (state, action: PayloadAction<{ agent: Agent; token: string }>) => {
+        state.myAgents[action.payload.agent.symbol] = action.payload;
       },
     ),
     removeAgent: create.reducer(
-      (state, action: PayloadAction<{ token: string }>) => {
-        state.agents = state.agents.filter(
-          (agent) => agent.token !== action.payload.token,
-        );
+      (state, action: PayloadAction<{ symbol: string }>) => {
+        delete state.myAgents[action.payload.symbol];
       },
     ),
     setAgents: create.reducer(
-      (state, action: PayloadAction<{ symbol: string; token: string }[]>) => {
-        state.agents = action.payload;
+      (state, action: PayloadAction<{ agent: Agent; token: string }[]>) => {
+        for (const agent of action.payload) {
+          state.myAgents[agent.agent.symbol] = agent;
+        }
       },
     ),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
   selectors: {
-    selectMyAgent: (state) => state.myAgent,
-    selectAgents: (state) => state.agents,
+    selectAgents: createSelector(
+      (state) => state.myAgents,
+      (myAgents) => Object.values<{ agent: Agent; token: string }>(myAgents),
+    ),
+    selectAgent: (state, symbol?: string) =>
+      symbol ? state.myAgents[symbol] : undefined,
   },
 });
 
@@ -62,4 +69,4 @@ export const { setMyAgent, addAgent, removeAgent, setAgents } =
   agentSlice.actions;
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.
-export const { selectMyAgent, selectAgents } = agentSlice.selectors;
+export const { selectAgent, selectAgents } = agentSlice.selectors;

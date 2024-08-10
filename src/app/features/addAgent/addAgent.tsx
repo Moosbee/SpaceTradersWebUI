@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useAppDispatch } from "../../hooks";
 import type { Agent } from "../../spaceTraderAPI/api";
 import { addAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
-import { setAgentToken } from "../../spaceTraderAPI/redux/configSlice";
+import { setAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 type addAgentType = {
   token: string;
@@ -39,10 +39,8 @@ function AddAgent() {
       console.log(answer);
       setAgent(answer.data.data);
       setCallsign(answer.data.data.symbol);
-      dispatch(
-        addAgent({ symbol: answer.data.data.symbol, token: values.token }),
-      );
-      dispatch(setAgentToken(values.token));
+      dispatch(addAgent({ agent: answer.data.data, token: values.token }));
+      dispatch(setAgentSymbol(answer.data.data.symbol));
       dispatch(setMyAgent(answer.data.data));
     });
   };

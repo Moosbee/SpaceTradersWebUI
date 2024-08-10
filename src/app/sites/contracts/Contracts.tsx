@@ -7,22 +7,21 @@ import {
 } from "../../spaceTraderAPI/redux/contractSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import CachingContractsCard from "../../features/cachingCard/CachingContractsCard";
-import {
-  selectMyAgent,
-  setMyAgent,
-} from "../../spaceTraderAPI/redux/agentSlice";
+import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { useMemo } from "react";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 function Contracts() {
   const dispatch = useAppDispatch();
   const contracts = useAppSelector(selectContracts);
-  const agent = useAppSelector(selectMyAgent);
+  const agentSymbol = useAppSelector(selectAgentSymbol);
+  const agent = useAppSelector((state) => selectAgent(state, agentSymbol));
   const myContracts = useMemo(
     () =>
       contracts
-        .filter((value) => value.agentSymbol === agent.symbol)
+        .filter((value) => value.agentSymbol === agent?.agent.symbol)
         .map((w) => w.contract),
-    [agent.symbol, contracts],
+    [agent?.agent.symbol, contracts],
   );
 
   return (
@@ -44,7 +43,7 @@ function Contracts() {
                   dispatch(
                     putContract({
                       contract: response.data.data.contract,
-                      agentSymbol: agent.symbol,
+                      agentSymbol: response.data.data.agent.symbol,
                     }),
                   );
                   dispatch(setMyAgent(response.data.data.agent));
@@ -58,7 +57,7 @@ function Contracts() {
                   dispatch(
                     putContract({
                       contract: response.data.data.contract,
-                      agentSymbol: agent.symbol,
+                      agentSymbol: response.data.data.agent.symbol,
                     }),
                   );
                   dispatch(setMyAgent(response.data.data.agent));

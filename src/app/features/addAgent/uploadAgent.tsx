@@ -67,7 +67,12 @@ function UploadAgent() {
             let all = agents.length;
             return Promise.all(
               agents
-                .concat(useAgents)
+                .concat(
+                  useAgents.map((agent) => ({
+                    symbol: agent.agent.symbol,
+                    token: agent.token,
+                  })),
+                )
                 .reduce((acc, cur) => {
                   // Remove duplicates
                   if (!acc.find((item) => item.token === cur.token)) {
@@ -91,7 +96,7 @@ function UploadAgent() {
                   });
                   if (response.status === 200) {
                     return {
-                      symbol: response.data.data.symbol,
+                      agent: response.data.data,
                       token: agent.token,
                     };
                   } else {
@@ -102,7 +107,13 @@ function UploadAgent() {
             );
           })
           .then((data) => {
-            dispatch(setAgents(data.filter((agent) => agent !== undefined)));
+            dispatch(
+              setAgents(
+                data
+                  .filter((agent) => agent !== undefined)
+                  .map((agent) => agent!),
+              ),
+            );
             message.success("Upload success");
             onSuccess("ok");
           })

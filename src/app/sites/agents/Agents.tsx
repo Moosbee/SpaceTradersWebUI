@@ -5,10 +5,8 @@ import { Divider, Flex, Pagination, Spin } from "antd";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import AgentDisp from "../../features/disp/AgentDisp";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import {
-  selectMyAgent,
-  setMyAgent,
-} from "../../spaceTraderAPI/redux/agentSlice";
+import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 function Agents() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -19,7 +17,8 @@ function Agents() {
 
   const dispatch = useAppDispatch();
 
-  const myAgent = useAppSelector(selectMyAgent);
+  const agentSymbol = useAppSelector(selectAgentSymbol);
+  const myAgent = useAppSelector((state) => selectAgent(state, agentSymbol));
 
   useEffect(() => {
     spaceTraderClient.AgentsClient.getMyAgent().then((response) => {
@@ -50,8 +49,8 @@ function Agents() {
   return (
     <div style={{ padding: "24px 24px" }}>
       <h2>My Agent</h2>
-      <Spin spinning={myAgent.symbol === ""}>
-        <AgentDisp agent={myAgent}></AgentDisp>
+      <Spin spinning={!myAgent}>
+        {myAgent && <AgentDisp agent={myAgent.agent}></AgentDisp>}
       </Spin>
       <Divider />
       <h2>All Agents</h2>

@@ -12,10 +12,7 @@ import {
   Switch,
   Descriptions,
 } from "antd";
-import {
-  selectMyAgent,
-  setMyAgent,
-} from "../../spaceTraderAPI/redux/agentSlice";
+import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import {
   putContract,
   selectOpenContracts,
@@ -34,10 +31,12 @@ import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Ship, ShipCargoItem, Survey } from "../../spaceTraderAPI/api";
 import { useState } from "react";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 function ShipCargoInfo({ ship }: { ship: Ship }) {
   const dispatch = useAppDispatch();
-  const myAgent = useAppSelector(selectMyAgent);
+  const agentSymbol = useAppSelector(selectAgentSymbol);
+  const myAgent = useAppSelector((state) => selectAgent(state, agentSymbol));
 
   const itemsCargo: DescriptionsProps["items"] = [
     {
@@ -295,12 +294,13 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                               cargo: value.data.data.cargo,
                             }),
                           );
-                          dispatch(
-                            putContract({
-                              contract: value.data.data.contract,
-                              agentSymbol: myAgent.symbol,
-                            }),
-                          );
+                          if (myAgent)
+                            dispatch(
+                              putContract({
+                                contract: value.data.data.contract,
+                                agentSymbol: myAgent.agent.symbol,
+                              }),
+                            );
                         });
                       });
                     }}
@@ -416,7 +416,8 @@ function CargoActions({
   onFulfill: (count: number, item: string, contractID: string) => void;
 }) {
   const [count, setCount] = useState(1);
-  const agent = useAppSelector(selectMyAgent);
+  const agentSymbol = useAppSelector(selectAgentSymbol);
+  const agent = useAppSelector((state) => selectAgent(state, agentSymbol));
 
   const items = useAppSelector(selectShips).map((w) => {
     return {
@@ -426,7 +427,7 @@ function CargoActions({
   });
 
   const contracts = useAppSelector(selectOpenContracts)
-    .filter((w) => w.agentSymbol === agent.symbol)
+    .filter((w) => w.agentSymbol === agent?.agent.symbol)
     .map((w) => {
       return {
         key: w.contract.id,

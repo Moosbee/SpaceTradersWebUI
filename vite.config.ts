@@ -13,4 +13,7 @@ export default defineConfig({
     setupFiles: "src/setupTests",
     mockReset: true,
   },
+  build: {
+    target: "esnext",
+  },
 });

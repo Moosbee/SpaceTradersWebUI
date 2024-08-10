@@ -16,7 +16,6 @@ import ContractDisp from "../disp/ContractDisp";
 import FactionDisp from "../disp/FactionDisp";
 import ShipDisp from "../disp/ship/ShipDisp";
 import { addAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
-import { setAgentToken } from "../../spaceTraderAPI/redux/configSlice";
 import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
 import { setShip } from "../../spaceTraderAPI/redux/fleetSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
@@ -26,6 +25,7 @@ import type {
   Register201ResponseData,
 } from "../../spaceTraderAPI/api";
 import { useAppDispatch } from "../../hooks";
+import { setAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 type createAgentType = {
   callsign: string;
@@ -70,10 +70,10 @@ function CreateAgent() {
     ).then((answer) => {
       console.log(answer);
       setNewAgent(answer.data.data);
-      dispatch(setAgentToken(answer.data.data.token));
+      dispatch(setAgentSymbol(answer.data.data.agent.symbol));
       dispatch(
         addAgent({
-          symbol: answer.data.data.agent.symbol,
+          agent: answer.data.data.agent,
           token: answer.data.data.token,
         }),
       );

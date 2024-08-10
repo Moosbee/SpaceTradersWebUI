@@ -5,15 +5,15 @@ import type { AntHeaderHeader } from "../../MyApp";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import {
   removeAgent,
+  selectAgent,
   selectAgents,
-  selectMyAgent,
   setAgents,
   setMyAgent,
 } from "../spaceTraderAPI/redux/agentSlice";
 import {
-  selectAgentToken,
+  selectAgentSymbol,
   selectDarkMode,
-  setAgentToken,
+  setAgentSymbol,
   setDarkMode,
 } from "../spaceTraderAPI/redux/configSlice";
 import spaceTraderClient from "../spaceTraderAPI/spaceTraderClient";
@@ -25,8 +25,8 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const dispatch = useAppDispatch();
   const isDarkMode = useAppSelector(selectDarkMode);
   const agents = useAppSelector(selectAgents);
-  const myAgent = useAppSelector(selectMyAgent);
-  const token = useAppSelector(selectAgentToken);
+  const myAgentSymbol = useAppSelector(selectAgentSymbol);
+  const myAgent = useAppSelector((state) => selectAgent(state, myAgentSymbol));
 
   const {
     token: { colorBgContainer },
@@ -42,8 +42,14 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const items: MenuProps["items"] = useMemo<MenuProps["items"]>(() => {
     const items: MenuProps["items"] = agents.map((agent) => {
       return {
-        key: agent.symbol + " " + agent.token + " lest",
-        icon: <Badge status={agent.token === token ? "success" : "default"} />,
+        key: agent.agent.symbol + " " + agent.token + " lest",
+        icon: (
+          <Badge
+            status={
+              agent.agent.symbol === myAgentSymbol ? "success" : "default"
+            }
+          />
+        ),
         label: (
           <span
             onClick={(event) => {
@@ -56,12 +62,12 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
                 },
               }).then((response) => {
                 dispatch(setMyAgent(response.data.data));
-                dispatch(setAgentToken(agent.token));
-                message.info("Selected " + agent.symbol);
+                dispatch(setAgentSymbol(agent.agent.symbol));
+                message.info("Selected " + agent.agent.symbol);
               });
             }}
           >
-            {agent.symbol} {agent.token.slice(0, 3)}******
+            {agent.agent.symbol} {agent.token.slice(0, 3)}******
             {agent.token.slice(agent.token.length - 3)}&nbsp;&nbsp;
           </span>
         ),
@@ -72,8 +78,8 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
-              dispatch(removeAgent({ token: agent.token }));
-              message.info("Removed " + agent.symbol);
+              dispatch(removeAgent({ symbol: agent.agent.symbol }));
+              message.info("Removed " + agent.agent.symbol);
             }}
           >
             <FaIcon type="solid" icon="fa-trash-can" />
@@ -95,26 +101,31 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         onClick: () => {
           console.log("revalidate");
           Promise.all(
-            agents.map((agent) => {
-              return spaceTraderClient.AgentsClient.getMyAgent({
-                transformRequest: (data, headers) => {
+            agents.map(async (agent) => {
+              const response = await spaceTraderClient.AgentsClient.getMyAgent({
+                transformRequest: (data_1, headers) => {
                   headers["Authorization"] = `Bearer ${agent.token}`;
-                  return data;
+                  return data_1;
                 },
-              }).then((response) => {
-                if (response.status === 200) {
-                  return {
-                    symbol: agent.symbol,
-                    token: agent.token,
-                  };
-                } else {
-                  message.warning("Failed to revalidate " + agent.symbol);
-                  return undefined;
-                }
               });
+              if (response.status === 200) {
+                return {
+                  agent: response.data.data,
+                  token: agent.token,
+                };
+              } else {
+                message.warning("Failed to revalidate " + agent.agent.symbol);
+                return undefined;
+              }
             }),
           ).then((data) => {
-            dispatch(setAgents(data.filter((agent) => agent !== undefined)));
+            dispatch(
+              setAgents(
+                data
+                  .filter((agent) => agent !== undefined)
+                  .map((agent) => agent!),
+              ),
+            );
             message.success("All agents revalidated");
           });
         },
@@ -140,7 +151,7 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         },
       },
     ]);
-  }, [agents, dispatch, token]);
+  }, [agents, dispatch, myAgentSymbol]);
 
   return (
     <Header
@@ -156,11 +167,11 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
       }}
     >
       <Dropdown menu={{ items }} trigger={["click"]}>
-        {myAgent.symbol !== "" ? (
+        {myAgent?.agent ? (
           <Space style={{ cursor: "pointer" }}>
-            <Avatar>{myAgent.symbol.slice(0, 1)}</Avatar>
-            {myAgent.symbol}
-            <span>Funds: {myAgent.credits.toLocaleString()}</span>
+            <Avatar>{myAgent.agent.symbol.slice(0, 1)}</Avatar>
+            {myAgent.agent.symbol}
+            <span>Funds: {myAgent.agent.credits.toLocaleString()}</span>
           </Space>
         ) : (
           <Space style={{ cursor: "pointer" }}>Choose Agent</Space>

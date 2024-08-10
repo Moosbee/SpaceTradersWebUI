@@ -34,7 +34,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
     let orbitals = 0;
 
     return system.waypoints
-      .sort((a, b) => a.symbol.localeCompare(b.symbol))
+      .toSorted((a, b) => a.symbol.localeCompare(b.symbol))
       .map((w) => {
         let xOne = scaleNum(w.x, -wbCalcX, wbCalcX, 0, 100);
         let yOne = scaleNum(w.y, -wbCalcY, wbCalcY, 0, 100);
