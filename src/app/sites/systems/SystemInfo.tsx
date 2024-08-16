@@ -13,6 +13,7 @@ import {
   selectSystem,
 } from "../../spaceTraderAPI/redux/systemSlice";
 import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystemWaypointsCard";
+import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 const traitsOptions: SelectProps["options"] = Object.values(
   WaypointTraitSymbol,
@@ -22,7 +23,10 @@ const traitsOptions: SelectProps["options"] = Object.values(
 
 function SystemInfo() {
   const { systemID } = useParams();
-  const system = useAppSelector((state) => selectSystem(state, systemID));
+  const selectedSystem = useAppSelector(selectSelectedSystemSymbol);
+  const system = useAppSelector((state) =>
+    selectSystem(state, systemID === "selected" ? selectedSystem : systemID),
+  );
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -123,6 +127,8 @@ function SystemInfo() {
         />
 
         <h2>Waypoints</h2>
+        <Link to={"/systems/current/current"}>Current</Link>
+
         <Flex justify="space-around" gap={8}>
           <Card style={{ width: "fit-content" }} title={"Search"}>
             <Select

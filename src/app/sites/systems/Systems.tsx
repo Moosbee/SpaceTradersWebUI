@@ -14,6 +14,7 @@ import CachingSystemsCard from "../../features/cachingCard/CachingSystemsCard";
 import { useMemo, useState } from "react";
 import SystemDisp from "../../features/disp/SystemDisp";
 import type { System } from "../../spaceTraderAPI/api";
+import { Link } from "react-router-dom";
 
 function Systems() {
   const unfilteredSystems: System[] = useAppSelector(selectSystems);
@@ -141,6 +142,7 @@ function Systems() {
   return (
     <div style={{ padding: "24px 24px" }}>
       <h2>All Systems</h2>
+      <Link to={"/systems/current"}>Current</Link>
       <Flex justify="space-around" gap={8}>
         <Card style={{ width: "fit-content" }} title={"Search"}>
           <Descriptions

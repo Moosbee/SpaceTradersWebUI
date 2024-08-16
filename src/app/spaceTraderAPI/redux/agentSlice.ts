@@ -51,6 +51,9 @@ export const agentSlice = createAppSlice({
         }
       },
     ),
+    clearAgents: create.reducer((state) => {
+      state.myAgents = {};
+    }),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
@@ -65,7 +68,7 @@ export const agentSlice = createAppSlice({
 });
 
 // Action creators are generated for each case reducer function.
-export const { setMyAgent, addAgent, removeAgent, setAgents } =
+export const { setMyAgent, addAgent, removeAgent, setAgents, clearAgents } =
   agentSlice.actions;
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.

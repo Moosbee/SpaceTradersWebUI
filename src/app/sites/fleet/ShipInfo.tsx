@@ -14,11 +14,16 @@ import ShipEngineInfo from "../../features/Shipinfo/ShipEngineInfo";
 import ShipReactorInfo from "../../features/Shipinfo/ShipReactorInfo";
 import ShipMountInfo from "../../features/Shipinfo/ShipMountInfo";
 import ShipModuleInfo from "../../features/Shipinfo/ShipModuleInfo";
+import { selectSelectedShipSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 function ShipInfo() {
   const { shipID } = useParams();
   const dispatch = useAppDispatch();
-  const ship = useAppSelector((state) => selectShip(state, shipID));
+  const selectedShip = useAppSelector(selectSelectedShipSymbol);
+  const id = shipID === "selected" ? selectedShip : shipID;
+  const ship = useAppSelector((state) => selectShip(state, id));
+
+  console.log("ship", ship, shipID, selectedShip, id);
 
   if (!ship) return <Spin spinning={true} fullscreen></Spin>;
 
@@ -63,32 +68,32 @@ function ShipInfo() {
               <Button>Repair Ship</Button>
             </Flex>
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <ShipNavInfo ship={ship} />
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <ShipCargoInfo ship={ship} />
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <ShipFrameInfo ship={ship} />
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <ShipEngineInfo ship={ship} />
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <ShipFrameInfo ship={ship} />
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <ShipReactorInfo ship={ship} />
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <Flex wrap>
               {ship.mounts.map((value) => (
                 <ShipMountInfo key={value.symbol} value={value} />
               ))}
             </Flex>
           </Col>
-          <Col span={12}>
+          <Col span={12} sm={24} md={12}>
             <Flex wrap>
               {ship.modules.map((value, index) => (
                 <ShipModuleInfo key={index} value={value} />

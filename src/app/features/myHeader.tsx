@@ -1,9 +1,10 @@
 import type { MenuProps } from "antd";
-import { Avatar, Badge, Button, Dropdown, Space, theme } from "antd";
+import { Avatar, Badge, Button, Dropdown, Flex, Space, theme } from "antd";
 import { useEffect, useMemo } from "react";
 import type { AntHeaderHeader } from "../../MyApp";
 import { useAppSelector, useAppDispatch } from "../hooks";
 import {
+  clearAgents,
   removeAgent,
   selectAgent,
   selectAgents,
@@ -13,6 +14,9 @@ import {
 import {
   selectAgentSymbol,
   selectDarkMode,
+  selectSelectedShipSymbol,
+  selectSelectedSystemSymbol,
+  selectSelectedWaypointSymbol,
   setAgentSymbol,
   setDarkMode,
 } from "../spaceTraderAPI/redux/configSlice";
@@ -27,6 +31,9 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const agents = useAppSelector(selectAgents);
   const myAgentSymbol = useAppSelector(selectAgentSymbol);
   const myAgent = useAppSelector((state) => selectAgent(state, myAgentSymbol));
+  const shipSymbol = useAppSelector(selectSelectedShipSymbol);
+  const waypointSymbol = useAppSelector(selectSelectedWaypointSymbol);
+  const systemSymbol = useAppSelector(selectSelectedSystemSymbol);
 
   const {
     token: { colorBgContainer },
@@ -119,6 +126,7 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
               }
             }),
           ).then((data) => {
+            dispatch(clearAgents());
             dispatch(
               setAgents(
                 data
@@ -160,32 +168,57 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         top: 0,
         zIndex: 1,
         width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
         background: colorBgContainer,
       }}
     >
-      <Dropdown menu={{ items }} trigger={["click"]}>
-        {myAgent?.agent ? (
-          <Space style={{ cursor: "pointer" }}>
-            <Avatar>{myAgent.agent.symbol.slice(0, 1)}</Avatar>
-            {myAgent.agent.symbol}
-            <span>Funds: {myAgent.agent.credits.toLocaleString()}</span>
-          </Space>
-        ) : (
-          <Space style={{ cursor: "pointer" }}>Choose Agent</Space>
-        )}
-      </Dropdown>
-      <div>
-        <Button
-          onClick={() => {
-            dispatch(setDarkMode(!isDarkMode));
-          }}
-        >
-          {isDarkMode ? "Light" : "Dark"}-Mode
-        </Button>
-      </div>
+      <Flex gap="middle" align="center" justify="space-between">
+        <Dropdown menu={{ items }} trigger={["click"]}>
+          {myAgent?.agent ? (
+            <Space style={{ cursor: "pointer" }}>
+              <Avatar>{myAgent.agent.symbol.slice(0, 1)}</Avatar>
+              {myAgent.agent.symbol}
+              <span>Funds: {myAgent.agent.credits.toLocaleString()}</span>
+            </Space>
+          ) : (
+            <Space style={{ cursor: "pointer" }}>Choose Agent</Space>
+          )}
+        </Dropdown>
+        <div>
+          {systemSymbol && (
+            <>
+              System: <b>{systemSymbol}</b>
+            </>
+          )}
+          {systemSymbol && waypointSymbol && `   `}
+          {waypointSymbol && (
+            <>
+              Waypoint: <b>{waypointSymbol.waypointSymbol}</b>
+            </>
+          )}
+          {shipSymbol && waypointSymbol && `   `}
+          {shipSymbol && (
+            <>
+              Ship: <b>{shipSymbol}</b>
+            </>
+          )}
+        </div>
+        <Space>
+          <Button
+            onClick={() => {
+              dispatch(setDarkMode(!isDarkMode));
+            }}
+          >
+            {isDarkMode ? "Light" : "Dark"}-Mode
+          </Button>
+          <Button
+            onClick={() => {
+              window.open(window.location.pathname, "fisch", "popup:true");
+            }}
+          >
+            Pop Up
+          </Button>
+        </Space>
+      </Flex>
     </Header>
   );
 }

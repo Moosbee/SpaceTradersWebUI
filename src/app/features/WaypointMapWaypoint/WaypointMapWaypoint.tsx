@@ -9,6 +9,13 @@ import type {
 import classes from "./WaypointMapWaypoint.module.css";
 import FaIcon from "../FontAwsome/FaIcon";
 import NounIcon from "../FontAwsome/NounIcon";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import {
+  selectSelectedSystemSymbol,
+  selectSelectedWaypointSymbol,
+  setSelectedSystemSymbol,
+  setSelectedWaypointSymbol,
+} from "../../spaceTraderAPI/redux/configSlice";
 
 //TODO change color to antd color and dark/light mode
 
@@ -130,6 +137,9 @@ function WaypointMapWaypoint({
 }) {
   const [size, setSize] = useState(16);
   const textboxRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+  const selectedWaypoint = useAppSelector(selectSelectedWaypointSymbol);
+  const selectedSystem = useAppSelector(selectSelectedSystemSymbol);
 
   function outputsize() {
     if (!textboxRef.current) return;
@@ -156,22 +166,37 @@ function WaypointMapWaypoint({
 
   return (
     <div
-      style={{
-        left: xOne + "%",
-        top: yOne + "%",
-      }}
-      className={`${classes.waypointContainer} ${waypoint ? classes.waypoint : classes.star}`}
-    >
-      <div
-        className={classes.waypointIcon}
-        ref={textboxRef}
-        style={
-          {
-            color: color,
-            "--waypoint-icon-size": `${Math.floor(size * 0.85)}px`,
-          } as React.CSSProperties
+      style={
+        {
+          left: xOne + "%",
+          top: yOne + "%",
+          "--waypoint-icon-size": `${Math.floor(size * 0.85)}px`,
+          "--waypoint-icon-color": color,
+        } as React.CSSProperties
+      }
+      className={`${classes.waypointContainer} ${waypoint ? classes.waypoint : classes.star} ${selectedWaypoint === waypoint?.symbol && waypoint ? classes.active : ""}`}
+      onClick={() => {
+        if (waypoint) {
+          if (selectedWaypoint?.waypointSymbol === waypoint.symbol) {
+            dispatch(setSelectedWaypointSymbol(undefined));
+            return;
+          }
+          dispatch(
+            setSelectedWaypointSymbol({
+              waypointSymbol: waypoint.symbol,
+              systemSymbol: system.symbol,
+            }),
+          );
+        } else {
+          if (selectedSystem === system.symbol) {
+            dispatch(setSelectedSystemSymbol(undefined));
+            return;
+          }
+          dispatch(setSelectedSystemSymbol(system.symbol));
         }
-      >
+      }}
+    >
+      <div className={classes.waypointIcon} ref={textboxRef}>
         {waypointIcon}
       </div>
       <div className={classes.waypointInfo}>

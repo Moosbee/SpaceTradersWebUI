@@ -1,20 +1,20 @@
-.waypointContainer {
+.shipContainer {
   position: absolute;
   translate: -50% -50%;
   min-width: 1rem;
   min-height: 1rem;
-  width: calc(2% / 6);
-  height: calc(2% / 6);
-  max-width: 3.5rem;
-  max-height: 3.5rem;
+  width: calc(1.9% / 6);
+  height: calc(1.9% / 6);
+  max-width: 3.4rem;
+  max-height: 3.4rem;
   cursor: pointer;
   z-index: 0;
 }
 /* 
-.waypoint {
-} */
+  .ship {
+  } */
 
-.waypointContainer::before {
+.shipContainer::before {
   content: "";
   position: absolute;
   top: 50%;
@@ -22,24 +22,24 @@
   z-index: -1;
 }
 
-.waypointContainer:hover {
+.shipContainer:hover {
   /* background-color: color-mix(in srgb, currentColor 80%, #f0f0f0 100%); */
   z-index: 1;
 }
-.waypointContainer:hover::before {
-  box-shadow: 0px 0px calc(0.8 * var(--waypoint-icon-size))
-    calc(0.6 * var(--waypoint-icon-size)) #fff;
+.shipContainer:hover::before {
+  box-shadow: 0px 0px calc(0.8 * var(--ship-icon-size))
+    calc(0.6 * var(--ship-icon-size)) #fff;
 }
 
-.waypointContainer.active::before {
-  box-shadow: 0px 0px calc(0.8 * var(--waypoint-icon-size))
-    calc(0.6 * var(--waypoint-icon-size))
-    color-mix(in srgb, var(--waypoint-icon-color) 80%, #fff 20%);
+.shipContainer.active::before {
+  box-shadow: 0px 0px calc(0.8 * var(--ship-icon-size))
+    calc(0.6 * var(--ship-icon-size))
+    color-mix(in srgb, var(--ship-icon-color) 80%, #fff 20%);
 }
 
-.waypointIcon {
+.shipIcon {
   position: absolute;
-  font-size: var(--waypoint-icon-size);
+  font-size: var(--ship-icon-size);
   /* width: 2rem; */
   /* height: 1.5rem; */
   width: 100%;
@@ -48,7 +48,7 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  color: var(--waypoint-icon-color);
+  color: var(--ship-icon-color);
 }
 
 .star {
@@ -60,18 +60,19 @@
   max-height: 4.5rem;
 }
 
-.waypointInfo {
+.shipInfo {
   position: relative;
   left: 100%;
   width: max-content;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: clamp(0.6rem, calc(0.5 * var(--ship-icon-size)), 1.5rem);
+
   flex-direction: column;
-  font-size: clamp(0.6rem, calc(0.5 * var(--waypoint-icon-size)), 1.5rem);
 }
 
-.waypointInfoMore {
+.shipInfoMore {
   width: calc(var(--zoom) / 20 - 50%);
   /* overflow: hidden; */
 }

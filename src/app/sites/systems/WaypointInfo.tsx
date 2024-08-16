@@ -12,10 +12,15 @@ import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import WaypointDisp from "../../features/disp/WaypointDisp";
 import MarketDisp from "../../features/disp/MarketDisp";
 import ShipyardDisp from "../../features/disp/ShipyardDisp";
+import { selectSelectedWaypointSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import { useAppSelector } from "../../hooks";
 
 function WaypointInfo() {
-  const { systemID } = useParams();
-  const { waypointID } = useParams();
+  const { systemID: urlSystemID } = useParams();
+  const { waypointID: urlWaypointID } = useParams();
+
+  const selectedWaypoint = useAppSelector(selectSelectedWaypointSymbol);
+
   const [waypoint, setWaypoint] = useState<Waypoint>({
     isUnderConstruction: false,
     orbitals: [],
@@ -28,14 +33,23 @@ function WaypointInfo() {
   });
 
   useEffect(() => {
-    if (!systemID || !waypointID) return;
+    if (!urlSystemID || !urlWaypointID) return;
+
+    let systemID = urlSystemID;
+    let waypointID = urlWaypointID;
+
+    if (urlSystemID === "selected" && urlWaypointID === "selected") {
+      if (!selectedWaypoint) return;
+      waypointID = selectedWaypoint.waypointSymbol;
+      systemID = selectedWaypoint.systemSymbol;
+    }
 
     spaceTraderClient.SystemsClient.getWaypoint(systemID, waypointID).then(
       (response) => {
         setWaypoint(response.data.data);
       },
     );
-  }, [systemID, waypointID]);
+  }, [selectedWaypoint, urlSystemID, urlWaypointID]);
 
   const [market, setMarket] = useState<Market | undefined>(undefined);
 
@@ -94,7 +108,7 @@ function WaypointInfo() {
   return (
     <div style={{ padding: "24px 24px" }}>
       <h2>
-        Waypoint <b>{waypointID}</b> in <b>{systemID}</b>
+        Waypoint <b>{waypoint.symbol}</b> in <b>{waypoint.systemSymbol}</b>
       </h2>
       <WaypointDisp waypoint={waypoint} moreInfo={true}></WaypointDisp>
 

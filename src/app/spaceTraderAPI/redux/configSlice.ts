@@ -5,12 +5,20 @@ export interface ConfigSliceState {
   darkMode: boolean;
   siderCollapsed: boolean;
   agentSymbol: string | undefined;
+  selectedShipSymbol: string | undefined;
+  selectedSystemSymbol: string | undefined;
+  selectedWaypointSymbol:
+    | { systemSymbol: string; waypointSymbol: string }
+    | undefined;
 }
 
 const initialState: ConfigSliceState = {
   darkMode: true,
   siderCollapsed: false,
   agentSymbol: undefined,
+  selectedShipSymbol: undefined,
+  selectedSystemSymbol: undefined,
+  selectedWaypointSymbol: undefined,
 };
 
 // If you are not using async thunks you can use the standalone `createSlice`.
@@ -42,6 +50,35 @@ export const configSlice = createAppSlice({
     deleteAgentToken: create.reducer((state) => {
       state.agentSymbol = undefined;
     }),
+
+    setSelectedShipSymbol: create.reducer(
+      (state, action: PayloadAction<string | undefined>) => {
+        state.selectedShipSymbol = action.payload;
+      },
+    ),
+
+    setSelectedSystemSymbol: create.reducer(
+      (state, action: PayloadAction<string | undefined>) => {
+        state.selectedSystemSymbol = action.payload;
+      },
+    ),
+
+    setSelectedWaypointSymbol: create.reducer(
+      (
+        state,
+        action: PayloadAction<
+          { systemSymbol: string; waypointSymbol: string } | undefined
+        >,
+      ) => {
+        state.selectedWaypointSymbol = action.payload;
+      },
+    ),
+
+    clearSelectedSymbols: create.reducer((state) => {
+      state.selectedShipSymbol = undefined;
+      state.selectedSystemSymbol = undefined;
+      state.selectedWaypointSymbol = undefined;
+    }),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
@@ -49,6 +86,9 @@ export const configSlice = createAppSlice({
     selectDarkMode: (state) => state.darkMode,
     selectSiderCollapsed: (state) => state.siderCollapsed,
     selectAgentSymbol: (state) => state.agentSymbol,
+    selectSelectedShipSymbol: (state) => state.selectedShipSymbol,
+    selectSelectedSystemSymbol: (state) => state.selectedSystemSymbol,
+    selectSelectedWaypointSymbol: (state) => state.selectedWaypointSymbol,
   },
 });
 
@@ -58,8 +98,18 @@ export const {
   setSiderCollapsed,
   deleteAgentToken,
   setAgentSymbol,
+  clearSelectedSymbols,
+  setSelectedShipSymbol,
+  setSelectedSystemSymbol,
+  setSelectedWaypointSymbol,
 } = configSlice.actions;
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.
-export const { selectDarkMode, selectSiderCollapsed, selectAgentSymbol } =
-  configSlice.selectors;
+export const {
+  selectDarkMode,
+  selectSiderCollapsed,
+  selectAgentSymbol,
+  selectSelectedShipSymbol,
+  selectSelectedSystemSymbol,
+  selectSelectedWaypointSymbol,
+} = configSlice.selectors;
