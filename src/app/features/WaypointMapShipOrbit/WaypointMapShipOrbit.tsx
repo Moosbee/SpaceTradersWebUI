@@ -70,8 +70,8 @@ function WaypointMapShipOrbitCircle({
 
   return (
     <circle
-      cx={pos.x}
-      cy={pos.y}
+      cx={posOrbitCenter.x}
+      cy={posOrbitCenter.y}
       r={radius}
       className={classes.orbitCircle}
     ></circle>

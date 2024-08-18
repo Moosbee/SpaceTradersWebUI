@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "../../hooks";
 import { selectSystem } from "../../spaceTraderAPI/redux/systemSlice";
 import classes from "./WaypointMap.module.css";
@@ -33,6 +33,21 @@ function WaypointMap({ systemID }: { systemID: string }) {
   const {
     token: { colorBgElevated },
   } = theme.useToken();
+
+  const [shipsMp, setShipsMp] = useState<
+    {
+      ship: Ship;
+      xOne: number;
+      yOne: number;
+      posOrbitCenter?: { x: number; y: number };
+      line?: {
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+      };
+    }[]
+  >([]);
 
   const waypointsMp = useMemo(() => {
     if (!system) return [];
@@ -92,111 +107,132 @@ function WaypointMap({ systemID }: { systemID: string }) {
       });
   }, [directions, system]);
 
-  const shipsMp: {
-    ship: Ship;
-    xOne: number;
-    yOne: number;
-    posOrbitCenter?: { x: number; y: number };
-    line?: {
-      x1: number;
-      y1: number;
-      x2: number;
-      y2: number;
+  useEffect(() => {
+    // const shipsMp: {
+    //   ship: Ship;
+    //   xOne: number;
+    //   yOne: number;
+    //   posOrbitCenter?: { x: number; y: number };
+    //   line?: {
+    //     x1: number;
+    //     y1: number;
+    //     x2: number;
+    //     y2: number;
+    //   };
+    // }[];
+    const createShipMapPoints = (): {
+      ship: Ship;
+      xOne: number;
+      yOne: number;
+      posOrbitCenter?: { x: number; y: number };
+      line?: {
+        x1: number;
+        y1: number;
+        x2: number;
+        y2: number;
+      };
+    }[] => {
+      let orbitals = 0;
+
+      return ships
+        .filter((s) => s.nav.systemSymbol === systemID)
+        .map((s) => {
+          const navState = s.nav.status;
+          const navWaypoint = s.nav.waypointSymbol;
+
+          orbitals = orbitals + 1;
+
+          switch (navState) {
+            case "DOCKED": {
+              const wp = waypointsMp.find(
+                (w) => w.waypoint.symbol === navWaypoint,
+              );
+              if (!wp) return undefined;
+              const index = orbitals % 8;
+              console.log("index", index, directions);
+              const { wayX, wayY } = directions[index];
+
+              return {
+                ship: s,
+                xOne: wp.xOne + 0.2 * wayX,
+                yOne: wp.yOne + 0.2 * wayY,
+                posOrbitCenter: undefined,
+                line: {
+                  x1: wp.xOne,
+                  y1: wp.yOne,
+                  x2: wp.xOne + 0.2 * wayX,
+                  y2: wp.yOne + 0.2 * wayY,
+                },
+              };
+            }
+
+            case "IN_ORBIT": {
+              const wp = waypointsMp.find(
+                (w) => w.waypoint.symbol === navWaypoint,
+              );
+              if (!wp) return undefined;
+              const index = orbitals % 7;
+              const { wayX, wayY } = directions[index];
+
+              return {
+                ship: s,
+                xOne: wp.xOne + 0.3 * wayX,
+                yOne: wp.yOne + 0.3 * wayY,
+                posOrbitCenter: {
+                  x: wp.xOne,
+                  y: wp.yOne,
+                },
+                line: undefined,
+              };
+            }
+
+            case "IN_TRANSIT": {
+              const wpStart = waypointsMp.find(
+                (w) => w.waypoint.symbol === s.nav.route.origin.symbol,
+              );
+              const wpEnd = waypointsMp.find(
+                (w) => w.waypoint.symbol === s.nav.route.destination.symbol,
+              );
+
+              if (!wpStart || !wpEnd) return undefined;
+
+              const totalTime =
+                new Date(s.nav.route.arrival).getTime() -
+                new Date(s.nav.route.departureTime).getTime();
+
+              const elapsedTime =
+                new Date().getTime() -
+                new Date(s.nav.route.departureTime).getTime();
+
+              const travelPercent = (elapsedTime / totalTime) * 1;
+
+              return {
+                ship: s,
+                xOne:
+                  wpStart.xOne + travelPercent * (wpEnd.xOne - wpStart.xOne),
+                yOne:
+                  wpStart.yOne + travelPercent * (wpEnd.yOne - wpStart.yOne),
+                posOrbitCenter: undefined,
+                line: {
+                  x1: wpStart.xOne,
+                  y1: wpStart.yOne,
+                  x2: wpEnd.xOne,
+                  y2: wpEnd.yOne,
+                },
+              };
+            }
+            default:
+              return undefined;
+          }
+        })
+        .filter((s) => !!s)
+        .map((s) => s!);
     };
-  }[] = useMemo(() => {
-    let orbitals = 0;
 
-    return ships
-      .filter((s) => s.nav.systemSymbol === systemID)
-      .map((s) => {
-        const navState = s.nav.status;
-        const navWaypoint = s.nav.waypointSymbol;
-
-        orbitals = orbitals + 1;
-
-        switch (navState) {
-          case "DOCKED": {
-            const wp = waypointsMp.find(
-              (w) => w.waypoint.symbol === navWaypoint,
-            );
-            if (!wp) return undefined;
-            const index = orbitals % 7;
-            const { wayX, wayY } = directions.filter(
-              (data) => !(data.wayX !== 0 && data.wayY !== 1),
-            )[index];
-
-            return {
-              ship: s,
-              xOne: wp.xOne + 0.2 * wayX,
-              yOne: wp.yOne + 0.2 * wayY,
-              posOrbitCenter: undefined,
-              line: {
-                x1: wp.xOne,
-                y1: wp.yOne,
-                x2: wp.xOne + 0.2 * wayX,
-                y2: wp.yOne + 0.2 * wayY,
-              },
-            };
-          }
-
-          case "IN_ORBIT": {
-            const wp = waypointsMp.find(
-              (w) => w.waypoint.symbol === navWaypoint,
-            );
-            if (!wp) return undefined;
-            const index = orbitals % 7;
-            const { wayX, wayY } = directions.filter(
-              (data) => !(data.wayX !== 0 && data.wayY !== 1),
-            )[index];
-
-            return {
-              ship: s,
-              xOne: wp.xOne + 0.3 * wayX,
-              yOne: wp.yOne + 0.3 * wayY,
-              posOrbitCenter: {
-                x: wp.xOne,
-                y: wp.yOne,
-              },
-              line: undefined,
-            };
-          }
-
-          case "IN_TRANSIT": {
-            const wpStart = waypointsMp.find(
-              (w) => w.waypoint.symbol === s.nav.route.origin.symbol,
-            );
-            const wpEnd = waypointsMp.find(
-              (w) => w.waypoint.symbol === s.nav.route.destination.symbol,
-            );
-            const travelPercent =
-              ((new Date(s.nav.route.arrival).getTime() -
-                new Date(s.nav.route.departureTime).getTime()) *
-                (1 -
-                  (new Date().getTime() -
-                    new Date(s.nav.route.departureTime).getTime()) /
-                    (new Date(s.nav.route.arrival).getTime() -
-                      new Date(s.nav.route.departureTime).getTime()))) /
-              100;
-            if (!wpStart || !wpEnd) return undefined;
-
-            return {
-              ship: s,
-              xOne: wpStart.xOne + travelPercent * (wpEnd.xOne - wpStart.xOne),
-              yOne: wpStart.yOne + travelPercent * (wpEnd.yOne - wpStart.yOne),
-              posOrbitCenter: undefined,
-              line: {
-                x1: wpStart.xOne,
-                y1: wpStart.yOne,
-                x2: wpEnd.xOne,
-                y2: wpEnd.yOne,
-              },
-            };
-          }
-          default:
-            return undefined;
-        }
-      })
-      .filter((s) => !!s);
+    const intervalId = setInterval(() => {
+      setShipsMp(createShipMapPoints());
+    }, 100);
+    return () => clearInterval(intervalId);
   }, [directions, ships, systemID, waypointsMp]);
 
   return (
@@ -209,7 +245,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
       >
         {waypointsMp.map((w) => (
           <WaypointMapWaypointOrbit
-            key={w.waypoint.symbol}
+            key={w.waypoint.symbol + "wayOrbit"}
             xOnePos={w.xOne}
             yOnePos={w.yOne}
             xOneOrbitCenter={w.xOneOrbitCenter}
@@ -219,7 +255,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
 
         {shipsMp.map((s) => (
           <WaypointMapShipOrbit
-            key={s.ship.symbol}
+            key={s.ship.symbol + "shipOrbit"}
             pos={{
               x: s.xOne,
               y: s.yOne,
@@ -233,7 +269,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
       <div className={classes.waypointMapIn}>
         {waypointsMp.map((w) => (
           <WaypointMapWaypoint
-            key={w.waypoint.symbol}
+            key={w.waypoint.symbol + "way"}
             waypoint={w.waypoint}
             system={system!}
             xOne={w.xOne}
@@ -243,7 +279,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
 
         {shipsMp.map((s) => (
           <WaypointMapShip
-            key={s.ship.symbol}
+            key={s.ship.symbol + "ship"}
             ship={s.ship}
             xOne={s.xOne}
             yOne={s.yOne}

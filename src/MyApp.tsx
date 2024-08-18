@@ -19,6 +19,7 @@ import { selectDarkMode } from "./app/spaceTraderAPI/redux/configSlice";
 import MySider from "./app/features/mySider";
 import MyHeader from "./app/features/myHeader";
 import WpMap from "./app/sites/map/waypoint/wpMap";
+import WpConfig from "./app/sites/map/waypoint/wpConfig";
 const { Header, Content, Sider } = Layout;
 
 export { Sider as AntSiderSider };
@@ -84,6 +85,10 @@ function MyApp() {
                     <Route
                       path="/system/map/:systemID"
                       element={<WpMap></WpMap>}
+                    />
+                    <Route
+                      path="/system/wpConfig"
+                      element={<WpConfig></WpConfig>}
                     />
                     <Route path="/systems" element={<Systems></Systems>} />
                     <Route path="/cache" element={<Caching></Caching>} />

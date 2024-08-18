@@ -17,6 +17,7 @@ import {
   initMessageListener,
 } from "redux-state-sync";
 import type { Prettify } from "./utils/utils";
+import { mapSlice } from "./spaceTraderAPI/redux/mapSlice";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
@@ -41,6 +42,7 @@ const rootReducer = combineSlices(
   systemSlice,
   waypointSlice,
   agentSlice,
+  mapSlice,
 );
 
 // Wrap the rootReducer with persistReducer

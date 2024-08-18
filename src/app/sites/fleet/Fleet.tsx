@@ -7,6 +7,7 @@ import CachingFleetCard from "../../features/cachingCard/CachingFleetCard";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import PageTitle from "../../features/PageTitle";
 
 function Fleet() {
   const agentSymbol = useAppSelector(selectAgentSymbol);
@@ -21,9 +22,10 @@ function Fleet() {
 
   return (
     <div style={{ padding: "24px 24px" }}>
+      <PageTitle title="Fleet" />
       <Flex justify="space-around">
         <h2>All Ships</h2>
-        <Link to={"/fleet/current"}>Current</Link>
+        <Link to={"/fleet/selected"}>Current</Link>
 
         <CachingFleetCard />
       </Flex>

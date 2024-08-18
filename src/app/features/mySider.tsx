@@ -18,6 +18,7 @@ import {
   selectSiderCollapsed,
   setSiderCollapsed,
 } from "../spaceTraderAPI/redux/configSlice";
+import FaIcon from "./FontAwsome/FaIcon";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -56,6 +57,33 @@ const items: MenuItem[] = [
         label: <Link to="/contracts">Contracts overview</Link>,
         key: "contracts",
         icon: <FileTextOutlined />,
+      },
+    ],
+  },
+  {
+    key: "maps",
+    label: "Maps",
+    icon: <FaIcon type="solid" icon="fa-map" />,
+    children: [
+      {
+        label: <Link to="/system/wpConfig">Wp Map Config</Link>,
+        key: "map",
+        icon: <FaIcon type="solid" icon="fa-location-dot" />,
+      },
+      {
+        label: <Link to="/fleet/current">Selected Ship</Link>,
+        key: "fleet/current",
+        icon: <RocketOutlined />,
+      },
+      {
+        label: <Link to="/system/current">Selected System</Link>,
+        key: "system/current",
+        icon: <GlobalOutlined />,
+      },
+      {
+        label: <Link to="/system/current/current">Selected Waypoint</Link>,
+        key: "system/current/current",
+        icon: <GlobalOutlined />,
       },
     ],
   },

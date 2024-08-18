@@ -14,7 +14,8 @@ import ShipEngineInfo from "../../features/Shipinfo/ShipEngineInfo";
 import ShipReactorInfo from "../../features/Shipinfo/ShipReactorInfo";
 import ShipMountInfo from "../../features/Shipinfo/ShipMountInfo";
 import ShipModuleInfo from "../../features/Shipinfo/ShipModuleInfo";
-import { selectSelectedShipSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import { selectSelectedShipSymbol } from "../../spaceTraderAPI/redux/mapSlice";
+import PageTitle from "../../features/PageTitle";
 
 function ShipInfo() {
   const { shipID } = useParams();
@@ -25,10 +26,11 @@ function ShipInfo() {
 
   console.log("ship", ship, shipID, selectedShip, id);
 
-  if (!ship) return <Spin spinning={true} fullscreen></Spin>;
+  if (!ship) return <Spin spinning={true}></Spin>;
 
   return (
     <div>
+      <PageTitle title={`Ship ${ship.symbol}`} />
       <Card
         style={{ width: "fit-content" }}
         title={`Ship ${ship.symbol}`}

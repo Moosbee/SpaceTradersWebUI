@@ -1,13 +1,14 @@
 import type { Ship } from "../../spaceTraderAPI/api";
-import {
-  selectSelectedShipSymbol,
-  setSelectedShipSymbol,
-} from "../../spaceTraderAPI/redux/configSlice";
+
 import { useAppDispatch, useAppSelector } from "../../hooks";
 
 import classes from "./WaypointMapShip.module.css";
 import FaIcon from "../FontAwsome/FaIcon";
 import { useState, useRef, useEffect } from "react";
+import {
+  selectSelectedShipSymbol,
+  setSelectedShipSymbol,
+} from "../../spaceTraderAPI/redux/mapSlice";
 
 function WaypointMapShip({
   ship,
@@ -40,7 +41,14 @@ function WaypointMapShip({
   }
 
   const color = "white";
-  const shipIcon = <FaIcon type="solid" icon="fa-rocket" />;
+  const shipIcon =
+    ship.nav.status === "IN_ORBIT" ? (
+      <FaIcon type="solid" icon="fa-rocket" />
+    ) : ship.nav.status === "DOCKED" ? (
+      <FaIcon type="solid" icon="fa-rocket" />
+    ) : (
+      <FaIcon type="solid" icon="fa-rocket-launch" />
+    );
 
   return (
     <div

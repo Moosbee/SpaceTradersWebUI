@@ -4,10 +4,12 @@ import { icons } from "./icons";
 function FaIcon({
   icon,
   type,
+  className,
+  ...props
 }: {
   icon: keyof typeof icons;
   type: "solid" | "regular";
-}) {
+} & React.HTMLAttributes<HTMLSpanElement>) {
   // Hex string
   const iconName = icons[icon];
 
@@ -18,7 +20,11 @@ function FaIcon({
   const character = String.fromCodePoint(codePoint);
 
   return (
-    <span className={`${classes.faIcon} ${classes[type]}`} aria-hidden="true">
+    <span
+      className={`${classes.faIcon} ${classes[type]} ${className}`}
+      aria-hidden="true"
+      {...props}
+    >
       {character}
     </span>
   );

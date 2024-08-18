@@ -14,9 +14,6 @@ import {
 import {
   selectAgentSymbol,
   selectDarkMode,
-  selectSelectedShipSymbol,
-  selectSelectedSystemSymbol,
-  selectSelectedWaypointSymbol,
   setAgentSymbol,
   setDarkMode,
 } from "../spaceTraderAPI/redux/configSlice";
@@ -24,6 +21,11 @@ import spaceTraderClient from "../spaceTraderAPI/spaceTraderClient";
 import { Link } from "react-router-dom";
 import FaIcon from "./FontAwsome/FaIcon";
 import { message } from "../utils/antdMessage";
+import {
+  selectSelectedShipSymbol,
+  selectSelectedWaypointSymbol,
+  selectSelectedSystemSymbol,
+} from "../spaceTraderAPI/redux/mapSlice";
 
 function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const dispatch = useAppDispatch();
@@ -36,7 +38,7 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const systemSymbol = useAppSelector(selectSelectedSystemSymbol);
 
   const {
-    token: { colorBgContainer },
+    token: { colorBgContainer, colorTextDescription },
   } = theme.useToken();
 
   useEffect(() => {
@@ -161,6 +163,29 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
     ]);
   }, [agents, dispatch, myAgentSymbol]);
 
+  const settingsItems: MenuProps["items"] = [
+    {
+      key: "darkMode",
+      onClick: (e) => {
+        e.domEvent.stopPropagation();
+        e.domEvent.preventDefault();
+        dispatch(setDarkMode(!isDarkMode));
+      },
+      label: `${isDarkMode ? "Light" : "Dark"}-Mode`,
+      icon: <FaIcon type="solid" icon={isDarkMode ? "fa-moon" : "fa-sun"} />,
+    },
+    {
+      key: "popUp",
+
+      onClick: (e) => {
+        e.domEvent.preventDefault();
+        window.open(window.location.pathname, undefined, "popup:true");
+      },
+      label: "Pop Up",
+      icon: <FaIcon type="solid" icon="fa-window-restore" />,
+    },
+  ];
+
   return (
     <Header
       style={{
@@ -169,6 +194,7 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         zIndex: 1,
         width: "100%",
         background: colorBgContainer,
+        padding: "0 24px",
       }}
     >
       <Flex gap="middle" align="center" justify="space-between">
@@ -177,7 +203,7 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
             <Space style={{ cursor: "pointer" }}>
               <Avatar>{myAgent.agent.symbol.slice(0, 1)}</Avatar>
               {myAgent.agent.symbol}
-              <span>Funds: {myAgent.agent.credits.toLocaleString()}</span>
+              <span>{myAgent.agent.credits.toLocaleString()}$</span>
             </Space>
           ) : (
             <Space style={{ cursor: "pointer" }}>Choose Agent</Space>
@@ -185,39 +211,51 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         </Dropdown>
         <div>
           {systemSymbol && (
-            <>
-              System: <b>{systemSymbol}</b>
-            </>
+            <span>
+              <FaIcon
+                type="solid"
+                icon="fa-solar-system"
+                style={{
+                  color: colorTextDescription,
+                }}
+              />{" "}
+              <b>{systemSymbol}</b>
+            </span>
           )}
           {systemSymbol && waypointSymbol && `   `}
           {waypointSymbol && (
-            <>
-              Waypoint: <b>{waypointSymbol.waypointSymbol}</b>
-            </>
+            <span>
+              <FaIcon
+                type="solid"
+                icon="fa-planet-moon"
+                style={{
+                  color: colorTextDescription,
+                }}
+              />{" "}
+              <b>
+                {waypointSymbol.waypointSymbol.replace(systemSymbol || "", "")}
+              </b>
+            </span>
           )}
           {shipSymbol && waypointSymbol && `   `}
           {shipSymbol && (
-            <>
-              Ship: <b>{shipSymbol}</b>
-            </>
+            <span>
+              <FaIcon
+                type="solid"
+                icon="fa-rocket-launch"
+                style={{
+                  color: colorTextDescription,
+                }}
+              />{" "}
+              <b>{shipSymbol}</b>
+            </span>
           )}
         </div>
-        <Space>
-          <Button
-            onClick={() => {
-              dispatch(setDarkMode(!isDarkMode));
-            }}
-          >
-            {isDarkMode ? "Light" : "Dark"}-Mode
+        <Dropdown trigger={["click"]} menu={{ items: settingsItems }}>
+          <Button>
+            <FaIcon type="solid" icon="fa-gear" /> Settings
           </Button>
-          <Button
-            onClick={() => {
-              window.open(window.location.pathname, "fisch", "popup:true");
-            }}
-          >
-            Pop Up
-          </Button>
-        </Space>
+        </Dropdown>
       </Flex>
     </Header>
   );

@@ -13,7 +13,8 @@ import {
   selectSystem,
 } from "../../spaceTraderAPI/redux/systemSlice";
 import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystemWaypointsCard";
-import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/mapSlice";
+import PageTitle from "../../features/PageTitle";
 
 const traitsOptions: SelectProps["options"] = Object.values(
   WaypointTraitSymbol,
@@ -118,6 +119,7 @@ function SystemInfo() {
 
   return (
     <div style={{ padding: "24px 24px" }}>
+      <PageTitle title={`System ${systemID}`} />
       <Spin spinning={system?.symbol === ""}>
         <h2>System {systemID}</h2>
         <Descriptions
@@ -127,7 +129,7 @@ function SystemInfo() {
         />
 
         <h2>Waypoints</h2>
-        <Link to={"/systems/current/current"}>Current</Link>
+        <Link to={"/system/selected/selected"}>Current</Link>
 
         <Flex justify="space-around" gap={8}>
           <Card style={{ width: "fit-content" }} title={"Search"}>

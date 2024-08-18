@@ -11,11 +11,11 @@ import FaIcon from "../FontAwsome/FaIcon";
 import NounIcon from "../FontAwsome/NounIcon";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
-  selectSelectedSystemSymbol,
   selectSelectedWaypointSymbol,
-  setSelectedSystemSymbol,
+  selectSelectedSystemSymbol,
   setSelectedWaypointSymbol,
-} from "../../spaceTraderAPI/redux/configSlice";
+  setSelectedSystemSymbol,
+} from "../../spaceTraderAPI/redux/mapSlice";
 
 //TODO change color to antd color and dark/light mode
 
@@ -174,7 +174,7 @@ function WaypointMapWaypoint({
           "--waypoint-icon-color": color,
         } as React.CSSProperties
       }
-      className={`${classes.waypointContainer} ${waypoint ? classes.waypoint : classes.star} ${selectedWaypoint === waypoint?.symbol && waypoint ? classes.active : ""}`}
+      className={`${classes.waypointContainer} ${waypoint ? classes.waypoint : classes.star} ${selectedWaypoint?.waypointSymbol === waypoint?.symbol && waypoint ? classes.active : ""}`}
       onClick={() => {
         if (waypoint) {
           if (selectedWaypoint?.waypointSymbol === waypoint.symbol) {
