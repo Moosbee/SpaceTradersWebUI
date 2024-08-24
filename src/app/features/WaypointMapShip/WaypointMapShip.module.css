@@ -49,6 +49,7 @@
   align-items: center;
   overflow: hidden;
   color: var(--ship-icon-color);
+  user-select: none;
 }
 
 .star {

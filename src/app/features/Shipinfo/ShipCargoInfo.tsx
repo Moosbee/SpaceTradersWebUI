@@ -1,6 +1,5 @@
 import type { DescriptionsProps } from "antd";
 import {
-  Flex,
   Space,
   Button,
   message,
@@ -8,8 +7,6 @@ import {
   Tooltip,
   Dropdown,
   InputNumber,
-  Select,
-  Switch,
   Descriptions,
 } from "antd";
 import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
@@ -20,16 +17,10 @@ import {
 import {
   selectShips,
   setShipCargo,
-  setShipCooldown,
 } from "../../spaceTraderAPI/redux/fleetSlice";
-import {
-  addSurveys,
-  pruneSurveys,
-  selectSurveys,
-} from "../../spaceTraderAPI/redux/surveySlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { Ship, ShipCargoItem, Survey } from "../../spaceTraderAPI/api";
+import type { Ship, ShipCargoItem } from "../../spaceTraderAPI/api";
 import { useState } from "react";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
@@ -49,137 +40,7 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
       ),
       span: ship.nav.status === "IN_ORBIT" ? 1 : 3,
     },
-    ...(ship.nav.status === "IN_ORBIT"
-      ? [
-          {
-            key: "extraction",
-            label: "Extraction",
-            children: (
-              <Flex vertical gap={4}>
-                <Space>
-                  <Button
-                    onClick={() => {
-                      spaceTraderClient.FleetClient.extractResources(
-                        ship.symbol,
-                      ).then((value) => {
-                        console.log("value", value);
-                        setTimeout(() => {
-                          message.success(
-                            `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
-                          );
-                          dispatch(
-                            setShipCargo({
-                              symbol: ship.symbol,
-                              cargo: value.data.data.cargo,
-                            }),
-                          );
-                          dispatch(
-                            setShipCooldown({
-                              symbol: ship.symbol,
-                              cooldown: value.data.data.cooldown,
-                            }),
-                          );
-                        });
-                      });
-                    }}
-                  >
-                    Extract Resources
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      spaceTraderClient.FleetClient.siphonResources(
-                        ship.symbol,
-                      ).then((value) => {
-                        console.log("value", value);
-                        setTimeout(() => {
-                          message.success(
-                            `Siphoned ${value.data.data.siphon.yield.units} ${value.data.data.siphon.yield.symbol}`,
-                          );
-                          dispatch(
-                            setShipCargo({
-                              symbol: ship.symbol,
-                              cargo: value.data.data.cargo,
-                            }),
-                          );
-                          dispatch(
-                            setShipCooldown({
-                              symbol: ship.symbol,
-                              cooldown: value.data.data.cooldown,
-                            }),
-                          );
-                        });
-                      });
-                    }}
-                  >
-                    Siphon Resources
-                  </Button>
-                </Space>
-                <ExtractSurvey
-                  waypoint={ship.nav.waypointSymbol}
-                  onSurvey={() => {
-                    return new Promise((resolve) => {
-                      spaceTraderClient.FleetClient.createSurvey(
-                        ship.symbol,
-                      ).then((value) => {
-                        console.log("value", value);
-                        dispatch(addSurveys(value.data.data.surveys));
-                        dispatch(pruneSurveys());
-                        dispatch(
-                          setShipCooldown({
-                            symbol: ship.symbol,
-                            cooldown: value.data.data.cooldown,
-                          }),
-                        );
 
-                        message.success(
-                          `Surveys Created\n ${value.data.data.surveys
-                            .map(
-                              (w) =>
-                                `${w.signature}(${
-                                  w.size
-                                }) - (${w.deposits.map((w) => w.symbol)})`,
-                            )
-                            .join("\n")}`,
-                        );
-                        resolve();
-                      });
-                    });
-                  }}
-                  onExtraction={(survey) => {
-                    return new Promise((resolve) => {
-                      spaceTraderClient.FleetClient.extractResourcesWithSurvey(
-                        ship.symbol,
-                        survey,
-                      ).then((value) => {
-                        console.log("value", value);
-                        setTimeout(() => {
-                          message.success(
-                            `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
-                          );
-                          dispatch(
-                            setShipCargo({
-                              symbol: ship.symbol,
-                              cargo: value.data.data.cargo,
-                            }),
-                          );
-                          dispatch(
-                            setShipCooldown({
-                              symbol: ship.symbol,
-                              cooldown: value.data.data.cooldown,
-                            }),
-                          );
-                          resolve(value.data.data.cooldown.remainingSeconds);
-                        });
-                      });
-                    });
-                  }}
-                ></ExtractSurvey>
-              </Flex>
-            ),
-            span: 2,
-          },
-        ]
-      : []),
     {
       key: "inventory",
       label: "Inventory",
@@ -324,81 +185,6 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
       items={itemsCargo}
       layout="vertical"
     ></Descriptions>
-  );
-}
-
-function ExtractSurvey({
-  waypoint,
-  onSurvey,
-  onExtraction,
-}: {
-  waypoint: string;
-  onSurvey: () => Promise<void>;
-  onExtraction: (survey: Survey) => Promise<number>;
-}) {
-  const [survey, setSurvey] = useState<string | undefined>(undefined);
-
-  const surveys = useAppSelector(selectSurveys);
-
-  const [contin, setContin] = useState(false);
-
-  const extract = async () => {
-    if (!survey) {
-      return;
-    }
-    onExtraction(surveys.find((w) => w.signature === survey)!).then((ret) => {
-      if (contin) {
-        setTimeout(
-          () => {
-            extract();
-          },
-          ret * 1000 + 1000,
-        );
-      }
-    });
-  };
-
-  return (
-    <Space>
-      <Select
-        options={surveys
-          .filter((w) => w.symbol === waypoint)
-          .map((w) => {
-            return {
-              value: w.signature,
-              label: (
-                <Tooltip
-                  title={`${w.signature} - (${w.deposits
-                    ?.map((w) => w.symbol)
-                    .join(", ")})`}
-                >
-                  {w.signature}
-                </Tooltip>
-              ),
-            };
-          })}
-        showSearch
-        style={{ width: 180 }}
-        onChange={(value) => {
-          setSurvey(value);
-        }}
-        value={survey}
-      />
-      <Button
-        onClick={() => {
-          extract();
-        }}
-      >
-        Extract Resources with Survey
-      </Button>
-      <Button onClick={onSurvey}>Create Survey</Button>
-      <Switch
-        checkedChildren="continue"
-        unCheckedChildren="continue"
-        checked={contin}
-        onChange={setContin}
-      />
-    </Space>
   );
 }
 

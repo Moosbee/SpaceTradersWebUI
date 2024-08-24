@@ -49,6 +49,7 @@
   align-items: center;
   overflow: hidden;
   color: var(--waypoint-icon-color);
+  user-select: none;
 }
 
 .star {

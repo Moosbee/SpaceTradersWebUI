@@ -70,6 +70,11 @@ function WaypointMapShip({
           dispatch(setSelectedShipSymbol(ship.symbol));
         }
       }}
+      onDoubleClick={() => {
+        if (ship) {
+          window.open(`/fleet/${ship.symbol}`, "_blank", "popup:true");
+        }
+      }}
     >
       <div className={classes.shipIcon} ref={textboxRef}>
         {shipIcon}

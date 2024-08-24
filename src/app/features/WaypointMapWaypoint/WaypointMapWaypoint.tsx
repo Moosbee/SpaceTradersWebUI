@@ -195,6 +195,17 @@ function WaypointMapWaypoint({
           dispatch(setSelectedSystemSymbol(system.symbol));
         }
       }}
+      onDoubleClick={() => {
+        if (waypoint) {
+          window.open(
+            `/system/${system.symbol}/${waypoint.symbol}`,
+            "_blank",
+            "popup:true",
+          );
+        } else {
+          window.open(`/system/${system.symbol}`, "_blank", "popup:true");
+        }
+      }}
     >
       <div className={classes.waypointIcon} ref={textboxRef}>
         {waypointIcon}

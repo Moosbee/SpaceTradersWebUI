@@ -148,7 +148,11 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
         label: "Download",
         itemIcon: <FaIcon type="solid" icon="fa-download" />,
         onClick: () => {
-          const text = JSON.stringify(agents);
+          const text = JSON.stringify(
+            agents.map((agent) => {
+              return { symbol: agent.agent.symbol, token: agent.token };
+            }),
+          );
           const element = document.createElement("a");
           const file = new Blob([text], {
             type: "text/plain",

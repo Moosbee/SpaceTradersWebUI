@@ -58,7 +58,6 @@ function ShipInfo() {
           <Col span={24}>
             <Flex wrap gap={8}>
               <Button>Ship Refine</Button>
-              <Button>Create Chart</Button>
               <Button>Scan Systems</Button>
               <Button>Scan Waypoints</Button>
               <Button>Scan Ships</Button>
@@ -91,7 +90,7 @@ function ShipInfo() {
           <Col span={12} sm={24} md={12}>
             <Flex wrap>
               {ship.mounts.map((value) => (
-                <ShipMountInfo key={value.symbol} value={value} />
+                <ShipMountInfo key={value.symbol} value={value} ship={ship} />
               ))}
             </Flex>
           </Col>
