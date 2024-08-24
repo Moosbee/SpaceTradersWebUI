@@ -260,7 +260,7 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
   );
 }
 
-function ExtractSurvey({
+export function ExtractSurvey({
   waypoint,
   onExtraction,
 }: {
@@ -270,6 +270,10 @@ function ExtractSurvey({
   const [survey, setSurvey] = useState<string | undefined>(undefined);
 
   const surveys = useAppSelector(selectSurveys);
+
+  if (surveys.length === 0) {
+    return null;
+  }
 
   return (
     <Space>

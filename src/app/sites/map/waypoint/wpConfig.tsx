@@ -1,23 +1,25 @@
-import { Button, Card, Select, Space, Statistic } from "antd";
+import { Button, Card, message, Select, Space, Statistic } from "antd";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import {
   selectSelectedShipSymbol,
   selectSelectedWaypointSymbol,
-  selectSelectedSystemSymbol,
 } from "../../../spaceTraderAPI/redux/mapSlice";
 import {
   setShipNav,
   setShipFuel,
   selectShip,
+  setShipCargo,
+  setShipCooldown,
 } from "../../../spaceTraderAPI/redux/fleetSlice";
 import spaceTraderClient from "../../../spaceTraderAPI/spaceTraderClient";
 import PageTitle from "../../../features/PageTitle";
+import { ExtractSurvey } from "../../../features/Shipinfo/ShipMountInfo";
 
 function WpConfig() {
   const dispatch = useAppDispatch();
   const shipSymbol = useAppSelector(selectSelectedShipSymbol);
   const waypointSymbol = useAppSelector(selectSelectedWaypointSymbol);
-  const systemSymbol = useAppSelector(selectSelectedSystemSymbol);
+  // const systemSymbol = useAppSelector(selectSelectedSystemSymbol);
   const ship = useAppSelector((state) => selectShip(state, shipSymbol));
 
   return (
@@ -27,12 +29,21 @@ function WpConfig() {
         <Card
           title="Ship Actions"
           extra={
-            ship.cooldown.totalSeconds !== ship.cooldown.remainingSeconds &&
-            ship.cooldown.expiration && (
-              <Statistic.Countdown
-                value={new Date(ship.cooldown.expiration).getTime()}
-              />
-            )
+            <span>
+              {ship.cooldown.totalSeconds !== ship.cooldown.remainingSeconds &&
+                ship.cooldown.expiration && (
+                  <Statistic.Countdown
+                    title="Cooldown"
+                    value={new Date(ship.cooldown.expiration).getTime()}
+                  />
+                )}
+              {ship.nav.status === "IN_TRANSIT" && ship.nav.route.arrival && (
+                <Statistic.Countdown
+                  title="Arrival"
+                  value={new Date(ship.nav.route.arrival).getTime()}
+                />
+              )}
+            </span>
           }
         >
           <Space>
@@ -125,6 +136,81 @@ function WpConfig() {
                 { value: "BURN" },
               ]}
             />
+          </Space>
+          <br />
+          <br />
+          <Space>
+            {ship.mounts.some(
+              (value) =>
+                value.symbol === "MOUNT_MINING_LASER_I" ||
+                value.symbol === "MOUNT_MINING_LASER_II" ||
+                value.symbol === "MOUNT_MINING_LASER_III" ||
+                value.symbol === "MOUNT_GAS_SIPHON_I" ||
+                value.symbol === "MOUNT_GAS_SIPHON_II" ||
+                value.symbol === "MOUNT_GAS_SIPHON_III",
+            ) && (
+              <>
+                <ExtractSurvey
+                  waypoint={ship.nav.waypointSymbol}
+                  onExtraction={(survey) => {
+                    return new Promise((resolve) => {
+                      spaceTraderClient.FleetClient.extractResourcesWithSurvey(
+                        ship.symbol,
+                        survey,
+                      ).then((value) => {
+                        console.log("value", value);
+                        setTimeout(() => {
+                          message.success(
+                            `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                          );
+                          dispatch(
+                            setShipCargo({
+                              symbol: ship.symbol,
+                              cargo: value.data.data.cargo,
+                            }),
+                          );
+                          dispatch(
+                            setShipCooldown({
+                              symbol: ship.symbol,
+                              cooldown: value.data.data.cooldown,
+                            }),
+                          );
+                          resolve(value.data.data.cooldown.remainingSeconds);
+                        });
+                      });
+                    });
+                  }}
+                ></ExtractSurvey>
+                <Button
+                  onClick={() => {
+                    spaceTraderClient.FleetClient.extractResources(
+                      ship.symbol,
+                    ).then((value) => {
+                      console.log("value", value);
+                      setTimeout(() => {
+                        message.success(
+                          `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                        );
+                        dispatch(
+                          setShipCargo({
+                            symbol: ship.symbol,
+                            cargo: value.data.data.cargo,
+                          }),
+                        );
+                        dispatch(
+                          setShipCooldown({
+                            symbol: ship.symbol,
+                            cooldown: value.data.data.cooldown,
+                          }),
+                        );
+                      });
+                    });
+                  }}
+                >
+                  Extract Resources
+                </Button>
+              </>
+            )}
           </Space>
         </Card>
       )}
