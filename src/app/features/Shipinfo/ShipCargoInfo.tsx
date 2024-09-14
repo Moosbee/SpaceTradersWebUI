@@ -230,6 +230,7 @@ function CargoActions({
         style={{ width: 60 }}
         onChange={(value) => setCount(value?.valueOf() ?? 1)}
         value={count}
+        changeOnWheel
       />
       <Button onClick={() => onJettison(count, item.symbol)}>Jettison</Button>
       <Button onClick={() => onSell(count, item.symbol)}>Sell</Button>

@@ -19,10 +19,9 @@ import {
   selectSystem,
   selectSystems,
 } from "../../spaceTraderAPI/redux/systemSlice";
-import {
-  putSystemWaypoints,
-  setSystemWaypoints,
-} from "../../spaceTraderAPI/redux/waypointSlice";
+import { putSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
+import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 const { Countdown } = Statistic;
 
@@ -39,6 +38,8 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
   const wayPoint = system?.waypoints.find(
     (x) => x.symbol === ship?.nav.waypointSymbol,
   );
+
+  const agent = useAppSelector(selectAgentSymbol);
 
   const itemsNavMem = useMemo<DescriptionsProps["items"]>(() => {
     const itemsNavRoute: DescriptionsProps["items"] = [
@@ -177,9 +178,29 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
         key: "navSystem",
         label: "Nav System",
         children: (
-          <Link to={`/system/${ship.nav.systemSymbol}`}>
-            {ship.nav.systemSymbol}
-          </Link>
+          <Space>
+            <Link to={`/system/${ship.nav.systemSymbol}`}>
+              {ship.nav.systemSymbol}
+            </Link>
+            <Button
+              onClick={() => {
+                spaceTraderClient.FleetClient.negotiateContract(
+                  ship.symbol,
+                ).then((value) => {
+                  console.log("createChart", value.data.data);
+                  if (!agent) return;
+                  dispatch(
+                    putContract({
+                      contract: value.data.data.contract,
+                      agentSymbol: agent,
+                    }),
+                  );
+                });
+              }}
+            >
+              Negotiate Contract
+            </Button>
+          </Space>
         ),
       },
       {
@@ -312,6 +333,7 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
     }
     return itemsNav;
   }, [
+    agent,
     dispatch,
     loadingShipNav,
     navWaypoint,
