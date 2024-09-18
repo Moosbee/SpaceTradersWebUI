@@ -22,6 +22,7 @@ import {
 import { putSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import { message } from "../../utils/antdMessage";
 
 const { Countdown } = Statistic;
 
@@ -187,13 +188,16 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
                 spaceTraderClient.FleetClient.negotiateContract(
                   ship.symbol,
                 ).then((value) => {
-                  console.log("createChart", value.data.data);
+                  console.log("Contract Negotiation", value.data.data);
                   if (!agent) return;
                   dispatch(
                     putContract({
                       contract: value.data.data.contract,
                       agentSymbol: agent,
                     }),
+                  );
+                  message.success(
+                    `Contract Negotiated ${value.data.data.contract.id}`,
                   );
                 });
               }}

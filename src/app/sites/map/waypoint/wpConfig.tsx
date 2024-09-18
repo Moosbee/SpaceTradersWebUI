@@ -144,10 +144,7 @@ function WpConfig() {
               (value) =>
                 value.symbol === "MOUNT_MINING_LASER_I" ||
                 value.symbol === "MOUNT_MINING_LASER_II" ||
-                value.symbol === "MOUNT_MINING_LASER_III" ||
-                value.symbol === "MOUNT_GAS_SIPHON_I" ||
-                value.symbol === "MOUNT_GAS_SIPHON_II" ||
-                value.symbol === "MOUNT_GAS_SIPHON_III",
+                value.symbol === "MOUNT_MINING_LASER_III",
             ) && (
               <>
                 <ExtractSurvey
@@ -210,6 +207,41 @@ function WpConfig() {
                   Extract Resources
                 </Button>
               </>
+            )}
+            {ship.mounts.some(
+              (value) =>
+                value.symbol === "MOUNT_GAS_SIPHON_I" ||
+                value.symbol === "MOUNT_GAS_SIPHON_II" ||
+                value.symbol === "MOUNT_GAS_SIPHON_III",
+            ) && (
+              <Button
+                onClick={() => {
+                  spaceTraderClient.FleetClient.siphonResources(
+                    ship.symbol,
+                  ).then((value) => {
+                    console.log("value", value);
+                    setTimeout(() => {
+                      message.success(
+                        `Siphoned ${value.data.data.siphon.yield.units} ${value.data.data.siphon.yield.symbol}`,
+                      );
+                      dispatch(
+                        setShipCargo({
+                          symbol: ship.symbol,
+                          cargo: value.data.data.cargo,
+                        }),
+                      );
+                      dispatch(
+                        setShipCooldown({
+                          symbol: ship.symbol,
+                          cooldown: value.data.data.cooldown,
+                        }),
+                      );
+                    });
+                  });
+                }}
+              >
+                Siphon Resources
+              </Button>
             )}
           </Space>
         </Card>
