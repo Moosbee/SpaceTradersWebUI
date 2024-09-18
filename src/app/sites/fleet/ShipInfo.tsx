@@ -96,7 +96,7 @@ function ShipInfo() {
           <Col span={12} sm={24} md={12}>
             <Flex wrap>
               {ship.modules.map((value, index) => (
-                <ShipModuleInfo key={index} value={value} />
+                <ShipModuleInfo key={index} value={value} ship={ship} />
               ))}
             </Flex>
           </Col>

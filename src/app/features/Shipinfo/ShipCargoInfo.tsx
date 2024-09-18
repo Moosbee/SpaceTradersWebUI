@@ -38,7 +38,7 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
           {ship.cargo.units}/{ship.cargo.capacity}
         </span>
       ),
-      span: ship.nav.status === "IN_ORBIT" ? 1 : 3,
+      span: 1,
     },
 
     {
@@ -101,7 +101,7 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                         console.log("sell value", value);
                         setTimeout(() => {
                           message.success(
-                            `${count} ${item} sold, new balance: ${value.data.data.agent.credits}`,
+                            `${count} ${item} sold for $${value.data.data.transaction.totalPrice}, new balance: ${value.data.data.agent.credits}`,
                           );
                           dispatch(
                             setShipCargo({
