@@ -15,13 +15,21 @@ function WaypointDisp({
   items.push({
     key: "symbol",
     label: "Symbol",
-    children: <p>{waypoint.symbol}</p>,
+    children: (
+      <Link to={`/system/${waypoint.systemSymbol}/${waypoint.symbol}`}>
+        {waypoint.symbol}
+      </Link>
+    ),
   });
 
   items.push({
     key: "System-Symbol",
     label: "systemSymbol",
-    children: <p>{waypoint.systemSymbol}</p>,
+    children: (
+      <Link to={`/system/${waypoint.systemSymbol}`}>
+        {waypoint.systemSymbol}
+      </Link>
+    ),
   });
 
   if (waypoint.isUnderConstruction) {

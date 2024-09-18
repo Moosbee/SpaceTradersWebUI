@@ -32,9 +32,9 @@ export const surveySlice = createAppSlice({
     setSurveys: create.reducer((state, action: PayloadAction<Survey[]>) => {
       state.surveys = action.payload;
     }),
-    pruneSurveys: create.reducer((state) => {
+    pruneSurveys: create.reducer((state, action: PayloadAction<number>) => {
       state.surveys = state.surveys.filter(
-        (survey) => new Date(survey.expiration).getTime() > Date.now(),
+        (survey) => new Date(survey.expiration).getTime() > action.payload,
       );
     }),
   }),

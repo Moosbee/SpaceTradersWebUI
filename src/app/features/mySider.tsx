@@ -1,5 +1,6 @@
 import {
   AppstoreOutlined,
+  AuditOutlined,
   ContactsOutlined,
   DeliveredProcedureOutlined,
   FileTextOutlined,
@@ -34,29 +35,34 @@ const items: MenuItem[] = [
     icon: <AppstoreOutlined />,
     children: [
       {
-        label: <Link to="/agents">Agents Overview</Link>,
+        label: <Link to="/agents">Agents</Link>,
         key: "agents",
         icon: <ContactsOutlined />,
       },
       {
-        label: <Link to="/fleet">Fleet Overview</Link>,
+        label: <Link to="/fleet">Fleet</Link>,
         key: "fleet",
         icon: <RocketOutlined />,
       },
       {
-        label: <Link to="/systems">Systems Overview</Link>,
+        label: <Link to="/systems">Systems</Link>,
         key: "systems",
         icon: <GlobalOutlined />,
       },
       {
-        label: <Link to="/factions">Factions Overview</Link>,
+        label: <Link to="/factions">Factions</Link>,
         key: "factions",
         icon: <TeamOutlined />,
       },
       {
-        label: <Link to="/contracts">Contracts overview</Link>,
+        label: <Link to="/contracts">Contracts</Link>,
         key: "contracts",
         icon: <FileTextOutlined />,
+      },
+      {
+        label: <Link to="/surveys">Surveys</Link>,
+        key: "surveys",
+        icon: <AuditOutlined />,
       },
     ],
   },

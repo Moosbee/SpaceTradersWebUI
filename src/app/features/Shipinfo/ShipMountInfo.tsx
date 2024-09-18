@@ -67,7 +67,7 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                           ).then((value) => {
                             console.log("value", value);
                             dispatch(addSurveys(value.data.data.surveys));
-                            dispatch(pruneSurveys());
+                            dispatch(pruneSurveys(Date.now()));
                             dispatch(
                               setShipCooldown({
                                 symbol: ship.symbol,
@@ -93,10 +93,7 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                     )}
                     {(value.symbol === "MOUNT_MINING_LASER_I" ||
                       value.symbol === "MOUNT_MINING_LASER_II" ||
-                      value.symbol === "MOUNT_MINING_LASER_III" ||
-                      value.symbol === "MOUNT_GAS_SIPHON_I" ||
-                      value.symbol === "MOUNT_GAS_SIPHON_II" ||
-                      value.symbol === "MOUNT_GAS_SIPHON_III") && (
+                      value.symbol === "MOUNT_MINING_LASER_III") && (
                       <>
                         <ExtractSurvey
                           waypoint={ship.nav.waypointSymbol}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import type { Faction } from "../../spaceTraderAPI/api";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import FactionDisp from "../../features/disp/FactionDisp";
+import PageTitle from "../../features/PageTitle";
 
 function Factions() {
   const [factions, setFactions] = useState<Faction[]>([]);
@@ -34,6 +35,7 @@ function Factions() {
 
   return (
     <div style={{ padding: "24px 24px" }}>
+      <PageTitle title={`Factions`} />
       <h2>All Factions</h2>
       <Pagination
         current={factionsPage}

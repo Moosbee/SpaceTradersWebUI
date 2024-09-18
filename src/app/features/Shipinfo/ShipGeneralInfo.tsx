@@ -61,7 +61,9 @@ function ShipGeneralInfo({ ship }: { ship: Ship }) {
                   );
                   dispatch(setMyAgent(response.data.data.agent));
 
-                  message.success(`Refueled`);
+                  message.success(
+                    `Refueled ${response.data.data.transaction.totalPrice} credits`,
+                  );
                 });
               }}
             >

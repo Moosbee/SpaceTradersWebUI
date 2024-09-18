@@ -112,13 +112,17 @@ function MapHolder({
       }}
       onKeyDown={(e) => {
         if (e.key === "ArrowLeft") {
-          setLeft((prev) => prev - 10);
-        } else if (e.key === "ArrowRight") {
           setLeft((prev) => prev + 10);
+        } else if (e.key === "ArrowRight") {
+          setLeft((prev) => prev - 10);
         } else if (e.key === "ArrowUp") {
-          setTop((prev) => prev - 10);
-        } else if (e.key === "ArrowDown") {
           setTop((prev) => prev + 10);
+        } else if (e.key === "ArrowDown") {
+          setTop((prev) => prev - 10);
+        } else if (e.key === "+") {
+          setZoom((prev) => prev + 10);
+        } else if (e.key === "-") {
+          setZoom((prev) => prev - 10);
         } else if (e.key === "r") {
           setZoom(100);
           setTop(0);

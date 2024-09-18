@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { clearContracts } from "../../spaceTraderAPI/redux/contractSlice";
 import { clearShips } from "../../spaceTraderAPI/redux/fleetSlice";
+import PageTitle from "../../features/PageTitle";
 
 function Caching() {
   const dispatch = useAppDispatch();
@@ -13,6 +14,7 @@ function Caching() {
 
   return (
     <div style={{ padding: "24px 24px" }}>
+      <PageTitle title={`Caching Menu`} />
       <h1>Caching</h1>
       <Space>
         <Button

@@ -10,6 +10,7 @@ import CachingContractsCard from "../../features/cachingCard/CachingContractsCar
 import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { useMemo } from "react";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import PageTitle from "../../features/PageTitle";
 
 function Contracts() {
   const dispatch = useAppDispatch();
@@ -26,6 +27,7 @@ function Contracts() {
 
   return (
     <div style={{ padding: "24px 24px" }}>
+      <PageTitle title={`Contracts`} />
       <Flex justify="space-around">
         <h2>All Contracts</h2>
         <CachingContractsCard />

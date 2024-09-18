@@ -42,7 +42,7 @@ function ShipInfo() {
                 (response) => {
                   dispatch(setShip(response.data.data));
 
-                  dispatch(pruneSurveys());
+                  dispatch(pruneSurveys(Date.now()));
                 },
               );
             }}
@@ -62,7 +62,6 @@ function ShipInfo() {
               <Button>Scan Waypoints</Button>
               <Button>Scan Ships</Button>
               <Button>Purchase Cargo</Button>
-              <Button>Negotiate Contract</Button>
               <Button>Install Mount</Button>
               <Button>Remove Mount</Button>
               <Button>Scrap Ship</Button>

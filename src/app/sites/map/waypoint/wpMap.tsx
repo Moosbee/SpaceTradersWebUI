@@ -8,6 +8,7 @@ function WpMap() {
 
   return (
     <div style={{ width: "100%", height: "100%", position: "relative" }}>
+      <PageTitle title={`${systemID} Map`} />
       {systemID && (
         <MapHolder>
           <PageTitle title={`${systemID} Map`} />

@@ -42,6 +42,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.log("axiosresponseError", error);
     return error;
   },
 );
@@ -56,15 +57,6 @@ const openapiConfig = new Configuration({
     return "";
   },
 });
-// if (import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN) {
-//   openapiConfig.baseOptions = {
-//     headers: {
-//       Authorization:
-//         "Bearer " + import.meta.env.VITE_SPACE_TRADERS_CLIENT_AGENT_TOKEN,
-//       // Prefer: "dynamic=true",
-//     },
-//   };
-// }
 
 const FleetClient = new FleetApi(openapiConfig, undefined, axiosInstance);
 const AgentsClient = new AgentsApi(openapiConfig, undefined, axiosInstance);

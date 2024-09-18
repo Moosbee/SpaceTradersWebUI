@@ -7,6 +7,7 @@ import AgentDisp from "../../features/disp/AgentDisp";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import PageTitle from "../../features/PageTitle";
 
 function Agents() {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -48,6 +49,7 @@ function Agents() {
 
   return (
     <div style={{ padding: "24px 24px" }}>
+      <PageTitle title={`Agents`} />
       <h2>My Agent</h2>
       <Spin spinning={!myAgent}>
         {myAgent && <AgentDisp agent={myAgent.agent}></AgentDisp>}
