@@ -95,6 +95,19 @@ const items: MenuItem[] = [
   },
 
   {
+    key: "automation",
+    label: "Automation",
+    icon: <FaIcon type="solid" icon="fa-robot" />,
+    children: [
+      {
+        label: <Link to="/automation/editor">Automation Editor</Link>,
+        key: "automation/editor",
+        icon: <FaIcon type="solid" icon="fa-robot" />,
+      },
+    ],
+  },
+
+  {
     label: <Link to="/newAgent">New Agent</Link>,
     key: "newAgent",
     icon: <PlusOutlined />,

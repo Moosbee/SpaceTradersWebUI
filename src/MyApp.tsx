@@ -1,30 +1,30 @@
-import { Layout, theme, ConfigProvider, App } from "antd";
-import { Routes, Route } from "react-router-dom";
+import { App, ConfigProvider, Layout, theme } from "antd";
+import { Route, Routes } from "react-router-dom";
 import "./MyApp.css";
+import MyHeader from "./app/features/myHeader";
+import MySider from "./app/features/mySider";
+import { useAppSelector } from "./app/hooks";
+import ErrorPage from "./app/sites/ErrorPage";
 import Agents from "./app/sites/agents/Agents";
+import PageAutomationEditor from "./app/sites/automation/Editor";
 import Caching from "./app/sites/caching/caching";
 import Contracts from "./app/sites/contracts/Contracts";
 import Factions from "./app/sites/factions/Factions";
 import Fleet from "./app/sites/fleet/Fleet";
 import ShipInfo from "./app/sites/fleet/ShipInfo";
 import Main from "./app/sites/main/Main";
+import WpConfig from "./app/sites/map/waypoint/wpConfig";
+import WpMap from "./app/sites/map/waypoint/wpMap";
 import NewAgent from "./app/sites/newAgent/NewAgent";
+import Surveys from "./app/sites/surveys/Surveys";
 import SystemInfo from "./app/sites/systems/SystemInfo";
 import Systems from "./app/sites/systems/Systems";
 import WaypointInfo from "./app/sites/systems/WaypointInfo";
-import ErrorPage from "./app/sites/ErrorPage";
-import Message from "./app/utils/message";
-import { useAppSelector } from "./app/hooks";
 import { selectDarkMode } from "./app/spaceTraderAPI/redux/configSlice";
-import MySider from "./app/features/mySider";
-import MyHeader from "./app/features/myHeader";
-import WpMap from "./app/sites/map/waypoint/wpMap";
-import WpConfig from "./app/sites/map/waypoint/wpConfig";
-import Surveys from "./app/sites/surveys/Surveys";
+import Message from "./app/utils/message";
 const { Header, Content, Sider } = Layout;
 
-export { Sider as AntSiderSider };
-export { Header as AntHeaderHeader };
+export { Header as AntHeaderHeader, Sider as AntSiderSider };
 
 function MyApp() {
   const {
@@ -94,6 +94,14 @@ function MyApp() {
                     <Route path="/systems" element={<Systems></Systems>} />
                     <Route path="/cache" element={<Caching></Caching>} />
                     <Route path="/surveys" element={<Surveys />} />
+                    <Route
+                      path="/automation/editor"
+                      element={<PageAutomationEditor />}
+                    />
+                    <Route
+                      path="/automation"
+                      element={<PageAutomationEditor />}
+                    />
                   </Routes>
                 </Content>
               </Layout>

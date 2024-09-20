@@ -1,23 +1,23 @@
+import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
 import type { Action, ThunkAction } from "@reduxjs/toolkit";
 import { combineSlices, configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
-import { surveySlice } from "./spaceTraderAPI/redux/surveySlice";
 import type { PersistConfig } from "redux-persist";
 import { persistReducer, persistStore } from "redux-persist";
 import autoMergeLevel2 from "redux-persist/lib/stateReconciler/autoMergeLevel2";
-import { contractSlice } from "./spaceTraderAPI/redux/contractSlice";
-import { systemSlice } from "./spaceTraderAPI/redux/systemSlice";
-import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
-import createIdbStorage from "@piotr-cz/redux-persist-idb-storage";
-import { waypointSlice } from "./spaceTraderAPI/redux/waypointSlice";
-import { configSlice } from "./spaceTraderAPI/redux/configSlice";
-import { agentSlice } from "./spaceTraderAPI/redux/agentSlice";
 import {
   createStateSyncMiddleware,
   initMessageListener,
 } from "redux-state-sync";
-import type { Prettify } from "./utils/utils";
+import { agentSlice } from "./spaceTraderAPI/redux/agentSlice";
+import { configSlice } from "./spaceTraderAPI/redux/configSlice";
+import { contractSlice } from "./spaceTraderAPI/redux/contractSlice";
+import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
 import { mapSlice } from "./spaceTraderAPI/redux/mapSlice";
+import { surveySlice } from "./spaceTraderAPI/redux/surveySlice";
+import { systemSlice } from "./spaceTraderAPI/redux/systemSlice";
+import { waypointSlice } from "./spaceTraderAPI/redux/waypointSlice";
+import type { Prettify } from "./utils/utils";
 
 // Create a persist config for Redux Persist
 const persistConfig: PersistConfig<RootState> = {
@@ -74,6 +74,7 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
       const data2 = data1.concat(
         createStateSyncMiddleware({
           blacklist: ["persist/PERSIST", "persist/REHYDRATE"],
+          channel: "reduxStateSync",
         }),
       );
       return data2;
