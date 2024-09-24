@@ -2,20 +2,25 @@ import type { Node, NodeProps } from "@xyflow/react";
 import { Handle, Position } from "@xyflow/react";
 import { Card } from "antd";
 
-function CustomeNode({
+function IFNode({
   data,
   isConnectable,
-}: NodeProps<Node<{ label: number }>>) {
+}: NodeProps<Node<Record<string, unknown>>>) {
   return (
-    <Card title={`CustomeNode ${data.label}`} size="small">
+    <Card title="IFNode" size="small">
       <Handle
         type="target"
         position={Position.Right}
         isConnectable={isConnectable}
       />
-      CustomeNode {data.label}
+      <Handle
+        type="source"
+        position={Position.Left}
+        isConnectable={isConnectable}
+      />
+      IFNode
     </Card>
   );
 }
 
-export default CustomeNode;
+export default IFNode;
