@@ -1,16 +1,16 @@
 import { Divider, Flex } from "antd";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import { useMemo } from "react";
+import CachingContractsCard from "../../features/cachingCard/CachingContractsCard";
 import ContractDisp from "../../features/disp/ContractDisp";
+import PageTitle from "../../features/PageTitle";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import {
   putContract,
   selectContracts,
 } from "../../spaceTraderAPI/redux/contractSlice";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import CachingContractsCard from "../../features/cachingCard/CachingContractsCard";
-import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
-import { useMemo } from "react";
-import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
-import PageTitle from "../../features/PageTitle";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function Contracts() {
   const dispatch = useAppDispatch();
@@ -21,7 +21,8 @@ function Contracts() {
     () =>
       contracts
         .filter((value) => value.agentSymbol === agent?.agent.symbol)
-        .map((w) => w.contract),
+        .map((w) => w.contract)
+        .reverse(),
     [agent?.agent.symbol, contracts],
   );
 

@@ -1,5 +1,26 @@
-import { Card, Col, Empty, List, Row, Table, Tooltip } from "antd";
-import type { Market } from "../../spaceTraderAPI/api";
+import {
+  Button,
+  Card,
+  Col,
+  Empty,
+  InputNumber,
+  List,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tooltip,
+} from "antd";
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import type { Market, Ship, TradeGood } from "../../spaceTraderAPI/api";
+import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import {
+  selectShips,
+  setShipCargo,
+} from "../../spaceTraderAPI/redux/fleetSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import { message } from "../../utils/antdMessage";
 
 function MarketDisp({ market }: { market: Market }) {
   return (
@@ -11,12 +32,7 @@ function MarketDisp({ market }: { market: Market }) {
               size="small"
               bordered
               dataSource={market.exchange.map((ext) => (
-                <Tooltip
-                  key={ext.symbol}
-                  title={`${ext.symbol} - ${ext.description}`}
-                >
-                  <span>{ext.name}</span>
-                </Tooltip>
+                <TradeGoodDisp tradeGood={ext} marketSymbol={market.symbol} />
               ))}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
@@ -28,12 +44,7 @@ function MarketDisp({ market }: { market: Market }) {
               size="small"
               bordered
               dataSource={market.exports.map((expo) => (
-                <Tooltip
-                  key={expo.symbol}
-                  title={`${expo.symbol} - ${expo.description}`}
-                >
-                  <span>{expo.name}</span>
-                </Tooltip>
+                <TradeGoodDisp tradeGood={expo} marketSymbol={market.symbol} />
               ))}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
@@ -45,12 +56,11 @@ function MarketDisp({ market }: { market: Market }) {
               size="small"
               bordered
               dataSource={market.imports.map((imp) => (
-                <Tooltip
-                  key={imp.symbol}
-                  title={`${imp.symbol} - ${imp.description}`}
-                >
-                  <span>{imp.name}</span>
-                </Tooltip>
+                <TradeGoodDisp
+                  tradeGood={imp}
+                  canBuy={false}
+                  marketSymbol={market.symbol}
+                />
               ))}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
@@ -164,6 +174,78 @@ function MarketDisp({ market }: { market: Market }) {
         )}
       </Row>
     </Card>
+  );
+}
+
+function TradeGoodDisp({
+  tradeGood,
+  marketSymbol,
+  canBuy = true,
+}: {
+  tradeGood: TradeGood;
+  marketSymbol: string;
+  canBuy?: boolean;
+}) {
+  const ships = useAppSelector(selectShips).filter(
+    (value) => value.nav.waypointSymbol === marketSymbol,
+  );
+  const [ship, setShip] = useState<Ship | null>(null);
+  const [count, setCount] = useState(1);
+  const dispatch = useAppDispatch();
+
+  return (
+    <Space>
+      <Tooltip
+        key={tradeGood.symbol}
+        title={`${tradeGood.symbol} - ${tradeGood.description}`}
+      >
+        {tradeGood.name}
+      </Tooltip>
+      {canBuy && (
+        <>
+          <Select
+            style={{ width: 140 }}
+            onChange={(value) =>
+              setShip(ships.find((w) => w.symbol === value) ?? null)
+            }
+            value={ship?.symbol}
+            options={ships.map((w) => ({ label: w.symbol, value: w.symbol }))}
+          />
+          <InputNumber
+            min={1}
+            max={ship ? ship?.cargo.capacity - ship?.cargo.units : 0}
+            defaultValue={1}
+            style={{ width: 60 }}
+            onChange={(value) => setCount(value?.valueOf() ?? 1)}
+            value={count}
+            changeOnWheel
+          />
+          <Button
+            onClick={() => {
+              if (ship) {
+                spaceTraderClient.FleetClient.purchaseCargo(ship.symbol, {
+                  symbol: tradeGood.symbol,
+                  units: count,
+                }).then((data) => {
+                  message.success(
+                    `Purchased ${data.data.data.transaction.units} units of ${data.data.data.transaction.tradeSymbol} for ${data.data.data.transaction.totalPrice} credits`,
+                  );
+                  dispatch(
+                    setShipCargo({
+                      symbol: ship.symbol,
+                      cargo: data.data.data.cargo,
+                    }),
+                  );
+                  dispatch(setMyAgent(data.data.data.agent));
+                });
+              }
+            }}
+          >
+            Buy
+          </Button>
+        </>
+      )}
+    </Space>
   );
 }
 

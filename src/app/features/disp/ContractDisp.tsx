@@ -21,10 +21,18 @@ function ContractDisp({
         layout="vertical"
         extra={
           <span>
-            {contract.accepted || !onAccept ? undefined : (
+            {!(
+              !contract.accepted &&
+              !contract.fulfilled &&
+              onAccept
+            ) ? undefined : (
               <Button onClick={onAccept}>Accept</Button>
             )}
-            {!contract.accepted || !onFulfill ? undefined : (
+            {!(
+              contract.accepted &&
+              !contract.fulfilled &&
+              onFulfill
+            ) ? undefined : (
               <Button onClick={onFulfill}>Fulfill</Button>
             )}
           </span>
