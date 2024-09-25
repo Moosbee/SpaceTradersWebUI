@@ -19,6 +19,7 @@ import {
   selectShips,
   setShipCargo,
 } from "../../spaceTraderAPI/redux/fleetSlice";
+import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { message } from "../../utils/antdMessage";
 
@@ -237,6 +238,7 @@ function TradeGoodDisp({
                     }),
                   );
                   dispatch(setMyAgent(data.data.data.agent));
+                  dispatch(addMarketTransaction(data.data.data.transaction));
                 });
               }
             }}

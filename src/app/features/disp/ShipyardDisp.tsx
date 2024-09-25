@@ -1,16 +1,18 @@
 import {
   Card,
-  Row,
   Col,
   Descriptions,
-  List,
   Divider,
-  Table,
   Empty,
+  List,
+  Row,
+  Table,
 } from "antd";
 import { useAppDispatch } from "../../hooks";
 import type { Shipyard } from "../../spaceTraderAPI/api";
 import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import { setShip } from "../../spaceTraderAPI/redux/fleetSlice";
+import { addShipyardTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import ShipyardShipDisp from "./ship/ShipyardShip";
 
@@ -68,6 +70,12 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                           }).then((data) => {
                             console.log("data", data);
                             dispatch(setMyAgent(data.data.data.agent));
+                            dispatch(
+                              addShipyardTransaction(
+                                data.data.data.transaction,
+                              ),
+                            );
+                            dispatch(setShip(data.data.data.ship));
                           });
                         }}
                       ></ShipyardShipDisp>

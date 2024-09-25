@@ -1,27 +1,27 @@
 import type { DescriptionsProps } from "antd";
 import {
-  Space,
   Button,
-  Select,
-  Spin,
   Descriptions,
   Flex,
-  Tooltip,
+  Select,
+  Space,
+  Spin,
   Statistic,
+  Tooltip,
 } from "antd";
-import { Link } from "react-router-dom";
-import { setShipNav, setShipFuel } from "../../spaceTraderAPI/redux/fleetSlice";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import type { Ship, System, SystemWaypoint } from "../../spaceTraderAPI/api";
-import { useAppDispatch, useAppSelector } from "../../hooks";
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import type { Ship, System, SystemWaypoint } from "../../spaceTraderAPI/api";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
+import { setShipFuel, setShipNav } from "../../spaceTraderAPI/redux/fleetSlice";
 import {
   selectSystem,
   selectSystems,
 } from "../../spaceTraderAPI/redux/systemSlice";
 import { putSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
-import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
-import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { message } from "../../utils/antdMessage";
 
 const { Countdown } = Statistic;

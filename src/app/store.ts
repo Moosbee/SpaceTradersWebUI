@@ -16,6 +16,7 @@ import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
 import { mapSlice } from "./spaceTraderAPI/redux/mapSlice";
 import { surveySlice } from "./spaceTraderAPI/redux/surveySlice";
 import { systemSlice } from "./spaceTraderAPI/redux/systemSlice";
+import { transactionSlice } from "./spaceTraderAPI/redux/tansactionSlice";
 import { waypointSlice } from "./spaceTraderAPI/redux/waypointSlice";
 import type { Prettify } from "./utils/utils";
 
@@ -43,6 +44,7 @@ const rootReducer = combineSlices(
   waypointSlice,
   agentSlice,
   mapSlice,
+  transactionSlice,
 );
 
 // Wrap the rootReducer with persistReducer

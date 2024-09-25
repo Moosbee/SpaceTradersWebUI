@@ -1,16 +1,16 @@
 import { Button, Descriptions, Flex, Select, Space } from "antd";
+import { useState } from "react";
+import { useAppDispatch } from "../../hooks";
 import type {
   Ship,
   ShipModule,
   ShipRefineRequestProduceEnum,
 } from "../../spaceTraderAPI/api";
-import { useAppDispatch } from "../../hooks";
-import { useState } from "react";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import {
   setShipCargo,
   setShipCooldown,
 } from "../../spaceTraderAPI/redux/fleetSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { message } from "../../utils/antdMessage";
 
 function ShipModuleInfo({ value, ship }: { value: ShipModule; ship: Ship }) {

@@ -1,15 +1,19 @@
 import type { DescriptionsProps } from "antd";
 import {
-  Space,
   Button,
-  message,
-  Table,
-  Tooltip,
+  Descriptions,
   Dropdown,
   InputNumber,
-  Descriptions,
+  message,
+  Space,
+  Table,
+  Tooltip,
 } from "antd";
+import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import type { Ship, ShipCargoItem } from "../../spaceTraderAPI/api";
 import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import {
   putContract,
   selectOpenContracts,
@@ -18,11 +22,8 @@ import {
   selectShips,
   setShipCargo,
 } from "../../spaceTraderAPI/redux/fleetSlice";
+import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { Ship, ShipCargoItem } from "../../spaceTraderAPI/api";
-import { useState } from "react";
-import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 function ShipCargoInfo({ ship }: { ship: Ship }) {
   const dispatch = useAppDispatch();
@@ -110,6 +111,9 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                             }),
                           );
                           dispatch(setMyAgent(value.data.data.agent));
+                          dispatch(
+                            addMarketTransaction(value.data.data.transaction),
+                          );
                         });
                       });
                     }}

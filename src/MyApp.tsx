@@ -20,6 +20,7 @@ import Surveys from "./app/sites/surveys/Surveys";
 import SystemInfo from "./app/sites/systems/SystemInfo";
 import Systems from "./app/sites/systems/Systems";
 import WaypointInfo from "./app/sites/systems/WaypointInfo";
+import MarketTransaction from "./app/sites/tramsactions/MarketTransaction";
 import { selectDarkMode } from "./app/spaceTraderAPI/redux/configSlice";
 import Message from "./app/utils/message";
 const { Header, Content, Sider } = Layout;
@@ -74,6 +75,10 @@ function MyApp() {
                       element={<Contracts></Contracts>}
                     />
                     <Route path="/newAgent" element={<NewAgent></NewAgent>} />
+                    <Route
+                      path="/transactions/market"
+                      element={<MarketTransaction></MarketTransaction>}
+                    />
                     <Route
                       path="/system/:systemID/:waypointID"
                       element={<WaypointInfo></WaypointInfo>}

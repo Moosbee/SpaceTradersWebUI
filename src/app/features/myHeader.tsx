@@ -1,8 +1,9 @@
 import type { MenuProps } from "antd";
 import { Avatar, Badge, Button, Dropdown, Flex, Space, theme } from "antd";
 import { useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import type { AntHeaderHeader } from "../../MyApp";
-import { useAppSelector, useAppDispatch } from "../hooks";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import {
   clearAgents,
   removeAgent,
@@ -17,15 +18,14 @@ import {
   setAgentSymbol,
   setDarkMode,
 } from "../spaceTraderAPI/redux/configSlice";
-import spaceTraderClient from "../spaceTraderAPI/spaceTraderClient";
-import { Link } from "react-router-dom";
-import FaIcon from "./FontAwsome/FaIcon";
-import { message } from "../utils/antdMessage";
 import {
   selectSelectedShipSymbol,
-  selectSelectedWaypointSymbol,
   selectSelectedSystemSymbol,
+  selectSelectedWaypointSymbol,
 } from "../spaceTraderAPI/redux/mapSlice";
+import spaceTraderClient from "../spaceTraderAPI/spaceTraderClient";
+import { message } from "../utils/antdMessage";
+import FaIcon from "./FontAwsome/FaIcon";
 
 function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const dispatch = useAppDispatch();

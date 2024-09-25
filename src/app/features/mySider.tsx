@@ -64,6 +64,11 @@ const items: MenuItem[] = [
         key: "surveys",
         icon: <AuditOutlined />,
       },
+      {
+        label: <Link to="/transactions/market">Market Transactions</Link>,
+        key: "transactions/market",
+        icon: <DeliveredProcedureOutlined />,
+      },
     ],
   },
   {

@@ -1,10 +1,11 @@
 import type { DescriptionsProps } from "antd";
-import { Space, Button, message, Statistic, Descriptions } from "antd";
+import { Button, Descriptions, message, Space, Statistic } from "antd";
+import { useAppDispatch } from "../../hooks";
 import type { Ship } from "../../spaceTraderAPI/api";
 import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { setShipFuel } from "../../spaceTraderAPI/redux/fleetSlice";
+import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import { useAppDispatch } from "../../hooks";
 
 const { Countdown } = Statistic;
 
@@ -60,6 +61,9 @@ function ShipGeneralInfo({ ship }: { ship: Ship }) {
                     }),
                   );
                   dispatch(setMyAgent(response.data.data.agent));
+                  dispatch(
+                    addMarketTransaction(response.data.data.transaction),
+                  );
 
                   message.success(
                     `Refueled ${response.data.data.transaction.totalPrice} credits`,

@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import type { GetStatus200Response } from "../../spaceTraderAPI/api";
 import type { DescriptionsProps } from "antd";
 import {
   Card,
@@ -12,7 +10,9 @@ import {
   Spin,
   Table,
 } from "antd";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import type { GetStatus200Response } from "../../spaceTraderAPI/api";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function Main() {
@@ -61,22 +61,22 @@ function Main() {
     {
       key: 7,
       label: "Agents",
-      children: status?.stats.agents,
+      children: status?.stats.agents.toLocaleString(),
     },
     {
       key: 8,
       label: "Ships",
-      children: status?.stats.ships,
+      children: status?.stats.ships.toLocaleString(),
     },
     {
       key: 9,
       label: "Systems",
-      children: status?.stats.systems,
+      children: status?.stats.systems.toLocaleString(),
     },
     {
       key: 10,
       label: "Waypoints",
-      children: status?.stats.waypoints,
+      children: status?.stats.waypoints.toLocaleString(),
     },
   ];
 
@@ -109,7 +109,7 @@ function Main() {
                 return {
                   key: value.agentSymbol,
                   agentSymbol: value.agentSymbol,
-                  credits: value.credits,
+                  credits: value.credits.toLocaleString() + "$",
                 };
               })}
               columns={[
@@ -135,7 +135,7 @@ function Main() {
                   return {
                     key: value.agentSymbol,
                     agentSymbol: value.agentSymbol,
-                    chartCount: value.chartCount,
+                    chartCount: value.chartCount.toLocaleString(),
                   };
                 },
               )}
