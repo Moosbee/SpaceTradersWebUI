@@ -3,9 +3,9 @@ import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { System } from "../../spaceTraderAPI/api";
 import { CacheController } from "../../spaceTraderAPI/CacheController";
 import {
-  selectSystems,
-  putSystems,
   clearSystems,
+  putSystems,
+  selectSystems,
 } from "../../spaceTraderAPI/redux/systemSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
@@ -31,7 +31,7 @@ const CachingSystemsCard = () => {
             delete headers["Authorization"];
             return data;
           },
-        });
+        }).then((response) => response.data);
       },
       (systems) => {
         store.dispatch(putSystems(systems));

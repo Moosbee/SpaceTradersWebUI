@@ -1,72 +1,95 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { Waypoint } from "../../spaceTraderAPI/api";
+import { useAppSelector } from "../../hooks";
+import type { Market } from "../../spaceTraderAPI/api";
 import { CacheController } from "../../spaceTraderAPI/CacheController";
 import {
-  clearSystemWaypoints,
-  putWaypoints,
+  putMarkets,
   selectSystemWaypoints,
 } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
+import { message } from "../../utils/antdMessage";
 import CachingCard from "../disp/CachingCardDisp";
 
-const CachingSystemWaypointsCard = ({
+const CachingSystemMarketsCard = ({
   systemSymbol,
 }: {
   systemSymbol: string;
 }) => {
-  const dispatch = useAppDispatch();
-  const cachedWaypoints = Object.values(
-    useAppSelector((state) => selectSystemWaypoints(state, systemSymbol)),
+  const waypoints = useAppSelector((state) =>
+    selectSystemWaypoints(state, systemSymbol),
   );
+  const cachedMarkets = Object.values(waypoints)
+    .map((w) => w.market)
+    .filter((w) => !!w);
+
+  const [marketList, setMarketList] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   const [remainingTime, setRemainingTime] = useState(0);
-  const [total, setTotal] = useState(0);
+  const total = marketList.length;
   const [isPaused, setIsPaused] = useState(false);
-  const cacheControllerRef = useRef<CacheController<Waypoint>>();
+  const cacheMarketControllerRef = useRef<CacheController<Market>>();
 
   useEffect(() => {
-    cacheControllerRef.current = new CacheController<Waypoint>(
-      (page, limit, options) => {
-        return spaceTraderClient.SystemsClient.getSystemWaypoints(
-          systemSymbol,
-          page,
-          limit,
-          undefined,
-          undefined,
-          {
-            ...options,
-            transformRequest: (data, headers) => {
-              delete headers["Authorization"];
-              return data;
+    if (loading) return;
+    setMarketList(
+      Object.values(waypoints)
+        .filter((w) =>
+          w.waypoint.traits.some((t) => t.symbol === "MARKETPLACE"),
+        )
+        .map((w) => w.waypoint.symbol),
+    );
+  }, [loading, waypoints]);
+
+  useEffect(() => {
+    cacheMarketControllerRef.current = new CacheController<Market>(
+      async (page, limit, options) => {
+        if (page > marketList.length) {
+          return {
+            data: [],
+            meta: {
+              total: marketList.length,
+              page: page - 1,
+              limit: limit,
             },
+          };
+        }
+
+        const res = await spaceTraderClient.SystemsClient.getMarket(
+          systemSymbol,
+          marketList[page - 1],
+          options,
+        );
+        return {
+          data: [res.data.data],
+          meta: {
+            total: total,
+            page: page - 1,
+            limit: limit,
           },
-        ).then((response) => response.data);
+        };
       },
-      (waypoints) => {
-        store.dispatch(putWaypoints({ systemSymbol, waypoints }));
+      (markets) => {
+        store.dispatch(putMarkets({ systemSymbol, markets }));
       },
+      1,
     );
     return () => {
-      console.log("CachingSystemWaypointsCard unmounting");
-
-      cacheControllerRef.current?.cancel();
+      console.log("CachingSystemMarketsCard unmounting");
+      cacheMarketControllerRef.current?.cancel();
     };
-  }, [systemSymbol]);
+  }, [marketList, systemSymbol, total]);
 
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
-    dispatch(clearSystemWaypoints({ systemSymbol }));
-    cacheControllerRef.current?.reset();
+    cacheMarketControllerRef.current?.reset();
     setRemainingTime(0);
 
-    cacheControllerRef.current
+    cacheMarketControllerRef.current
       ?.fetchAll((currentProgress, totalItems) => {
-        setTotal(totalItems);
         if (totalItems === 0) return;
 
         const elapsedTime = Date.now() - startTime;
@@ -77,22 +100,22 @@ const CachingSystemWaypointsCard = ({
       })
       .then(() => {
         setLoading(false);
-        cacheControllerRef.current?.reset();
+        cacheMarketControllerRef.current?.reset();
       });
-  }, [dispatch, startTime, systemSymbol]);
+  }, [startTime]);
 
   const pauseFetching = useCallback(() => {
-    cacheControllerRef.current?.pause();
+    cacheMarketControllerRef.current?.pause();
     setIsPaused(true);
   }, []);
 
   const continueFetching = useCallback(() => {
-    cacheControllerRef.current?.continue();
+    cacheMarketControllerRef.current?.continue();
     setIsPaused(false);
   }, []);
 
   const cancelFetching = useCallback(() => {
-    cacheControllerRef.current?.cancel();
+    cacheMarketControllerRef.current?.cancel();
 
     setIsPaused(false);
     setLoading(false);
@@ -110,7 +133,7 @@ const CachingSystemWaypointsCard = ({
 
   return (
     <CachingCard
-      progress={cachedWaypoints.length}
+      progress={cachedMarkets.length}
       loading={loading}
       isPaused={isPaused}
       total={total}
@@ -120,9 +143,9 @@ const CachingSystemWaypointsCard = ({
       pauseFetching={pauseFetching}
       continueFetching={continueFetching}
       cancelFetching={cancelFetching}
-      clearSystems={() => dispatch(clearSystemWaypoints({ systemSymbol }))}
+      clearSystems={() => message.error(`Does not clear Stuff`)}
     />
   );
 };
 
-export default CachingSystemWaypointsCard;
+export default CachingSystemMarketsCard;

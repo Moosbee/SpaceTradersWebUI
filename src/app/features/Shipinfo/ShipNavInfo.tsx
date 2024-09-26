@@ -20,7 +20,7 @@ import {
   selectSystem,
   selectSystems,
 } from "../../spaceTraderAPI/redux/systemSlice";
-import { putSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
+import { putWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { message } from "../../utils/antdMessage";
 
@@ -223,7 +223,7 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
                   (value) => {
                     console.log("createChart", value.data.data);
                     dispatch(
-                      putSystemWaypoints({
+                      putWaypoints({
                         systemSymbol: value.data.data.waypoint.systemSymbol,
                         waypoints: [value.data.data.waypoint],
                       }),

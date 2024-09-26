@@ -1,9 +1,19 @@
 import { type PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
-import type { Waypoint } from "../api";
+import type { Market, Shipyard, Waypoint } from "../api";
+
+interface WaypointState {
+  waypoint: Waypoint;
+  market?: Market;
+  shipyard?: Shipyard;
+}
 
 export interface waypointSliceState {
-  systems: { [key: string]: { waypoints: Waypoint[] } };
+  systems: {
+    [key: string]: {
+      [key: string]: WaypointState;
+    };
+  };
 }
 
 const initialState: waypointSliceState = {
@@ -17,28 +27,96 @@ export const waypointSlice = createAppSlice({
   initialState,
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: (create) => ({
-    setSystemWaypoints: create.reducer(
+    putWaypoints: create.reducer(
       (
         state,
         action: PayloadAction<{ systemSymbol: string; waypoints: Waypoint[] }>,
       ) => {
         const { systemSymbol, waypoints } = action.payload;
-        state.systems[systemSymbol] = { waypoints };
+        for (const waypoint of waypoints) {
+          state.systems[systemSymbol][waypoint.symbol] = {
+            ...state.systems[systemSymbol][waypoint.symbol],
+            waypoint,
+          };
+        }
       },
     ),
 
-    putSystemWaypoints: create.reducer(
+    setWaypoint: create.reducer(
       (
         state,
-        action: PayloadAction<{ systemSymbol: string; waypoints: Waypoint[] }>,
+        action: PayloadAction<{
+          systemSymbol: string;
+          waypoint: Waypoint;
+        }>,
       ) => {
-        const { systemSymbol, waypoints } = action.payload;
-        const wp = state.systems[systemSymbol]?.waypoints || [];
-        state.systems[systemSymbol] = {
-          waypoints: [
-            ...wp.filter((ow) => waypoints.some((w) => ow.symbol !== w.symbol)),
-            ...waypoints,
-          ],
+        const { systemSymbol, waypoint } = action.payload;
+        state.systems[systemSymbol][waypoint.symbol] = {
+          ...state.systems[systemSymbol][waypoint.symbol],
+          waypoint,
+        };
+      },
+    ),
+
+    putShipyards: create.reducer(
+      (
+        state,
+        action: PayloadAction<{
+          systemSymbol: string;
+          shipyards: Shipyard[];
+        }>,
+      ) => {
+        const { systemSymbol, shipyards } = action.payload;
+
+        for (const shipyard of shipyards) {
+          state.systems[systemSymbol][shipyard.symbol] = {
+            ...state.systems[systemSymbol][shipyard.symbol],
+            shipyard,
+          };
+        }
+      },
+    ),
+
+    setShipyard: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ systemSymbol: string; shipyard: Shipyard }>,
+      ) => {
+        const { systemSymbol, shipyard } = action.payload;
+        state.systems[systemSymbol][shipyard.symbol] = {
+          ...state.systems[systemSymbol][shipyard.symbol],
+          shipyard,
+        };
+      },
+    ),
+
+    putMarkets: create.reducer(
+      (
+        state,
+        action: PayloadAction<{
+          systemSymbol: string;
+          markets: Market[];
+        }>,
+      ) => {
+        const { systemSymbol, markets } = action.payload;
+        for (const market of markets) {
+          state.systems[systemSymbol][market.symbol] = {
+            ...state.systems[systemSymbol][market.symbol],
+            market,
+          };
+        }
+      },
+    ),
+
+    setMarket: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ systemSymbol: string; market: Market }>,
+      ) => {
+        const { systemSymbol, market } = action.payload;
+        state.systems[systemSymbol][market.symbol] = {
+          ...state.systems[systemSymbol][market.symbol],
+          market,
         };
       },
     ),
@@ -46,7 +124,7 @@ export const waypointSlice = createAppSlice({
     clearSystemWaypoints: create.reducer(
       (state, action: PayloadAction<{ systemSymbol: string }>) => {
         const { systemSymbol } = action.payload;
-        state.systems[systemSymbol] = { waypoints: [] };
+        state.systems[systemSymbol] = {};
       },
     ),
     clearAllWaypoints: create.reducer((state) => {
@@ -81,17 +159,23 @@ export const waypointSlice = createAppSlice({
   // state as their first argument.
   selectors: {
     selectWpSystems: (systems) => systems.systems,
-    selectSystemWaypoints: (systems, symbol: string): Waypoint[] =>
-      systems.systems[symbol]?.waypoints || [],
+    selectSystemWaypoints: (
+      systems,
+      symbol: string,
+    ): { [key: string]: WaypointState } => systems.systems[symbol] || {},
   },
 });
 
 // Action creators are generated for each case reducer function.
 export const {
-  setSystemWaypoints,
-  putSystemWaypoints,
+  putWaypoints,
   clearSystemWaypoints,
   clearAllWaypoints,
+  setMarket,
+  setShipyard,
+  putMarkets,
+  putShipyards,
+  setWaypoint,
 } = waypointSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectWpSystems, selectSystemWaypoints } =

@@ -1,18 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import CachingCard from "../disp/CachingCardDisp";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Ship } from "../../spaceTraderAPI/api";
 import { CacheController } from "../../spaceTraderAPI/CacheController";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import {
-  selectShips,
   addShips,
-  clearShips,
   clearAgentShips,
+  clearShips,
+  selectShips,
 } from "../../spaceTraderAPI/redux/fleetSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
-import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import CachingCard from "../disp/CachingCardDisp";
 
 const CachingFleetCard = () => {
   const dispatch = useAppDispatch();
@@ -36,7 +36,11 @@ const CachingFleetCard = () => {
   useEffect(() => {
     cacheControllerRef.current = new CacheController<Ship>(
       (page, limit, options) => {
-        return spaceTraderClient.FleetClient.getMyShips(page, limit, options);
+        return spaceTraderClient.FleetClient.getMyShips(
+          page,
+          limit,
+          options,
+        ).then((response) => response.data);
       },
       (systems) => {
         store.dispatch(addShips(systems));

@@ -1,20 +1,22 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import type { WaypointType } from "../../spaceTraderAPI/api";
-import { WaypointTraitSymbol } from "../../spaceTraderAPI/api";
 import type { DescriptionsProps, PaginationProps, SelectProps } from "antd";
 import { Card, Descriptions, Flex, Pagination, Select, Spin } from "antd";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import CachingSystemMarketsCard from "../../features/cachingCard/CachingSystemMarketsCard";
+import CachingSystemShipyardsCard from "../../features/cachingCard/CachingSystemShipyardsCard";
+import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystemWaypointsCard";
 import WaypointDisp from "../../features/disp/WaypointDisp";
+import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import { selectSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
+import type { WaypointType } from "../../spaceTraderAPI/api";
+import { WaypointTraitSymbol } from "../../spaceTraderAPI/api";
+import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/mapSlice";
 import {
   putSystem,
   selectSystem,
 } from "../../spaceTraderAPI/redux/systemSlice";
-import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystemWaypointsCard";
-import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/mapSlice";
-import PageTitle from "../../features/PageTitle";
+import { selectSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 const traitsOptions: SelectProps["options"] = Object.values(
   WaypointTraitSymbol,
@@ -90,12 +92,12 @@ function SystemInfo() {
   const [searchTraits, setSearchTraits] = useState<WaypointTraitSymbol[]>([]);
 
   const waypoints = useMemo(() => {
-    return unfilteredWaypoints.filter((waypoint) => {
-      const typeMatch = !searchType || waypoint.type === searchType;
+    return Object.values(unfilteredWaypoints).filter((waypoint) => {
+      const typeMatch = !searchType || waypoint.waypoint.type === searchType;
       const traitsMatch =
         searchTraits.length === 0 ||
         searchTraits.every((trait) =>
-          waypoint.traits.map((t) => t.symbol).includes(trait),
+          waypoint.waypoint.traits.map((t) => t.symbol).includes(trait),
         );
       return typeMatch && traitsMatch;
     });
@@ -137,13 +139,13 @@ function SystemInfo() {
               placeholder="Select Waypoint Type"
               style={{ width: 250 }}
               allowClear
-              options={[...new Set(waypoints.map((value) => value.type))].map(
-                (value) => {
-                  return {
-                    value: value,
-                  };
-                },
-              )}
+              options={[
+                ...new Set(waypoints.map((value) => value.waypoint.type)),
+              ].map((value) => {
+                return {
+                  value: value,
+                };
+              })}
               onChange={(value) => {
                 setSearchType(value as WaypointType);
                 setWaypointsPage(1);
@@ -162,6 +164,8 @@ function SystemInfo() {
             />
           </Card>
           <CachingSystemWaypointsCard systemSymbol={systemID!} />
+          <CachingSystemShipyardsCard systemSymbol={systemID!} />
+          <CachingSystemMarketsCard systemSymbol={systemID!} />
         </Flex>
 
         <Pagination
@@ -178,7 +182,10 @@ function SystemInfo() {
         <Flex wrap gap="middle" align="center" justify="space-evenly">
           {waypointsPaging.map((value) => {
             return (
-              <WaypointDisp key={value.symbol} waypoint={value}></WaypointDisp>
+              <WaypointDisp
+                key={value.waypoint.symbol}
+                waypoint={value.waypoint}
+              ></WaypointDisp>
             );
           })}
         </Flex>

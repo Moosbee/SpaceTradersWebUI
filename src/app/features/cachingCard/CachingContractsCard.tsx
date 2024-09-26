@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import CachingCard from "../disp/CachingCardDisp";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Contract } from "../../spaceTraderAPI/api";
 import { CacheController } from "../../spaceTraderAPI/CacheController";
+import { selectAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import {
-  selectContracts,
-  putContracts,
   clearContracts,
+  putContracts,
+  selectContracts,
 } from "../../spaceTraderAPI/redux/contractSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
-import { selectAgent } from "../../spaceTraderAPI/redux/agentSlice";
-import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { message } from "../../utils/antdMessage";
+import CachingCard from "../disp/CachingCardDisp";
 
 const CachingContractsCard = () => {
   const dispatch = useAppDispatch();
@@ -36,7 +36,7 @@ const CachingContractsCard = () => {
           page,
           limit,
           options,
-        );
+        ).then((response) => response.data);
       },
       (contracts) => {
         if (agent?.agent.symbol) {

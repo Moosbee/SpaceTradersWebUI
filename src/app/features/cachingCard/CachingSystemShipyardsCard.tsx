@@ -1,72 +1,97 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { Waypoint } from "../../spaceTraderAPI/api";
+import { useAppSelector } from "../../hooks";
+import type { Shipyard } from "../../spaceTraderAPI/api";
 import { CacheController } from "../../spaceTraderAPI/CacheController";
 import {
-  clearSystemWaypoints,
-  putWaypoints,
+  putShipyards,
   selectSystemWaypoints,
 } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
+import { message } from "../../utils/antdMessage";
 import CachingCard from "../disp/CachingCardDisp";
 
-const CachingSystemWaypointsCard = ({
+const CachingSystemShipyardsCard = ({
   systemSymbol,
 }: {
   systemSymbol: string;
 }) => {
-  const dispatch = useAppDispatch();
-  const cachedWaypoints = Object.values(
-    useAppSelector((state) => selectSystemWaypoints(state, systemSymbol)),
+  const waypoints = useAppSelector((state) =>
+    selectSystemWaypoints(state, systemSymbol),
   );
+  const cachedShipyards = Object.values(waypoints)
+    .map((w) => w.shipyard)
+    .filter((w) => !!w);
+
+  const [shipyardList, setShipyardList] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   const [remainingTime, setRemainingTime] = useState(0);
-  const [total, setTotal] = useState(0);
+  const total = shipyardList.length;
   const [isPaused, setIsPaused] = useState(false);
-  const cacheControllerRef = useRef<CacheController<Waypoint>>();
+  const cacheShipControllerRef = useRef<CacheController<Shipyard>>();
 
   useEffect(() => {
-    cacheControllerRef.current = new CacheController<Waypoint>(
-      (page, limit, options) => {
-        return spaceTraderClient.SystemsClient.getSystemWaypoints(
-          systemSymbol,
-          page,
-          limit,
-          undefined,
-          undefined,
-          {
-            ...options,
-            transformRequest: (data, headers) => {
-              delete headers["Authorization"];
-              return data;
+    if (loading) return;
+    setShipyardList(
+      Object.values(waypoints)
+        .filter((w) => w.waypoint.traits.some((t) => t.symbol === "SHIPYARD"))
+        .map((w) => w.waypoint.symbol),
+    );
+  }, [loading, waypoints]);
+
+  useEffect(() => {
+    cacheShipControllerRef.current = new CacheController<Shipyard>(
+      async (page, limit, options) => {
+        if (page > shipyardList.length) {
+          return {
+            data: [],
+            meta: {
+              total: shipyardList.length,
+              page: page - 1,
+              limit: limit,
             },
+          };
+        }
+
+        const data = await spaceTraderClient.SystemsClient.getShipyard(
+          systemSymbol,
+          shipyardList[page - 1],
+          options,
+        );
+
+        // await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        return {
+          data: [data.data.data],
+          meta: {
+            total: shipyardList.length,
+            page: page - 1,
+            limit: limit,
           },
-        ).then((response) => response.data);
+        };
       },
-      (waypoints) => {
-        store.dispatch(putWaypoints({ systemSymbol, waypoints }));
+      (shipyards) => {
+        store.dispatch(putShipyards({ systemSymbol, shipyards }));
       },
+      1,
     );
     return () => {
-      console.log("CachingSystemWaypointsCard unmounting");
+      console.log("CachingSystemShipyardsCard unmounting");
 
-      cacheControllerRef.current?.cancel();
+      cacheShipControllerRef.current?.cancel();
     };
-  }, [systemSymbol]);
+  }, [shipyardList, systemSymbol]);
 
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
-    dispatch(clearSystemWaypoints({ systemSymbol }));
-    cacheControllerRef.current?.reset();
+    cacheShipControllerRef.current?.reset();
     setRemainingTime(0);
 
-    cacheControllerRef.current
+    cacheShipControllerRef.current
       ?.fetchAll((currentProgress, totalItems) => {
-        setTotal(totalItems);
         if (totalItems === 0) return;
 
         const elapsedTime = Date.now() - startTime;
@@ -77,22 +102,22 @@ const CachingSystemWaypointsCard = ({
       })
       .then(() => {
         setLoading(false);
-        cacheControllerRef.current?.reset();
+        cacheShipControllerRef.current?.reset();
       });
-  }, [dispatch, startTime, systemSymbol]);
+  }, [startTime]);
 
   const pauseFetching = useCallback(() => {
-    cacheControllerRef.current?.pause();
+    cacheShipControllerRef.current?.pause();
     setIsPaused(true);
   }, []);
 
   const continueFetching = useCallback(() => {
-    cacheControllerRef.current?.continue();
+    cacheShipControllerRef.current?.continue();
     setIsPaused(false);
   }, []);
 
   const cancelFetching = useCallback(() => {
-    cacheControllerRef.current?.cancel();
+    cacheShipControllerRef.current?.cancel();
 
     setIsPaused(false);
     setLoading(false);
@@ -110,7 +135,7 @@ const CachingSystemWaypointsCard = ({
 
   return (
     <CachingCard
-      progress={cachedWaypoints.length}
+      progress={cachedShipyards.length}
       loading={loading}
       isPaused={isPaused}
       total={total}
@@ -120,9 +145,9 @@ const CachingSystemWaypointsCard = ({
       pauseFetching={pauseFetching}
       continueFetching={continueFetching}
       cancelFetching={cancelFetching}
-      clearSystems={() => dispatch(clearSystemWaypoints({ systemSymbol }))}
+      clearSystems={() => message.error(`Does not clear Stuff`)}
     />
   );
 };
 
-export default CachingSystemWaypointsCard;
+export default CachingSystemShipyardsCard;

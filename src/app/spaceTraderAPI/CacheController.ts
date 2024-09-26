@@ -1,4 +1,4 @@
-import type { AxiosResponse, RawAxiosRequestConfig } from "axios";
+import type { RawAxiosRequestConfig } from "axios";
 import type { Meta } from "./api";
 
 export class CacheController<T> {
@@ -14,7 +14,7 @@ export class CacheController<T> {
     page: number,
     limit: number,
     options?: RawAxiosRequestConfig,
-  ) => Promise<AxiosResponse<{ data: Array<T>; meta: Meta }>>;
+  ) => Promise<{ data: Array<T>; meta: Meta }>;
 
   private _continueResolve: () => void = () => {};
   private tokens: number;
@@ -27,7 +27,7 @@ export class CacheController<T> {
       page: number,
       limit: number,
       options?: RawAxiosRequestConfig | undefined,
-    ) => Promise<AxiosResponse<{ data: T[]; meta: Meta }, any>>,
+    ) => Promise<{ data: T[]; meta: Meta }>,
     putArray: (array: T[]) => void,
     limit: number = 20,
     requestsPerSecond: number = 2, // Default rate limit: 2 requests per second
@@ -67,8 +67,8 @@ export class CacheController<T> {
 
       const response = await this.fetchFunc(this.page, this.limit);
 
-      const systems = response.data.data;
-      this.total = response.data.meta.total;
+      const systems = response.data;
+      this.total = response.meta.total;
 
       this.putArray(systems);
 
@@ -117,11 +117,13 @@ export class CacheController<T> {
   }
 
   cancel() {
+    console.log("cancel", this.putArray);
     this.canceled = true;
     this.finished = true; // Ensure the loop exits
   }
 
   reset() {
+    console.log("reset");
     this.page = 1;
     this.total = 0;
     this.finished = false;
