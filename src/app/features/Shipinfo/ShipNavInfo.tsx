@@ -3,6 +3,7 @@ import {
   Button,
   Descriptions,
   Flex,
+  Input,
   Select,
   Space,
   Spin,
@@ -13,13 +14,19 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Ship, System, SystemWaypoint } from "../../spaceTraderAPI/api";
+import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
-import { setShipFuel, setShipNav } from "../../spaceTraderAPI/redux/fleetSlice";
+import {
+  setShipCooldown,
+  setShipFuel,
+  setShipNav,
+} from "../../spaceTraderAPI/redux/fleetSlice";
 import {
   selectSystem,
   selectSystems,
 } from "../../spaceTraderAPI/redux/systemSlice";
+import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import { putWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { message } from "../../utils/antdMessage";
@@ -41,6 +48,8 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
   );
 
   const agent = useAppSelector(selectAgentSymbol);
+
+  const [jumpDestination, setJumpDestination] = useState<string>();
 
   const itemsNavMem = useMemo<DescriptionsProps["items"]>(() => {
     const itemsNavRoute: DescriptionsProps["items"] = [
@@ -316,8 +325,44 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
                 {wayPoint?.type === "JUMP_GATE" &&
                   ship.nav.status === "IN_ORBIT" && (
                     <>
-                      <Select style={{ width: 100 }} />
-                      <Button>Jump Ship</Button>
+                      {/* <Select style={{ width: 100 }} /> */}
+                      <Input
+                        placeholder="Jump"
+                        style={{ width: 100 }}
+                        value={jumpDestination}
+                        onChange={(e) => setJumpDestination(e.target.value)}
+                      />
+                      <Button
+                        onClick={() => {
+                          if (!jumpDestination) return;
+                          spaceTraderClient.FleetClient.jumpShip(ship.symbol, {
+                            waypointSymbol: jumpDestination,
+                          }).then((value) => {
+                            setTimeout(() => {
+                              dispatch(
+                                setShipNav({
+                                  symbol: ship.symbol,
+                                  nav: value.data.data.nav,
+                                }),
+                              );
+                              dispatch(
+                                setShipCooldown({
+                                  symbol: ship.symbol,
+                                  cooldown: value.data.data.cooldown,
+                                }),
+                              );
+                              dispatch(setMyAgent(value.data.data.agent));
+                              dispatch(
+                                addMarketTransaction(
+                                  value.data.data.transaction,
+                                ),
+                              );
+                            });
+                          });
+                        }}
+                      >
+                        Jump Ship
+                      </Button>
                     </>
                   )}
               </Space>
@@ -339,6 +384,7 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
   }, [
     agent,
     dispatch,
+    jumpDestination,
     loadingShipNav,
     navWaypoint,
     ship,

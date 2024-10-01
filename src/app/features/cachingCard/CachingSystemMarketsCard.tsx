@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAppSelector } from "../../hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Market } from "../../spaceTraderAPI/api";
 import { CacheController } from "../../spaceTraderAPI/CacheController";
 import {
+  clearSystemMarkets,
   putMarkets,
   selectSystemWaypoints,
 } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
-import { message } from "../../utils/antdMessage";
 import CachingCard from "../disp/CachingCardDisp";
 
 const CachingSystemMarketsCard = ({
@@ -22,6 +22,8 @@ const CachingSystemMarketsCard = ({
   const cachedMarkets = Object.values(waypoints)
     .map((w) => w.market)
     .filter((w) => !!w);
+
+  const dispatch = useAppDispatch();
 
   const [marketList, setMarketList] = useState<string[]>([]);
 
@@ -85,6 +87,7 @@ const CachingSystemMarketsCard = ({
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
+    dispatch(clearSystemMarkets({ systemSymbol }));
     cacheMarketControllerRef.current?.reset();
     setRemainingTime(0);
 
@@ -102,7 +105,7 @@ const CachingSystemMarketsCard = ({
         setLoading(false);
         cacheMarketControllerRef.current?.reset();
       });
-  }, [startTime]);
+  }, [dispatch, startTime, systemSymbol]);
 
   const pauseFetching = useCallback(() => {
     cacheMarketControllerRef.current?.pause();
@@ -138,12 +141,12 @@ const CachingSystemMarketsCard = ({
       isPaused={isPaused}
       total={total}
       remainingTimeString={remainingTimeString}
-      title={`Caching ${systemSymbol} waypoints`}
+      title={`Caching ${systemSymbol} Markets`}
       startFetching={startFetching}
       pauseFetching={pauseFetching}
       continueFetching={continueFetching}
       cancelFetching={cancelFetching}
-      clearSystems={() => message.error(`Does not clear Stuff`)}
+      clearSystems={() => dispatch(clearSystemMarkets({ systemSymbol }))}
     />
   );
 };

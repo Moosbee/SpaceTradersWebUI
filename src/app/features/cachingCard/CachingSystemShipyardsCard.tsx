@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useAppSelector } from "../../hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Shipyard } from "../../spaceTraderAPI/api";
 import { CacheController } from "../../spaceTraderAPI/CacheController";
 import {
+  clearSystemShipyards,
   putShipyards,
   selectSystemWaypoints,
 } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
-import { message } from "../../utils/antdMessage";
 import CachingCard from "../disp/CachingCardDisp";
 
 const CachingSystemShipyardsCard = ({
@@ -22,6 +22,8 @@ const CachingSystemShipyardsCard = ({
   const cachedShipyards = Object.values(waypoints)
     .map((w) => w.shipyard)
     .filter((w) => !!w);
+
+  const dispatch = useAppDispatch();
 
   const [shipyardList, setShipyardList] = useState<string[]>([]);
 
@@ -87,6 +89,7 @@ const CachingSystemShipyardsCard = ({
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
+    dispatch(clearSystemShipyards({ systemSymbol }));
     cacheShipControllerRef.current?.reset();
     setRemainingTime(0);
 
@@ -104,7 +107,7 @@ const CachingSystemShipyardsCard = ({
         setLoading(false);
         cacheShipControllerRef.current?.reset();
       });
-  }, [startTime]);
+  }, [dispatch, startTime, systemSymbol]);
 
   const pauseFetching = useCallback(() => {
     cacheShipControllerRef.current?.pause();
@@ -140,12 +143,12 @@ const CachingSystemShipyardsCard = ({
       isPaused={isPaused}
       total={total}
       remainingTimeString={remainingTimeString}
-      title={`Caching ${systemSymbol} waypoints`}
+      title={`Caching ${systemSymbol} shipyards`}
       startFetching={startFetching}
       pauseFetching={pauseFetching}
       continueFetching={continueFetching}
       cancelFetching={cancelFetching}
-      clearSystems={() => message.error(`Does not clear Stuff`)}
+      clearSystems={() => dispatch(clearSystemShipyards({ systemSymbol }))}
     />
   );
 };

@@ -1,5 +1,11 @@
+import { Badge, Descriptions, List } from "antd";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import MarketDisp from "../../features/disp/MarketDisp";
+import ShipyardDisp from "../../features/disp/ShipyardDisp";
+import WaypointDisp from "../../features/disp/WaypointDisp";
+import PageTitle from "../../features/PageTitle";
+import { useAppSelector } from "../../hooks";
 import type {
   Construction,
   JumpGate,
@@ -7,14 +13,8 @@ import type {
   Shipyard,
   Waypoint,
 } from "../../spaceTraderAPI/api";
-import { Badge, Descriptions, List } from "antd";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import WaypointDisp from "../../features/disp/WaypointDisp";
-import MarketDisp from "../../features/disp/MarketDisp";
-import ShipyardDisp from "../../features/disp/ShipyardDisp";
-import { useAppSelector } from "../../hooks";
 import { selectSelectedWaypointSymbol } from "../../spaceTraderAPI/redux/mapSlice";
-import PageTitle from "../../features/PageTitle";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function WaypointInfo() {
   const { systemID: urlSystemID } = useParams();
@@ -146,7 +146,13 @@ function WaypointInfo() {
                   <List
                     size="small"
                     dataSource={jumpGate.connections.map((connection) => (
-                      <Link to={`/systems/${connection}`}>{connection}</Link>
+                      <Link
+                        to={`/system/${connection.split("-", 2).join("-")}/${
+                          connection
+                        }`}
+                      >
+                        {connection}
+                      </Link>
                     ))}
                     renderItem={(item) => <List.Item>{item}</List.Item>}
                   ></List>

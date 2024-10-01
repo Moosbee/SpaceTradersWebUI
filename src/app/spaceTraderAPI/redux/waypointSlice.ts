@@ -121,6 +121,24 @@ export const waypointSlice = createAppSlice({
       },
     ),
 
+    clearSystemShipyards: create.reducer(
+      (state, action: PayloadAction<{ systemSymbol: string }>) => {
+        const { systemSymbol } = action.payload;
+        for (const symbol in state.systems[systemSymbol]) {
+          delete state.systems[systemSymbol][symbol].shipyard;
+        }
+      },
+    ),
+
+    clearSystemMarkets: create.reducer(
+      (state, action: PayloadAction<{ systemSymbol: string }>) => {
+        const { systemSymbol } = action.payload;
+        for (const symbol in state.systems[systemSymbol]) {
+          delete state.systems[systemSymbol][symbol].market;
+        }
+      },
+    ),
+
     clearSystemWaypoints: create.reducer(
       (state, action: PayloadAction<{ systemSymbol: string }>) => {
         const { systemSymbol } = action.payload;
@@ -176,6 +194,8 @@ export const {
   putMarkets,
   putShipyards,
   setWaypoint,
+  clearSystemShipyards,
+  clearSystemMarkets,
 } = waypointSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectWpSystems, selectSystemWaypoints } =

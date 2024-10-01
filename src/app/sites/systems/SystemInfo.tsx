@@ -1,5 +1,15 @@
 import type { DescriptionsProps, PaginationProps, SelectProps } from "antd";
-import { Card, Descriptions, Flex, Pagination, Select, Spin } from "antd";
+import {
+  AutoComplete,
+  Card,
+  Descriptions,
+  Flex,
+  Pagination,
+  Select,
+  Space,
+  Spin,
+  Typography,
+} from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CachingSystemMarketsCard from "../../features/cachingCard/CachingSystemMarketsCard";
@@ -8,8 +18,11 @@ import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystem
 import WaypointDisp from "../../features/disp/WaypointDisp";
 import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { WaypointType } from "../../spaceTraderAPI/api";
-import { WaypointTraitSymbol } from "../../spaceTraderAPI/api";
+import type {
+  MarketTradeGoodTypeEnum,
+  WaypointType,
+} from "../../spaceTraderAPI/api";
+import { TradeSymbol, WaypointTraitSymbol } from "../../spaceTraderAPI/api";
 import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/mapSlice";
 import {
   putSystem,
@@ -24,6 +37,13 @@ const traitsOptions: SelectProps["options"] = Object.values(
   return { value: value };
 });
 
+const tradeGoodOptions: SelectProps["options"] = Object.values(TradeSymbol).map(
+  (value) => {
+    return { value: value };
+  },
+);
+
+const { Title } = Typography;
 function SystemInfo() {
   const { systemID } = useParams();
   const selectedSystem = useAppSelector(selectSelectedSystemSymbol);
@@ -90,18 +110,75 @@ function SystemInfo() {
 
   const [searchType, setSearchType] = useState<WaypointType>();
   const [searchTraits, setSearchTraits] = useState<WaypointTraitSymbol[]>([]);
+  const [searchAutoComplete, setSearchAutoComplete] = useState<string>("");
+  const [marketItems, setMarketItems] = useState<TradeSymbol[]>([]);
+  const [marketItemTypes, setMarketItemTypes] = useState<
+    MarketTradeGoodTypeEnum[]
+  >([]);
 
   const waypoints = useMemo(() => {
-    return Object.values(unfilteredWaypoints).filter((waypoint) => {
-      const typeMatch = !searchType || waypoint.waypoint.type === searchType;
-      const traitsMatch =
-        searchTraits.length === 0 ||
-        searchTraits.every((trait) =>
-          waypoint.waypoint.traits.map((t) => t.symbol).includes(trait),
+    return Object.values(unfilteredWaypoints)
+      .filter((waypoint) => {
+        const typeMatch = !searchType || waypoint.waypoint.type === searchType;
+        const traitsMatch =
+          searchTraits.length === 0 ||
+          searchTraits.every((trait) =>
+            waypoint.waypoint.traits.map((t) => t.symbol).includes(trait),
+          );
+        return typeMatch && traitsMatch;
+      })
+      .filter((waypoint) => {
+        return (
+          searchAutoComplete === "" ||
+          waypoint.waypoint.symbol
+            .toLowerCase()
+            .includes(searchAutoComplete.toLowerCase())
         );
-      return typeMatch && traitsMatch;
-    });
-  }, [searchTraits, searchType, unfilteredWaypoints]);
+      })
+      .filter((waypoint) => {
+        if (marketItems.length === 0) return true;
+        if (waypoint.market === undefined) return false;
+
+        if (
+          (marketItemTypes.length === 0 ||
+            marketItemTypes.includes("EXCHANGE")) &&
+          waypoint.market.exchange.some((value) =>
+            marketItems.includes(value.symbol),
+          )
+        ) {
+          return true;
+        }
+
+        if (
+          (marketItemTypes.length === 0 ||
+            marketItemTypes.includes("EXPORT")) &&
+          waypoint.market.exports.some((value) =>
+            marketItems.includes(value.symbol),
+          )
+        ) {
+          return true;
+        }
+
+        if (
+          (marketItemTypes.length === 0 ||
+            marketItemTypes.includes("IMPORT")) &&
+          waypoint.market.imports.some((value) =>
+            marketItems.includes(value.symbol),
+          )
+        ) {
+          return true;
+        }
+
+        return false;
+      });
+  }, [
+    marketItemTypes,
+    marketItems,
+    searchAutoComplete,
+    searchTraits,
+    searchType,
+    unfilteredWaypoints,
+  ]);
 
   const [waypointsPage, setWaypointsPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -135,33 +212,87 @@ function SystemInfo() {
 
         <Flex justify="space-around" gap={8}>
           <Card style={{ width: "fit-content" }} title={"Search"}>
-            <Select
-              placeholder="Select Waypoint Type"
-              style={{ width: 250 }}
-              allowClear
-              options={[
-                ...new Set(waypoints.map((value) => value.waypoint.type)),
-              ].map((value) => {
-                return {
-                  value: value,
-                };
-              })}
-              onChange={(value) => {
-                setSearchType(value as WaypointType);
-                setWaypointsPage(1);
-              }}
-            />
-            <Select
-              allowClear
-              placeholder="Select Traits"
-              mode="multiple"
-              onChange={(value) => {
-                console.log("selected", value);
-                setSearchTraits(value as WaypointTraitSymbol[]);
-              }}
-              options={traitsOptions}
-              style={{ width: 400 }}
-            />
+            <Title level={5}>Waypoint</Title>
+            <Space>
+              <Select
+                placeholder="Select Waypoint Type"
+                style={{ width: 250 }}
+                allowClear
+                options={[
+                  ...new Set(waypoints.map((value) => value.waypoint.type)),
+                ].map((value) => {
+                  return {
+                    value: value,
+                  };
+                })}
+                onChange={(value) => {
+                  setSearchType(value as WaypointType);
+                  setWaypointsPage(1);
+                }}
+              />
+              <Select
+                allowClear
+                placeholder="Select Traits"
+                mode="multiple"
+                onChange={(value) => {
+                  console.log("selected", value);
+                  setSearchTraits(value as WaypointTraitSymbol[]);
+                }}
+                options={traitsOptions}
+                style={{ width: 300 }}
+              />
+              <AutoComplete
+                style={{ width: 200 }}
+                value={searchAutoComplete}
+                onChange={(value) => setSearchAutoComplete(value)}
+                placeholder="Search..."
+                options={waypoints.map((value) => {
+                  return {
+                    label: value.waypoint.symbol,
+                    value: value.waypoint.symbol,
+                  };
+                })}
+              />
+            </Space>
+            <Title level={5}>Markets</Title>
+            <Space>
+              <Select
+                allowClear
+                placeholder="Select Items"
+                mode="multiple"
+                onChange={(value) => {
+                  console.log("selected", value);
+                  setMarketItems(value as TradeSymbol[]);
+                }}
+                options={tradeGoodOptions}
+                style={{ width: 300 }}
+              />
+              <Select
+                allowClear
+                placeholder="Select Where"
+                mode="multiple"
+                onChange={(value) => {
+                  console.log("selected", value);
+                  setMarketItemTypes(value as MarketTradeGoodTypeEnum[]);
+                }}
+                options={[
+                  {
+                    label: "Exchanges",
+                    value: "EXCHANGE",
+                  },
+                  {
+                    label: "Exports",
+                    value: "EXPORT",
+                  },
+                  {
+                    label: "Imports",
+                    value: "IMPORT",
+                  },
+                ]}
+                style={{ width: 300 }}
+              />
+            </Space>
+            <Title level={5}>Shipyards</Title>
           </Card>
           <CachingSystemWaypointsCard systemSymbol={systemID!} />
           <CachingSystemShipyardsCard systemSymbol={systemID!} />
