@@ -10,7 +10,7 @@ function MarketTransaction() {
     <div style={{ padding: "24px 24px" }}>
       <h1>MarketTransaction</h1>
       <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {transaction.map((transaction) => (
+        {transaction.toReversed().map((transaction) => (
           <MarketTransactionDisp
             key={transaction.timestamp}
             transaction={transaction}

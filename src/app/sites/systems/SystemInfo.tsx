@@ -1,28 +1,21 @@
-import type { DescriptionsProps, PaginationProps, SelectProps } from "antd";
-import {
-  AutoComplete,
-  Card,
-  Descriptions,
-  Flex,
-  Pagination,
-  Select,
-  Space,
-  Spin,
-  Typography,
-} from "antd";
+import type { DescriptionsProps, PaginationProps } from "antd";
+import { Descriptions, Flex, Pagination, Spin } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CachingSystemMarketsCard from "../../features/cachingCard/CachingSystemMarketsCard";
 import CachingSystemShipyardsCard from "../../features/cachingCard/CachingSystemShipyardsCard";
 import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystemWaypointsCard";
 import WaypointDisp from "../../features/disp/WaypointDisp";
+import FilterCard, { filterWps } from "../../features/filterCard/FilterCard";
 import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type {
   MarketTradeGoodTypeEnum,
+  ShipType,
+  TradeSymbol,
+  WaypointTraitSymbol,
   WaypointType,
 } from "../../spaceTraderAPI/api";
-import { TradeSymbol, WaypointTraitSymbol } from "../../spaceTraderAPI/api";
 import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/mapSlice";
 import {
   putSystem,
@@ -31,19 +24,6 @@ import {
 import { selectSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
-const traitsOptions: SelectProps["options"] = Object.values(
-  WaypointTraitSymbol,
-).map((value) => {
-  return { value: value };
-});
-
-const tradeGoodOptions: SelectProps["options"] = Object.values(TradeSymbol).map(
-  (value) => {
-    return { value: value };
-  },
-);
-
-const { Title } = Typography;
 function SystemInfo() {
   const { systemID } = useParams();
   const selectedSystem = useAppSelector(selectSelectedSystemSymbol);
@@ -115,68 +95,25 @@ function SystemInfo() {
   const [marketItemTypes, setMarketItemTypes] = useState<
     MarketTradeGoodTypeEnum[]
   >([]);
+  const [shipTypes, setShipTypes] = useState<ShipType[]>([]);
 
   const waypoints = useMemo(() => {
-    return Object.values(unfilteredWaypoints)
-      .filter((waypoint) => {
-        const typeMatch = !searchType || waypoint.waypoint.type === searchType;
-        const traitsMatch =
-          searchTraits.length === 0 ||
-          searchTraits.every((trait) =>
-            waypoint.waypoint.traits.map((t) => t.symbol).includes(trait),
-          );
-        return typeMatch && traitsMatch;
-      })
-      .filter((waypoint) => {
-        return (
-          searchAutoComplete === "" ||
-          waypoint.waypoint.symbol
-            .toLowerCase()
-            .includes(searchAutoComplete.toLowerCase())
-        );
-      })
-      .filter((waypoint) => {
-        if (marketItems.length === 0) return true;
-        if (waypoint.market === undefined) return false;
-
-        if (
-          (marketItemTypes.length === 0 ||
-            marketItemTypes.includes("EXCHANGE")) &&
-          waypoint.market.exchange.some((value) =>
-            marketItems.includes(value.symbol),
-          )
-        ) {
-          return true;
-        }
-
-        if (
-          (marketItemTypes.length === 0 ||
-            marketItemTypes.includes("EXPORT")) &&
-          waypoint.market.exports.some((value) =>
-            marketItems.includes(value.symbol),
-          )
-        ) {
-          return true;
-        }
-
-        if (
-          (marketItemTypes.length === 0 ||
-            marketItemTypes.includes("IMPORT")) &&
-          waypoint.market.imports.some((value) =>
-            marketItems.includes(value.symbol),
-          )
-        ) {
-          return true;
-        }
-
-        return false;
-      });
+    return filterWps(
+      marketItemTypes,
+      marketItems,
+      searchAutoComplete,
+      searchTraits,
+      searchType,
+      Object.values(unfilteredWaypoints),
+      shipTypes,
+    );
   }, [
     marketItemTypes,
     marketItems,
     searchAutoComplete,
     searchTraits,
     searchType,
+    shipTypes,
     unfilteredWaypoints,
   ]);
 
@@ -208,92 +145,23 @@ function SystemInfo() {
         />
 
         <h2>Waypoints</h2>
-        <Link to={"/system/selected/selected"}>Current</Link>
 
         <Flex justify="space-around" gap={8}>
-          <Card style={{ width: "fit-content" }} title={"Search"}>
-            <Title level={5}>Waypoint</Title>
-            <Space>
-              <Select
-                placeholder="Select Waypoint Type"
-                style={{ width: 250 }}
-                allowClear
-                options={[
-                  ...new Set(waypoints.map((value) => value.waypoint.type)),
-                ].map((value) => {
-                  return {
-                    value: value,
-                  };
-                })}
-                onChange={(value) => {
-                  setSearchType(value as WaypointType);
-                  setWaypointsPage(1);
-                }}
-              />
-              <Select
-                allowClear
-                placeholder="Select Traits"
-                mode="multiple"
-                onChange={(value) => {
-                  console.log("selected", value);
-                  setSearchTraits(value as WaypointTraitSymbol[]);
-                }}
-                options={traitsOptions}
-                style={{ width: 300 }}
-              />
-              <AutoComplete
-                style={{ width: 200 }}
-                value={searchAutoComplete}
-                onChange={(value) => setSearchAutoComplete(value)}
-                placeholder="Search..."
-                options={waypoints.map((value) => {
-                  return {
-                    label: value.waypoint.symbol,
-                    value: value.waypoint.symbol,
-                  };
-                })}
-              />
-            </Space>
-            <Title level={5}>Markets</Title>
-            <Space>
-              <Select
-                allowClear
-                placeholder="Select Items"
-                mode="multiple"
-                onChange={(value) => {
-                  console.log("selected", value);
-                  setMarketItems(value as TradeSymbol[]);
-                }}
-                options={tradeGoodOptions}
-                style={{ width: 300 }}
-              />
-              <Select
-                allowClear
-                placeholder="Select Where"
-                mode="multiple"
-                onChange={(value) => {
-                  console.log("selected", value);
-                  setMarketItemTypes(value as MarketTradeGoodTypeEnum[]);
-                }}
-                options={[
-                  {
-                    label: "Exchanges",
-                    value: "EXCHANGE",
-                  },
-                  {
-                    label: "Exports",
-                    value: "EXPORT",
-                  },
-                  {
-                    label: "Imports",
-                    value: "IMPORT",
-                  },
-                ]}
-                style={{ width: 300 }}
-              />
-            </Space>
-            <Title level={5}>Shipyards</Title>
-          </Card>
+          <FilterCard
+            marketItemTypes={marketItemTypes}
+            marketItems={marketItems}
+            searchAutoComplete={searchAutoComplete}
+            searchTraits={searchTraits}
+            searchType={searchType}
+            setMarketItemTypes={setMarketItemTypes}
+            setMarketItems={setMarketItems}
+            setSearchAutoComplete={setSearchAutoComplete}
+            setSearchTraits={setSearchTraits}
+            setSearchType={setSearchType}
+            waypoints={waypoints}
+            setShipTypes={setShipTypes}
+            shipTypes={shipTypes}
+          />
           <CachingSystemWaypointsCard systemSymbol={systemID!} />
           <CachingSystemShipyardsCard systemSymbol={systemID!} />
           <CachingSystemMarketsCard systemSymbol={systemID!} />

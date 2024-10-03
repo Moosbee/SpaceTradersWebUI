@@ -33,7 +33,14 @@ function ContractDisp({
               !contract.fulfilled &&
               onFulfill
             ) ? undefined : (
-              <Button onClick={onFulfill}>Fulfill</Button>
+              <Button
+                onClick={onFulfill}
+                disabled={
+                  new Date(contract.terms.deadline).getTime() < Date.now()
+                }
+              >
+                Fulfill
+              </Button>
             )}
           </span>
         }

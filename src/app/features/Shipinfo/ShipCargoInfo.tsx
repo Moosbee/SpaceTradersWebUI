@@ -218,6 +218,10 @@ function CargoActions({
 
   const contracts = useAppSelector(selectOpenContracts)
     .filter((w) => w.agentSymbol === agent?.agent.symbol)
+    .filter(
+      (w) =>
+        new Date(w.contract.terms.deadline).getTime() > new Date().getTime(),
+    )
     .map((w) => {
       return {
         key: w.contract.id,

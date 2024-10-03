@@ -2,7 +2,7 @@ import { type PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
 import type { Market, Shipyard, Waypoint } from "../api";
 
-interface WaypointState {
+export interface WaypointState {
   waypoint: Waypoint;
   market?: Market;
   shipyard?: Shipyard;

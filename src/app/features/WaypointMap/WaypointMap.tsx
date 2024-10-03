@@ -1,15 +1,15 @@
+import { theme } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { useAppSelector } from "../../hooks";
-import { selectSystem } from "../../spaceTraderAPI/redux/systemSlice";
-import classes from "./WaypointMap.module.css";
-import WaypointMapWaypoint from "../WaypointMapWaypoint/WaypointMapWaypoint";
-import WaypointMapWaypointOrbit from "../WaypointMapWaypointOrbit/WaypointMapWaypointOrbit";
-import { cyrb53, scaleNum, seedShuffle } from "../../utils/utils";
-import { theme } from "antd";
+import type { Ship } from "../../spaceTraderAPI/api";
 import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
+import { selectSystem } from "../../spaceTraderAPI/redux/systemSlice";
+import { cyrb53, scaleNum, seedShuffle } from "../../utils/utils";
 import WaypointMapShip from "../WaypointMapShip/WaypointMapShip";
 import WaypointMapShipOrbit from "../WaypointMapShipOrbit/WaypointMapShipOrbit";
-import type { Ship } from "../../spaceTraderAPI/api";
+import WaypointMapWaypoint from "../WaypointMapWaypoint/WaypointMapWaypoint";
+import WaypointMapWaypointOrbit from "../WaypointMapWaypointOrbit/WaypointMapWaypointOrbit";
+import classes from "./WaypointMap.module.css";
 
 const baseDirections = [
   { wayX: 1, wayY: 0 },
@@ -204,7 +204,10 @@ function WaypointMap({ systemID }: { systemID: string }) {
                 new Date().getTime() -
                 new Date(s.nav.route.departureTime).getTime();
 
-              const travelPercent = (elapsedTime / totalTime) * 1;
+              const travelPercent = Math.min(
+                1.1,
+                (elapsedTime / totalTime) * 1,
+              );
 
               return {
                 ship: s,

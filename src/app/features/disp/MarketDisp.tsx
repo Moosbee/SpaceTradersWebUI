@@ -11,9 +11,9 @@ import {
   Table,
   Tooltip,
 } from "antd";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { Market, Ship, TradeGood } from "../../spaceTraderAPI/api";
+import type { Market, MarketTradeGood } from "../../spaceTraderAPI/api";
 import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import {
   selectShips,
@@ -33,7 +33,12 @@ function MarketDisp({ market }: { market: Market }) {
               size="small"
               bordered
               dataSource={market.exchange.map((ext) => (
-                <TradeGoodDisp tradeGood={ext} marketSymbol={market.symbol} />
+                <Tooltip
+                  key={ext.symbol}
+                  title={`${ext.symbol} - ${ext.description}`}
+                >
+                  <span>{ext.name}</span>
+                </Tooltip>
               ))}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
@@ -45,7 +50,12 @@ function MarketDisp({ market }: { market: Market }) {
               size="small"
               bordered
               dataSource={market.exports.map((expo) => (
-                <TradeGoodDisp tradeGood={expo} marketSymbol={market.symbol} />
+                <Tooltip
+                  key={expo.symbol}
+                  title={`${expo.symbol} - ${expo.description}`}
+                >
+                  <span>{expo.name}</span>
+                </Tooltip>
               ))}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
@@ -57,11 +67,12 @@ function MarketDisp({ market }: { market: Market }) {
               size="small"
               bordered
               dataSource={market.imports.map((imp) => (
-                <TradeGoodDisp
-                  tradeGood={imp}
-                  canBuy={false}
-                  marketSymbol={market.symbol}
-                />
+                <Tooltip
+                  key={imp.symbol}
+                  title={`${imp.symbol} - ${imp.description}`}
+                >
+                  <span>{imp.name}</span>
+                </Tooltip>
               ))}
               renderItem={(item) => <List.Item>{item}</List.Item>}
             />
@@ -69,10 +80,18 @@ function MarketDisp({ market }: { market: Market }) {
         </Col>
         {market.transactions && market.tradeGoods ? (
           <>
-            <Col span={12}>
+            <Col span={16}>
               <Card title="Traded Goods" size="small">
                 <Table
-                  dataSource={market.tradeGoods}
+                  dataSource={market.tradeGoods.map((tradeGood) => ({
+                    ...tradeGood,
+                    action: (
+                      <TradeActionDisp
+                        tradeGood={tradeGood}
+                        marketSymbol={market.symbol}
+                      />
+                    ),
+                  }))}
                   columns={[
                     {
                       title: "Symbol",
@@ -109,6 +128,11 @@ function MarketDisp({ market }: { market: Market }) {
                       title: "Sell Price",
                       dataIndex: "sellPrice",
                       key: "sellPrice",
+                    },
+                    {
+                      title: "Action",
+                      dataIndex: "action",
+                      key: "action",
                     },
                   ]}
                   rowKey="symbol"
@@ -178,44 +202,41 @@ function MarketDisp({ market }: { market: Market }) {
   );
 }
 
-function TradeGoodDisp({
+function TradeActionDisp({
   tradeGood,
   marketSymbol,
-  canBuy = true,
 }: {
-  tradeGood: TradeGood;
+  tradeGood: MarketTradeGood;
   marketSymbol: string;
-  canBuy?: boolean;
 }) {
   const ships = useAppSelector(selectShips).filter(
     (value) => value.nav.waypointSymbol === marketSymbol,
   );
-  const [ship, setShip] = useState<Ship | null>(null);
+  const [shipName, setShipName] = useState<string>("");
+  const ship = useMemo(
+    () => ships.find((w) => w.symbol === shipName),
+    [shipName, ships],
+  );
   const [count, setCount] = useState(1);
   const dispatch = useAppDispatch();
 
   return (
     <Space>
-      <Tooltip
-        key={tradeGood.symbol}
-        title={`${tradeGood.symbol} - ${tradeGood.description}`}
-      >
-        {tradeGood.name}
-      </Tooltip>
-      {canBuy && (
+      {(tradeGood.type === "EXCHANGE" || tradeGood.type === "EXPORT") && (
         <>
           <Select
             style={{ width: 140 }}
-            onChange={(value) =>
-              setShip(ships.find((w) => w.symbol === value) ?? null)
-            }
-            value={ship?.symbol}
+            onChange={(value) => setShipName(value)}
+            value={shipName}
             options={ships.map((w) => ({ label: w.symbol, value: w.symbol }))}
           />
           <InputNumber
             min={1}
-            max={ship ? ship?.cargo.capacity - ship?.cargo.units : 0}
-            defaultValue={1}
+            max={Math.min(
+              ship ? ship?.cargo.capacity - ship?.cargo.units : 0,
+              tradeGood.tradeVolume,
+            )}
+            defaultValue={0}
             style={{ width: 60 }}
             onChange={(value) => setCount(value?.valueOf() ?? 1)}
             value={count}
@@ -243,7 +264,7 @@ function TradeGoodDisp({
               }
             }}
           >
-            Buy
+            Buy for {tradeGood.purchasePrice * count}$
           </Button>
         </>
       )}
