@@ -1,11 +1,11 @@
-import { Button, Flex } from "antd";
+import { Button, Flex, Select, Space } from "antd";
 import SurveyDisp from "../../features/disp/SurveyDisp";
+import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
   pruneSurveys,
   selectSurveys,
 } from "../../spaceTraderAPI/redux/surveySlice";
-import PageTitle from "../../features/PageTitle";
 
 function Surveys() {
   const surveys = useAppSelector(selectSurveys);
@@ -17,6 +17,30 @@ function Surveys() {
 
       <Flex justify="space-between">
         <h1>Surveys</h1>
+        <Space>
+          Sort by:
+          <Select
+            defaultValue="creation"
+            style={{ width: 120 }}
+            onChange={(value) => {}}
+            options={[
+              { value: "size", label: "Size" },
+              { value: "creation", label: "Creation" },
+              { value: "expiration", label: "Expiration" },
+              { value: "signature", label: "Signature" },
+              { value: "deposits", label: "Deposits" },
+            ]}
+          ></Select>
+          <Select
+            defaultValue="desc"
+            style={{ width: 120 }}
+            onChange={(value) => {}}
+            options={[
+              { value: "desc", label: "Descending" },
+              { value: "asc", label: "Ascending" },
+            ]}
+          ></Select>
+        </Space>
         <Button
           onClick={() => {
             dispatch(pruneSurveys(Date.now()));
