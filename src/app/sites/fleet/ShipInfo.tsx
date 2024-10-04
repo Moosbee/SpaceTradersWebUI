@@ -1,21 +1,22 @@
 import { useParams } from "react-router-dom";
 
 import { Button, Card, Col, Flex, Row, Spin } from "antd";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { pruneSurveys } from "../../spaceTraderAPI/redux/surveySlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
-import { selectShip, setShip } from "../../spaceTraderAPI/redux/fleetSlice";
-import ShipGeneralInfo from "../../features/Shipinfo/ShipGeneralInfo";
-import ShipNavInfo from "../../features/Shipinfo/ShipNavInfo";
-import ShipCargoInfo from "../../features/Shipinfo/ShipCargoInfo";
-import ShipFrameInfo from "../../features/Shipinfo/ShipFrameInfo";
-import ShipEngineInfo from "../../features/Shipinfo/ShipEngineInfo";
-import ShipReactorInfo from "../../features/Shipinfo/ShipReactorInfo";
-import ShipMountInfo from "../../features/Shipinfo/ShipMountInfo";
-import ShipModuleInfo from "../../features/Shipinfo/ShipModuleInfo";
-import { selectSelectedShipSymbol } from "../../spaceTraderAPI/redux/mapSlice";
 import PageTitle from "../../features/PageTitle";
+import ShipCargoInfo from "../../features/Shipinfo/ShipCargoInfo";
+import ShipControlCenter from "../../features/Shipinfo/ShipControlCenter";
+import ShipEngineInfo from "../../features/Shipinfo/ShipEngineInfo";
+import ShipFrameInfo from "../../features/Shipinfo/ShipFrameInfo";
+import ShipGeneralInfo from "../../features/Shipinfo/ShipGeneralInfo";
+import ShipModuleInfo from "../../features/Shipinfo/ShipModuleInfo";
+import ShipMountInfo from "../../features/Shipinfo/ShipMountInfo";
+import ShipNavInfo from "../../features/Shipinfo/ShipNavInfo";
+import ShipReactorInfo from "../../features/Shipinfo/ShipReactorInfo";
+import { selectShip, setShip } from "../../spaceTraderAPI/redux/fleetSlice";
+import { selectSelectedShipSymbol } from "../../spaceTraderAPI/redux/mapSlice";
 
 function ShipInfo() {
   const { shipID } = useParams();
@@ -67,6 +68,9 @@ function ShipInfo() {
               <Button>Scrap Ship</Button>
               <Button>Repair Ship</Button>
             </Flex>
+          </Col>
+          <Col span={24}>
+            <ShipControlCenter ship={ship} />
           </Col>
           <Col span={12} sm={24} md={12}>
             <ShipNavInfo ship={ship} />

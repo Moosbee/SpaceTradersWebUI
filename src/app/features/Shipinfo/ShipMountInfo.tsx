@@ -7,9 +7,9 @@ import {
   Space,
   Tooltip,
 } from "antd";
-import type { Ship, ShipMount, Survey } from "../../spaceTraderAPI/api";
-import { useAppDispatch, useAppSelector } from "../../hooks";
 import { useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import type { Ship, ShipMount, Survey } from "../../spaceTraderAPI/api";
 import {
   setShipCargo,
   setShipCooldown,

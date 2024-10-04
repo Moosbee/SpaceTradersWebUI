@@ -21,6 +21,7 @@ import {
 import {
   selectShips,
   setShipCargo,
+  setShipFuel,
 } from "../../spaceTraderAPI/redux/fleetSlice";
 import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
@@ -169,6 +170,28 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                         });
                       });
                     }}
+                    onRefuel={(count) => {
+                      console.log("Refuel", count);
+                      spaceTraderClient.FleetClient.refuelShip(ship.symbol, {
+                        units: count * 100,
+                        fromCargo: true,
+                      }).then((value) => {
+                        console.log("refuel value", value);
+                        setTimeout(() => {
+                          message.success(`Refueled`);
+                          dispatch(setMyAgent(value.data.data.agent));
+                          dispatch(
+                            setShipFuel({
+                              symbol: ship.symbol,
+                              fuel: value.data.data.fuel,
+                            }),
+                          );
+                          dispatch(
+                            addMarketTransaction(value.data.data.transaction),
+                          );
+                        });
+                      });
+                    }}
                   ></CargoActions>
                 );
               },
@@ -198,12 +221,14 @@ function CargoActions({
   onSell,
   onTransfer,
   onFulfill,
+  onRefuel,
 }: {
   item: ShipCargoItem;
   onJettison: (count: number, item: string) => void;
   onSell: (count: number, item: string) => void;
   onTransfer: (count: number, item: string, shipSymbol: string) => void;
   onFulfill: (count: number, item: string, contractID: string) => void;
+  onRefuel: (count: number) => void;
 }) {
   const [count, setCount] = useState(1);
   const agentSymbol = useAppSelector(selectAgentSymbol);
@@ -264,6 +289,9 @@ function CargoActions({
       >
         <Button>Fulfill Contr.</Button>
       </Dropdown>
+      {item.symbol === "FUEL" && (
+        <Button onClick={() => onRefuel(count)}>Refuel</Button>
+      )}
     </Space>
   );
 }
