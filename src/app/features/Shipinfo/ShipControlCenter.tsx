@@ -361,67 +361,34 @@ function ShipControlCenter({
               value.symbol === "MOUNT_MINING_LASER_II" ||
               value.symbol === "MOUNT_MINING_LASER_III",
           ) && (
-            <>
-              <ExtractSurvey
-                waypoint={ship.nav.waypointSymbol}
-                onExtraction={(survey) => {
-                  return new Promise((resolve) => {
-                    spaceTraderClient.FleetClient.extractResourcesWithSurvey(
-                      ship.symbol,
-                      survey,
-                    ).then((value) => {
-                      console.log("value", value);
-                      setTimeout(() => {
-                        message.success(
-                          `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
-                        );
-                        dispatch(
-                          setShipCargo({
-                            symbol: ship.symbol,
-                            cargo: value.data.data.cargo,
-                          }),
-                        );
-                        dispatch(
-                          setShipCooldown({
-                            symbol: ship.symbol,
-                            cooldown: value.data.data.cooldown,
-                          }),
-                        );
-                        resolve(value.data.data.cooldown.remainingSeconds);
-                      });
-                    });
+            <Button
+              onClick={() => {
+                spaceTraderClient.FleetClient.extractResources(
+                  ship.symbol,
+                ).then((value) => {
+                  console.log("value", value);
+                  setTimeout(() => {
+                    message.success(
+                      `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                    );
+                    dispatch(
+                      setShipCargo({
+                        symbol: ship.symbol,
+                        cargo: value.data.data.cargo,
+                      }),
+                    );
+                    dispatch(
+                      setShipCooldown({
+                        symbol: ship.symbol,
+                        cooldown: value.data.data.cooldown,
+                      }),
+                    );
                   });
-                }}
-              ></ExtractSurvey>
-              <Button
-                onClick={() => {
-                  spaceTraderClient.FleetClient.extractResources(
-                    ship.symbol,
-                  ).then((value) => {
-                    console.log("value", value);
-                    setTimeout(() => {
-                      message.success(
-                        `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
-                      );
-                      dispatch(
-                        setShipCargo({
-                          symbol: ship.symbol,
-                          cargo: value.data.data.cargo,
-                        }),
-                      );
-                      dispatch(
-                        setShipCooldown({
-                          symbol: ship.symbol,
-                          cooldown: value.data.data.cooldown,
-                        }),
-                      );
-                    });
-                  });
-                }}
-              >
-                Extract Resources
-              </Button>
-            </>
+                });
+              }}
+            >
+              Extract Resources
+            </Button>
           )}
           {ship.mounts.some(
             (value) =>
@@ -457,6 +424,50 @@ function ShipControlCenter({
             >
               Siphon Resources
             </Button>
+          )}
+        </Space>
+        <Space size="large">
+          {ship.mounts.some(
+            (value) =>
+              value.symbol === "MOUNT_MINING_LASER_I" ||
+              value.symbol === "MOUNT_MINING_LASER_II" ||
+              value.symbol === "MOUNT_MINING_LASER_III",
+          ) && (
+            <>
+              <span>Mining</span>
+
+              <ExtractSurvey
+                waypoint={ship.nav.waypointSymbol}
+                onExtraction={(survey) => {
+                  return new Promise((resolve) => {
+                    spaceTraderClient.FleetClient.extractResourcesWithSurvey(
+                      ship.symbol,
+                      survey,
+                    ).then((value) => {
+                      console.log("value", value);
+                      setTimeout(() => {
+                        message.success(
+                          `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                        );
+                        dispatch(
+                          setShipCargo({
+                            symbol: ship.symbol,
+                            cargo: value.data.data.cargo,
+                          }),
+                        );
+                        dispatch(
+                          setShipCooldown({
+                            symbol: ship.symbol,
+                            cooldown: value.data.data.cooldown,
+                          }),
+                        );
+                        resolve(value.data.data.cooldown.remainingSeconds);
+                      });
+                    });
+                  });
+                }}
+              ></ExtractSurvey>
+            </>
           )}
         </Space>
       </Flex>
