@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import type {
   System,
   SystemType,
@@ -6,16 +7,15 @@ import type {
   Waypoint,
   WaypointType,
 } from "../../spaceTraderAPI/api";
-import classes from "./WaypointMapWaypoint.module.css";
+import {
+  selectSelectedSystemSymbol,
+  selectSelectedWaypointSymbol,
+  setSelectedSystemSymbol,
+  setSelectedWaypointSymbol,
+} from "../../spaceTraderAPI/redux/mapSlice";
 import FaIcon from "../FontAwsome/FaIcon";
 import NounIcon from "../FontAwsome/NounIcon";
-import { useAppDispatch, useAppSelector } from "../../hooks";
-import {
-  selectSelectedWaypointSymbol,
-  selectSelectedSystemSymbol,
-  setSelectedWaypointSymbol,
-  setSelectedSystemSymbol,
-} from "../../spaceTraderAPI/redux/mapSlice";
+import classes from "./WaypointMapWaypoint.module.css";
 
 //TODO change color to antd color and dark/light mode
 

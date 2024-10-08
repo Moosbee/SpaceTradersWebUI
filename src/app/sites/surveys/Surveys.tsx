@@ -1,4 +1,5 @@
 import { Button, Flex, Select, Space } from "antd";
+import { useMemo, useState } from "react";
 import SurveyDisp from "../../features/disp/SurveyDisp";
 import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
@@ -6,7 +7,6 @@ import {
   pruneSurveys,
   selectSurveys,
 } from "../../spaceTraderAPI/redux/surveySlice";
-import { useMemo, useState } from "react";
 
 type sortByType = "creation" | "expiration" | "size" | "signature" | "waypoint";
 type orderType = "asc" | "desc";
@@ -49,7 +49,7 @@ function Surveys() {
       <PageTitle title={`Surveys`} />
 
       <Flex justify="space-between">
-        <h1>Surveys</h1>
+        <h1>Surveys {surveys.length}</h1>
         <Space>
           Sort by:
           <Select
@@ -89,7 +89,7 @@ function Surveys() {
         </Button>
       </Flex>
       {surveys.length === 0 ? <p>No surveys</p> : null}
-      <Flex wrap={true} style={{ gap: "20px" }}>
+      <Flex wrap style={{ gap: "20px" }}>
         {surveys.map((survey) => (
           <SurveyDisp key={survey.signature} survey={survey} />
         ))}

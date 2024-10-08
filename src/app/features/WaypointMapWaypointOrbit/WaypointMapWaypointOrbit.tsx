@@ -6,11 +6,13 @@ function WaypointMapWaypointOrbit({
   yOnePos,
   xOneOrbitCenter,
   yOneOrbitCenter,
+  size,
 }: {
   xOnePos: number;
   yOnePos: number;
   xOneOrbitCenter: number;
   yOneOrbitCenter: number;
+  size: number;
 }) {
   // const radius = Math.sqrt(
   //   Math.pow(xOne - xOneOrbitCenter, 2) + Math.pow(yOne - yOneOrbitCenter, 2),
@@ -22,6 +24,11 @@ function WaypointMapWaypointOrbit({
 
   return (
     <circle
+      style={
+        {
+          "--stroke-width": `${Math.min(0.2, 200 / size)}px`,
+        } as React.CSSProperties
+      }
       cx={xOneOrbitCenter}
       cy={yOneOrbitCenter}
       r={radius}

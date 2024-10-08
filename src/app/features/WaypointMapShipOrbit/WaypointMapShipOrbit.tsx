@@ -4,6 +4,7 @@ function WaypointMapShipOrbit({
   pos,
   posOrbitCenter,
   line,
+  size,
 }: {
   pos: {
     x: number;
@@ -19,19 +20,25 @@ function WaypointMapShipOrbit({
     x2: number;
     y2: number;
   };
+  size: number;
 }) {
   return (
     <>
       {posOrbitCenter && (
-        <WaypointMapShipOrbitCircle pos={pos} posOrbitCenter={posOrbitCenter} />
+        <WaypointMapShipOrbitCircle
+          pos={pos}
+          posOrbitCenter={posOrbitCenter}
+          size={size}
+        />
       )}
-      {line && <WaypointMapShipOrbitLine line={line} />}
+      {line && <WaypointMapShipOrbitLine line={line} size={size} />}
     </>
   );
 }
 
 function WaypointMapShipOrbitLine({
   line,
+  size,
 }: {
   line: {
     x1: number;
@@ -39,9 +46,15 @@ function WaypointMapShipOrbitLine({
     x2: number;
     y2: number;
   };
+  size: number;
 }) {
   return (
     <line
+      style={
+        {
+          "--stroke-width": `${Math.min(0.2, 200 / size)}px`,
+        } as React.CSSProperties
+      }
       x1={line.x1}
       y1={line.y1}
       x2={line.x2}
@@ -54,6 +67,7 @@ function WaypointMapShipOrbitLine({
 function WaypointMapShipOrbitCircle({
   pos,
   posOrbitCenter,
+  size,
 }: {
   pos: {
     x: number;
@@ -63,6 +77,7 @@ function WaypointMapShipOrbitCircle({
     x: number;
     y: number;
   };
+  size: number;
 }) {
   const dx = pos.x - posOrbitCenter.x;
   const dy = pos.y - posOrbitCenter.y;
@@ -70,6 +85,11 @@ function WaypointMapShipOrbitCircle({
 
   return (
     <circle
+      style={
+        {
+          "--stroke-width": `${Math.min(0.2, 200 / size)}px`,
+        } as React.CSSProperties
+      }
       cx={posOrbitCenter.x}
       cy={posOrbitCenter.y}
       r={radius}

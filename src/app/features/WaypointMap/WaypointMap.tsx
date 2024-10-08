@@ -1,5 +1,5 @@
 import { theme } from "antd";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useAppSelector } from "../../hooks";
 import type { Ship } from "../../spaceTraderAPI/api";
 import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
@@ -238,9 +238,29 @@ function WaypointMap({ systemID }: { systemID: string }) {
     return () => clearInterval(intervalId);
   }, [directions, ships, systemID, waypointsMp]);
 
+  const [size, setSize] = useState(16);
+  const textboxRef = useRef<SVGSVGElement>(null);
+
+  function outputsize() {
+    if (!textboxRef.current) return;
+
+    setSize(textboxRef.current.clientWidth);
+  }
+
+  useEffect(() => {
+    if (!textboxRef.current) return;
+    const observe = new ResizeObserver(outputsize);
+    observe.observe(textboxRef.current);
+
+    return () => {
+      observe.disconnect();
+    };
+  }, []);
+
   return (
     <>
       <svg
+        ref={textboxRef}
         className={classes.waypointMapOrbits}
         viewBox="0 0 100 100"
         xmlns="http://www.w3.org/2000/svg"
@@ -253,11 +273,13 @@ function WaypointMap({ systemID }: { systemID: string }) {
             yOnePos={w.yOne}
             xOneOrbitCenter={w.xOneOrbitCenter}
             yOneOrbitCenter={w.yOneOrbitCenter}
+            size={size}
           />
         ))}
 
         {shipsMp.map((s) => (
           <WaypointMapShipOrbit
+            size={size}
             key={s.ship.symbol + "shipOrbit"}
             pos={{
               x: s.xOne,

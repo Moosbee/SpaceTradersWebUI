@@ -71,7 +71,7 @@ function ShipControlCenter({
 
   return (
     <Card
-      title={`${ship.symbol} Control Center ${ship.fuel.current}/${ship.fuel.capacity}`}
+      title={`${ship.symbol} ${ship.fuel.current}/${ship.fuel.capacity}`}
       extra={
         <Space>
           {ship.cooldown.totalSeconds !== ship.cooldown.remainingSeconds &&
