@@ -62,7 +62,6 @@ function ShipInfo() {
               <Button>Scan Systems</Button>
               <Button>Scan Waypoints</Button>
               <Button>Scan Ships</Button>
-              <Button>Purchase Cargo</Button>
               <Button>Install Mount</Button>
               <Button>Remove Mount</Button>
               <Button>Scrap Ship</Button>

@@ -16,6 +16,7 @@ import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
 import {
+  setShip,
   setShipCargo,
   setShipCooldown,
   setShipFuel,
@@ -70,7 +71,7 @@ function ShipControlCenter({
 
   return (
     <Card
-      title={`${ship.symbol} Ship Actions`}
+      title={`${ship.symbol} Control Center ${ship.fuel.current}/${ship.fuel.capacity}`}
       extra={
         <Space>
           {ship.cooldown.totalSeconds !== ship.cooldown.remainingSeconds &&
@@ -86,6 +87,17 @@ function ShipControlCenter({
               value={new Date(ship.nav.route.arrival).getTime()}
             />
           )}
+          <Button
+            onClick={() => {
+              spaceTraderClient.FleetClient.getMyShip(ship.symbol).then(
+                (response) => {
+                  dispatch(setShip(response.data.data));
+                },
+              );
+            }}
+          >
+            Refresh
+          </Button>
         </Space>
       }
       style={{ width: "fit-content" }}
@@ -93,10 +105,12 @@ function ShipControlCenter({
       <Flex justify="space-between" align="middle" vertical gap={8}>
         <Space size="large">
           <span>General</span>
-          <Button
-            onClick={() => {
-              spaceTraderClient.FleetClient.negotiateContract(ship.symbol).then(
-                (value) => {
+          {ship.nav.status === "DOCKED" && (
+            <Button
+              onClick={() => {
+                spaceTraderClient.FleetClient.negotiateContract(
+                  ship.symbol,
+                ).then((value) => {
                   console.log("Contract Negotiation", value.data.data);
                   if (!agent) return;
                   dispatch(
@@ -108,12 +122,12 @@ function ShipControlCenter({
                   message.success(
                     `Contract Negotiated ${value.data.data.contract.id}`,
                   );
-                },
-              );
-            }}
-          >
-            Negotiate Contract
-          </Button>
+                });
+              }}
+            >
+              Negotiate Contract
+            </Button>
+          )}
           <Button
             onClick={() => {
               spaceTraderClient.FleetClient.createChart(ship.symbol).then(
