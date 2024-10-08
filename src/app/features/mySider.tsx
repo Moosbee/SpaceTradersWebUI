@@ -107,6 +107,11 @@ const items: MenuItem[] = [
       {
         label: <Link to="/automation/editor">Automation Editor</Link>,
         key: "automation/editor",
+        icon: <FaIcon type="solid" icon="fa-user-robot" />,
+      },
+      {
+        label: <Link to="/automation">Automations</Link>,
+        key: "automations",
         icon: <FaIcon type="solid" icon="fa-robot" />,
       },
     ],

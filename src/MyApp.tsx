@@ -6,6 +6,7 @@ import MySider from "./app/features/mySider";
 import { useAppSelector } from "./app/hooks";
 import ErrorPage from "./app/sites/ErrorPage";
 import Agents from "./app/sites/agents/Agents";
+import Automations from "./app/sites/automation/Automations";
 import PageAutomationEditor from "./app/sites/automation/Editor";
 import Caching from "./app/sites/caching/caching";
 import Contracts from "./app/sites/contracts/Contracts";
@@ -23,6 +24,7 @@ import WaypointInfo from "./app/sites/systems/WaypointInfo";
 import MarketTransaction from "./app/sites/tramsactions/MarketTransaction";
 import { selectDarkMode } from "./app/spaceTraderAPI/redux/configSlice";
 import Message from "./app/utils/message";
+import WorkerLoader from "./app/workers/WorkerLoader";
 const { Header, Content, Sider } = Layout;
 
 export { Header as AntHeaderHeader, Sider as AntSiderSider };
@@ -37,6 +39,8 @@ function MyApp() {
   return (
     <>
       <Message />
+      <WorkerLoader />
+
       <ConfigProvider
         theme={{
           algorithm: isDarkMode ? darkAlgorithm : defaultAlgorithm,
@@ -99,6 +103,7 @@ function MyApp() {
                     <Route path="/systems" element={<Systems></Systems>} />
                     <Route path="/cache" element={<Caching></Caching>} />
                     <Route path="/surveys" element={<Surveys />} />
+                    <Route path="/automation" element={<Automations />} />
                     <Route
                       path="/automation/editor"
                       element={<PageAutomationEditor />}
