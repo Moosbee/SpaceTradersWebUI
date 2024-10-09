@@ -59,7 +59,7 @@ function ShipControlCenter({
   );
 
   const travelData = useMemo(() => {
-    if (!toGoWaypoint) {
+    if (navWaypoint === "") {
       return undefined;
     }
 
@@ -67,9 +67,7 @@ function ShipControlCenter({
     const start = wp.find(
       (x) => x.waypoint.symbol === ship.nav.waypointSymbol,
     )?.waypoint;
-    const end = wp.find(
-      (x) => x.waypoint.symbol === toGoWaypoint.waypointSymbol,
-    )?.waypoint;
+    const end = wp.find((x) => x.waypoint.symbol === navWaypoint)?.waypoint;
 
     if (!start || !end) {
       return undefined;
@@ -82,10 +80,10 @@ function ShipControlCenter({
       end,
     );
   }, [
+    navWaypoint,
     ship.engine.speed,
     ship.nav.flightMode,
     ship.nav.waypointSymbol,
-    toGoWaypoint,
     waypoints,
   ]);
 
@@ -243,7 +241,8 @@ function ShipControlCenter({
               <Tooltip
                 title={`Will take ${Math.floor((travelData?.travelTime ?? 1) / 60 / 60)}:${Math.floor((travelData?.travelTime ?? 1) / 60) % 60}:${(travelData?.travelTime ?? 1) % 60} and ${travelData?.fuelCost} fuel`}
                 color={
-                  (travelData?.fuelCost ?? 0) > ship.fuel.current
+                  (travelData?.fuelCost ?? 0) > ship.fuel.current &&
+                  ship.fuel.capacity !== 0
                     ? "red"
                     : undefined
                 }
@@ -275,7 +274,8 @@ function ShipControlCenter({
                   }}
                   disabled={
                     !navWaypoint ||
-                    (travelData?.fuelCost ?? 0) > ship.fuel.current
+                    ((travelData?.fuelCost ?? 0) > ship.fuel.current &&
+                      ship.fuel.capacity !== 0)
                   }
                 >
                   Navigate Ship to {navWaypoint}
@@ -362,7 +362,7 @@ function ShipControlCenter({
             </Button>
           )}
           <Select
-            defaultValue={ship.nav.flightMode}
+            value={ship.nav.flightMode}
             style={{ width: 120 }}
             onChange={(value) => {
               spaceTraderClient.FleetClient.patchShipNav(ship.symbol, {

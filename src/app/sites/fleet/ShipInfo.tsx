@@ -31,7 +31,7 @@ function ShipInfo() {
 
   return (
     <div>
-      <PageTitle title={`Ship ${ship.symbol}`} />
+      <PageTitle title={`${ship.symbol} Info`} />
       <Card
         style={{ width: "fit-content" }}
         title={`Ship ${ship.symbol}`}
