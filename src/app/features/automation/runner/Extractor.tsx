@@ -9,6 +9,7 @@ import {
 } from "../../../spaceTraderAPI/redux/fleetSlice";
 import { selectSurveys } from "../../../spaceTraderAPI/redux/surveySlice";
 import spaceTraderClient from "../../../spaceTraderAPI/spaceTraderClient";
+import type { EventWorkerChannelData } from "../../../workers/eventWorker";
 
 function Extractor() {
   const ships = useAppSelector(selectShips);
@@ -55,11 +56,14 @@ function Extractor() {
   useEffect(() => {
     const bcc = new BroadcastChannel("EventWorkerChannel");
     console.log("bcc", bcc);
-    bcc.addEventListener("message", (event) => {
-      console.log("event", event);
-      if (!running) return;
-      action();
-    });
+    bcc.addEventListener(
+      "message",
+      (event: MessageEvent<EventWorkerChannelData>) => {
+        console.log("event", event);
+        if (!running || event.data.type !== "cooldown") return;
+        action();
+      },
+    );
 
     return () => {
       bcc.close();

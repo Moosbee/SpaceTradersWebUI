@@ -9,7 +9,7 @@ import {
   Tooltip,
   message,
 } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Ship } from "../../spaceTraderAPI/api";
 import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
@@ -28,8 +28,12 @@ import {
 } from "../../spaceTraderAPI/redux/surveySlice";
 import { selectSystem } from "../../spaceTraderAPI/redux/systemSlice";
 import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
-import { putWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
+import {
+  putWaypoints,
+  selectSystemWaypoints,
+} from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import { getInterSystemTravelStats } from "../../utils/tavelUtils";
 import { ExtractSurvey } from "./ShipMountInfo";
 
 function ShipControlCenter({
@@ -49,6 +53,41 @@ function ShipControlCenter({
   const [navWaypoint, setNavWaypoint] = useState<string>(
     toGoWaypoint?.waypointSymbol ?? "",
   );
+
+  const waypoints = useAppSelector((state) =>
+    selectSystemWaypoints(state, ship.nav.systemSymbol),
+  );
+
+  const travelData = useMemo(() => {
+    if (!toGoWaypoint) {
+      return undefined;
+    }
+
+    const wp = Object.values(waypoints);
+    const start = wp.find(
+      (x) => x.waypoint.symbol === ship.nav.waypointSymbol,
+    )?.waypoint;
+    const end = wp.find(
+      (x) => x.waypoint.symbol === toGoWaypoint.waypointSymbol,
+    )?.waypoint;
+
+    if (!start || !end) {
+      return undefined;
+    }
+
+    return getInterSystemTravelStats(
+      ship.engine.speed,
+      ship.nav.flightMode,
+      start,
+      end,
+    );
+  }, [
+    ship.engine.speed,
+    ship.nav.flightMode,
+    ship.nav.waypointSymbol,
+    toGoWaypoint,
+    waypoints,
+  ]);
 
   useEffect(() => {
     if (!toGoWaypoint || selected) {
@@ -201,34 +240,47 @@ function ShipControlCenter({
                   });
                 }}
               />
-              <Button
-                onClick={() => {
-                  console.log("Navigate Ship to", navWaypoint);
-                  if (!navWaypoint) return;
-                  spaceTraderClient.FleetClient.navigateShip(ship.symbol, {
-                    waypointSymbol: navWaypoint,
-                  }).then((value) => {
-                    console.log("value", value);
-                    setSelected(false);
-                    setTimeout(() => {
-                      dispatch(
-                        setShipNav({
-                          symbol: ship.symbol,
-                          nav: value.data.data.nav,
-                        }),
-                      );
-                      dispatch(
-                        setShipFuel({
-                          symbol: ship.symbol,
-                          fuel: value.data.data.fuel,
-                        }),
-                      );
-                    });
-                  });
-                }}
+              <Tooltip
+                title={`Will take ${Math.floor((travelData?.travelTime ?? 1) / 60 / 60)}:${Math.floor((travelData?.travelTime ?? 1) / 60) % 60}:${(travelData?.travelTime ?? 1) % 60} and ${travelData?.fuelCost} fuel`}
+                color={
+                  (travelData?.fuelCost ?? 0) > ship.fuel.current
+                    ? "red"
+                    : undefined
+                }
               >
-                Navigate Ship to {navWaypoint}
-              </Button>
+                <Button
+                  onClick={() => {
+                    console.log("Navigate Ship to", navWaypoint);
+                    if (!navWaypoint) return;
+                    spaceTraderClient.FleetClient.navigateShip(ship.symbol, {
+                      waypointSymbol: navWaypoint,
+                    }).then((value) => {
+                      console.log("value", value);
+                      setSelected(false);
+                      setTimeout(() => {
+                        dispatch(
+                          setShipNav({
+                            symbol: ship.symbol,
+                            nav: value.data.data.nav,
+                          }),
+                        );
+                        dispatch(
+                          setShipFuel({
+                            symbol: ship.symbol,
+                            fuel: value.data.data.fuel,
+                          }),
+                        );
+                      });
+                    });
+                  }}
+                  disabled={
+                    !navWaypoint ||
+                    (travelData?.fuelCost ?? 0) > ship.fuel.current
+                  }
+                >
+                  Navigate Ship to {navWaypoint}
+                </Button>
+              </Tooltip>
             </Space>
           )}
           {wayPoint?.type === "JUMP_GATE" && ship.nav.status === "IN_ORBIT" && (

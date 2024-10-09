@@ -12,6 +12,7 @@ import {
 import spaceTraderClient from "../../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../../store";
 import { message } from "../../../utils/antdMessage";
+import type { EventWorkerChannelData } from "../../../workers/eventWorker";
 
 function Surveyor() {
   const ships = useAppSelector(selectShips);
@@ -45,11 +46,14 @@ function Surveyor() {
   useEffect(() => {
     const bcc = new BroadcastChannel("EventWorkerChannel");
     console.log("bcc", bcc);
-    bcc.addEventListener("message", (event) => {
-      console.log("event", event);
-      if (!running) return;
-      action();
-    });
+    bcc.addEventListener(
+      "message",
+      (event: MessageEvent<EventWorkerChannelData>) => {
+        console.log("event", event);
+        if (!running || event.data.type !== "cooldown") return;
+        action();
+      },
+    );
 
     return () => {
       bcc.close();
@@ -69,7 +73,7 @@ function Surveyor() {
         <Button
           onClick={() => {
             setRunning(!running);
-            if (running) {
+            if (!running) {
               action();
             }
           }}
