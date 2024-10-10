@@ -20,6 +20,8 @@ const initialState: waypointSliceState = {
   systems: {},
 };
 
+const empty = {};
+
 // If you are not using async thunks you can use the standalone `createSlice`.
 export const waypointSlice = createAppSlice({
   name: "waypoints",
@@ -180,7 +182,7 @@ export const waypointSlice = createAppSlice({
     selectSystemWaypoints: (
       systems,
       symbol: string,
-    ): { [key: string]: WaypointState } => systems.systems[symbol] || {},
+    ): { [key: string]: WaypointState } => systems.systems[symbol] || empty,
   },
 });
 

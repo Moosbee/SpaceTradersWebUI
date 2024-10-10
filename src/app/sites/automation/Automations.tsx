@@ -1,5 +1,6 @@
 import { Flex } from "antd";
 import Extractor from "../../features/automation/runner/Extractor";
+import Navigator from "../../features/automation/runner/Navigator";
 import Surveyor from "../../features/automation/runner/Surveyor";
 import PageTitle from "../../features/PageTitle";
 
@@ -12,6 +13,7 @@ function Automations() {
       <Flex wrap style={{ gap: "20px" }}>
         <Surveyor />
         <Extractor />
+        <Navigator />
       </Flex>
     </div>
   );

@@ -1,4 +1,5 @@
-import type { ShipNavFlightMode, Waypoint } from "../spaceTraderAPI/api";
+import type { Ship, ShipNavFlightMode, Waypoint } from "../spaceTraderAPI/api";
+import type { WaypointState } from "../spaceTraderAPI/redux/waypointSlice";
 import PriorityQueue from "./PriorityQueue";
 
 function getInterSystemTravelStats(
@@ -52,32 +53,121 @@ function distanceBetweenWaypoints(
   );
 }
 
-interface Route {
+export interface Route {
   origin: string;
   destination: string;
+  totalDistance: number;
   distance: number;
-  // fuelCost: number;
-  // travelTime: number;
+  fuelCost?: number;
+  travelTime?: number;
   flightMode: ShipNavFlightMode;
+  cost: number;
+}
+
+export const navModes = {
+  BURN: "BURN",
+  CRUISE: "CRUISE",
+  DRIFT: "DRIFT",
+  "BURN-AND-CRUISE": "BURN-AND-CRUISE",
+  "CRUISE-AND-DRIFT": "CRUISE-AND-DRIFT",
+  "BURN-AND-DRIFT": "BURN-AND-DRIFT",
+  "BURN-AND-CRUISE-AND-DRIFT": "BURN-AND-CRUISE-AND-DRIFT",
+} as const;
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export type navModes = (typeof navModes)[keyof typeof navModes];
+
+/**
+ * Find the shortest path between two waypoints, given a set of waypoints and
+ * a ship's properties.
+ *
+ * @param startSymbol The symbol of the starting waypoint.
+ * @param endSymbol The symbol of the ending waypoint.
+ * @param waypoints A map of waypoints, keyed by symbol.
+ * @param flightMode The desired flight mode for travel.
+ * @param ship The ship to use for travel.
+ * @param maxFuelInCargo The maximum amount of fuel that can be stored in the
+ *   ship's cargo.
+ * @returns An array of routes, in order, from the starting waypoint to the
+ *   ending waypoint. Each route contains the origin, destination, distance,
+ *   fuelCost, travelTime, and flightMode.
+ */
+function wpShortestPath(
+  startSymbol: string,
+  endSymbol: string,
+  waypoints: Record<string, WaypointState>,
+  flightMode: navModes,
+  ship: Ship,
+  maxFuelInCargo: number,
+) {
+  const routes = routeChanger(
+    wpDijkstra(
+      startSymbol,
+      Object.values(waypoints).map((w) => w.waypoint),
+      {
+        maxFuel: ship.fuel.capacity,
+        maxFuelInCargo: maxFuelInCargo,
+        flightMode: flightMode,
+      },
+    ),
+  );
+
+  let nextRoute = endSymbol;
+
+  const finalRoutes: Route[] = [];
+
+  while (nextRoute !== startSymbol) {
+    const route: Route | undefined = routes[nextRoute];
+
+    if (!route) {
+      throw new Error(`No route found from ${startSymbol} to ${endSymbol}`);
+    }
+
+    const { fuelCost, travelTime, distance } = getInterSystemTravelStats(
+      ship.engine.speed,
+      route.flightMode,
+      {
+        x: waypoints[route.origin].waypoint.x,
+        y: waypoints[route.origin].waypoint.y,
+      },
+      {
+        x: waypoints[route.destination].waypoint.x,
+        y: waypoints[route.destination].waypoint.y,
+      },
+    );
+    if (route.distance !== distance) {
+      console.log("route.distance!==distance", route, route.distance, distance);
+    }
+    finalRoutes.push({
+      ...route,
+      fuelCost,
+      travelTime,
+    });
+    nextRoute = route.origin;
+  }
+
+  return finalRoutes.toReversed();
+}
+
+function routeChanger(routes: Route[]): Record<string, Route> {
+  return routes.reduce((obj, item) => {
+    return {
+      ...obj,
+      [item.destination]: item,
+    };
+  }, {});
 }
 
 function wpDijkstra(
   startSymbol: string,
-  wps: Waypoint[],
+  waypoints: Waypoint[],
   config: {
     maxFuel: number;
-    fuelInCargo: number;
-    flightMode:
-      | "BURN"
-      | "CRUISE"
-      | "DRIFT"
-      | "BURN-AND-CRUISE"
-      | "CRUISE-AND-DRIFT"
-      | "BURN-AND-DRIFT"
-      | "BURN-AND-CRUISE-AND-DRIFT";
+    maxFuelInCargo: number;
+    flightMode: navModes;
   },
 ): Route[] {
-  let notTraversedWaypoints: Record<string, Waypoint> = wps.reduce(
+  const unvisitedWaypoints: Record<string, Waypoint> = waypoints.reduce(
     (obj, item) => {
       return {
         ...obj,
@@ -86,149 +176,85 @@ function wpDijkstra(
     },
     {},
   );
-  const toTraverse: PriorityQueue<{
-    wp: Waypoint;
-    distance: number;
-    beforeSymbol: string;
-    flightMode: ShipNavFlightMode;
-    cost: number;
-  }> = new PriorityQueue((a, b) => {
+  const toVisit = new PriorityQueue<Route>((a, b) => {
     return a.cost < b.cost;
   });
-  const traversed: Route[] = [];
+  const visited: Route[] = [];
 
-  const firstWp = notTraversedWaypoints[startSymbol];
-  delete notTraversedWaypoints[startSymbol];
-
-  toTraverse.push({
-    wp: firstWp,
+  toVisit.push({
+    destination: startSymbol,
+    totalDistance: 0,
     distance: 0,
-    beforeSymbol: "",
+    origin: "",
     flightMode: "DRIFT",
     cost: 0,
   });
 
-  while (!toTraverse.isEmpty()) {
-    const source = toTraverse.pop()!;
-    traversed.push({
-      origin: source.wp.symbol,
-      distance: source.distance,
-      destination: source.beforeSymbol,
-      flightMode: source.flightMode,
-    });
+  const availableModes = {
+    BURN: { radius: config.maxFuel / 2, costMultiplier: 0.5 },
+    CRUISE: { radius: config.maxFuel, costMultiplier: 1 },
+    DRIFT: { radius: Infinity, costMultiplier: 10 },
+  };
 
-    toTraverse.removeAll(
-      (w) =>
-        !(
-          (w.wp.symbol === source.wp.symbol)
-          // w.beforeSymbol === source.beforeSymbol
-        ),
-    );
+  type avModes = keyof typeof availableModes;
 
-    const { wp, distance, cost } = source;
-    delete notTraversedWaypoints[wp.symbol];
+  const currentModes: avModes[] = [
+    ...(config.flightMode.includes("BURN") ? ["BURN" as avModes] : []),
+    ...(config.flightMode.includes("CRUISE") ? ["CRUISE" as avModes] : []),
+    ...(config.flightMode.includes("DRIFT") ? ["DRIFT" as avModes] : []),
+  ];
 
-    if (
-      config.flightMode === "BURN" ||
-      config.flightMode === "BURN-AND-CRUISE" ||
-      config.flightMode === "BURN-AND-DRIFT" ||
-      config.flightMode === "BURN-AND-CRUISE-AND-DRIFT"
-    ) {
-      const nextWps = getWaypointsInRadius(
-        wp,
-        config.maxFuel / 2,
-        Object.values(notTraversedWaypoints),
-        true,
+  while (!toVisit.isEmpty()) {
+    const current = toVisit.peek()!;
+    visited.push(current);
+
+    toVisit.removeAll((w) => !(w.destination === current.destination));
+
+    const waypoint = unvisitedWaypoints[current.destination];
+    delete unvisitedWaypoints[current.destination];
+    if (!waypoint) continue;
+
+    for (const mode of currentModes) {
+      const nextWaypoints = getWaypointsWithinRadius(
+        waypoint,
+        availableModes[mode].radius,
+        Object.values(unvisitedWaypoints),
+        !(mode === "DRIFT"),
       );
-      toTraverse.push(
-        ...nextWps.map((w) => ({
-          wp: w.waypoint,
-          distance: distance + w.distance,
-          beforeSymbol: wp.symbol,
-          flightMode: "BURN" as ShipNavFlightMode,
-          cost: cost + w.distance / 2 + 1,
+      toVisit.push(
+        ...nextWaypoints.map((w) => ({
+          destination: w.waypoint.symbol,
+          totalDistance: current.totalDistance + w.distance,
+          distance: w.distance,
+          origin: waypoint.symbol,
+          flightMode: mode as ShipNavFlightMode,
+          cost:
+            current.cost + w.distance * availableModes[mode].costMultiplier + 1,
         })),
       );
-      // nextWps.forEach((w) => {
-      //   delete notTraversedWaypoints[w.waypoint.symbol];
-      // });
-    }
-
-    if (
-      config.flightMode === "CRUISE" ||
-      config.flightMode === "BURN-AND-CRUISE" ||
-      config.flightMode === "CRUISE-AND-DRIFT" ||
-      config.flightMode === "BURN-AND-CRUISE-AND-DRIFT"
-    ) {
-      const nextWps = getWaypointsInRadius(
-        wp,
-        config.maxFuel,
-        Object.values(notTraversedWaypoints),
-        true,
-      );
-      toTraverse.push(
-        ...nextWps.map((w) => ({
-          wp: w.waypoint,
-          distance: distance + w.distance,
-          beforeSymbol: wp.symbol,
-          flightMode: "CRUISE" as ShipNavFlightMode,
-          cost: cost + w.distance + 1,
-        })),
-      );
-      // nextWps.forEach((w) => {
-      //   delete notTraversedWaypoints[w.waypoint.symbol];
-      // });
-    }
-
-    if (
-      config.flightMode === "DRIFT" ||
-      config.flightMode === "BURN-AND-DRIFT" ||
-      config.flightMode === "CRUISE-AND-DRIFT" ||
-      config.flightMode === "BURN-AND-CRUISE-AND-DRIFT"
-    ) {
-      const nextWps = getWaypointsInRadius(
-        wp,
-        0,
-        Object.values(notTraversedWaypoints),
-        false,
-      );
-      toTraverse.push(
-        ...nextWps.map((w) => ({
-          wp: w.waypoint,
-          distance: distance + w.distance,
-          beforeSymbol: wp.symbol,
-          flightMode: "DRIFT" as ShipNavFlightMode,
-          cost: cost + w.distance * 10 + 1,
-        })),
-      );
-      // nextWps.forEach((w) => {
-      //   delete notTraversedWaypoints[w.waypoint.symbol];
-      // });
     }
   }
 
-  return traversed;
+  return visited;
 }
 
-function getWaypointsInRadius(
-  wp: Waypoint,
+function getWaypointsWithinRadius(
+  sourceWaypoint: Waypoint,
   radius: number,
-  wps: Waypoint[],
-  onlyMarkets = false,
-) {
-  return wps
-    .map((w) => {
-      return {
-        distance: distanceBetweenWaypoints(wp, w),
-        waypoint: w,
-      };
-    })
-    .filter((w) => {
-      return (
-        (wp.traits.some((t) => t.symbol === "MARKETPLACE") || !onlyMarkets) &&
-        (w.distance < radius || radius === 0)
-      );
-    });
+  waypoints: Waypoint[],
+  onlyMarketWaypoints = false,
+): { distance: number; waypoint: Waypoint }[] {
+  return waypoints
+    .map((waypoint) => ({
+      distance: distanceBetweenWaypoints(sourceWaypoint, waypoint),
+      waypoint,
+    }))
+    .filter(
+      (wp) =>
+        (sourceWaypoint.traits.some((t) => t.symbol === "MARKETPLACE") ||
+          !onlyMarketWaypoints) &&
+        wp.distance <= radius,
+    );
 }
 
-export { getInterSystemTravelStats, wpDijkstra };
+export { getInterSystemTravelStats, wpDijkstra, wpShortestPath };

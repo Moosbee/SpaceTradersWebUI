@@ -239,7 +239,14 @@ function ShipControlCenter({
                 }}
               />
               <Tooltip
-                title={`Will take ${Math.floor((travelData?.travelTime ?? 1) / 60 / 60)}:${Math.floor((travelData?.travelTime ?? 1) / 60) % 60}:${(travelData?.travelTime ?? 1) % 60} and ${travelData?.fuelCost} fuel`}
+                title={`Will take ${Math.floor(
+                  (travelData?.travelTime ?? 1) / 60 / 60,
+                )
+                  .toString()
+                  .padStart(
+                    2,
+                    "0",
+                  )}:${(Math.floor((travelData?.travelTime ?? 1) / 60) % 60).toString().padStart(2, "0")}:${((travelData?.travelTime ?? 1) % 60).toString().padStart(2, "0")} and ${travelData?.fuelCost} fuel`}
                 color={
                   (travelData?.fuelCost ?? 0) > ship.fuel.current &&
                   ship.fuel.capacity !== 0

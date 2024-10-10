@@ -263,7 +263,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
       waypointsMp.map((wp) => wp.waypoint.waypoint),
       {
         flightMode: "BURN-AND-CRUISE-AND-DRIFT",
-        fuelInCargo: 0,
+        maxFuelInCargo: 0,
         maxFuel: ship?.fuel.capacity ?? 300,
       },
     );
