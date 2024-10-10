@@ -262,7 +262,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
       selectedWaypoint.waypointSymbol,
       waypointsMp.map((wp) => wp.waypoint.waypoint),
       {
-        flightMode: "BURN-AND-CRUISE",
+        flightMode: "BURN-AND-CRUISE-AND-DRIFT",
         fuelInCargo: 0,
         maxFuel: ship?.fuel.capacity ?? 300,
       },

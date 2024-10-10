@@ -20,7 +20,8 @@ function WaypointMapRoute({
       style={
         {
           "--stroke-width": `${Math.min(0.2, 200 / size)}px`,
-          color: mode === "CRUISE" ? "lightgreen" : "yellow",
+          color:
+            mode === "BURN" ? "yellow" : mode === "DRIFT" ? "blue" : "green",
         } as React.CSSProperties
       }
       x1={line.x1}

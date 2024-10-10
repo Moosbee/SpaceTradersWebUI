@@ -1,16 +1,6 @@
 import type { ShipNavFlightMode, Waypoint } from "../spaceTraderAPI/api";
 import PriorityQueue from "./PriorityQueue";
 
-function distanceBetweenWaypoints(
-  startWaypoint: { x: number; y: number },
-  endWaypoint: { x: number; y: number },
-) {
-  return Math.sqrt(
-    Math.pow(endWaypoint.x - startWaypoint.x, 2) +
-      Math.pow(endWaypoint.y - startWaypoint.y, 2),
-  );
-}
-
 function getInterSystemTravelStats(
   engineSpeed: number,
   flightMode: ShipNavFlightMode,
@@ -52,6 +42,16 @@ function getInterSystemTravelStats(
   };
 }
 
+function distanceBetweenWaypoints(
+  startWaypoint: { x: number; y: number },
+  endWaypoint: { x: number; y: number },
+) {
+  return Math.sqrt(
+    Math.pow(endWaypoint.x - startWaypoint.x, 2) +
+      Math.pow(endWaypoint.y - startWaypoint.y, 2),
+  );
+}
+
 interface Route {
   origin: string;
   destination: string;
@@ -67,7 +67,14 @@ function wpDijkstra(
   config: {
     maxFuel: number;
     fuelInCargo: number;
-    flightMode: "BURN" | "CRUISE" | "BURN-AND-CRUISE";
+    flightMode:
+      | "BURN"
+      | "CRUISE"
+      | "DRIFT"
+      | "BURN-AND-CRUISE"
+      | "CRUISE-AND-DRIFT"
+      | "BURN-AND-DRIFT"
+      | "BURN-AND-CRUISE-AND-DRIFT";
   },
 ): Route[] {
   let notTraversedWaypoints: Record<string, Waypoint> = wps.reduce(
@@ -122,8 +129,10 @@ function wpDijkstra(
     delete notTraversedWaypoints[wp.symbol];
 
     if (
+      config.flightMode === "BURN" ||
       config.flightMode === "BURN-AND-CRUISE" ||
-      config.flightMode === "BURN"
+      config.flightMode === "BURN-AND-DRIFT" ||
+      config.flightMode === "BURN-AND-CRUISE-AND-DRIFT"
     ) {
       const nextWps = getWaypointsInRadius(
         wp,
@@ -137,7 +146,7 @@ function wpDijkstra(
           distance: distance + w.distance,
           beforeSymbol: wp.symbol,
           flightMode: "BURN" as ShipNavFlightMode,
-          cost: cost + w.distance / 2,
+          cost: cost + w.distance / 2 + 1,
         })),
       );
       // nextWps.forEach((w) => {
@@ -146,8 +155,10 @@ function wpDijkstra(
     }
 
     if (
+      config.flightMode === "CRUISE" ||
       config.flightMode === "BURN-AND-CRUISE" ||
-      config.flightMode === "CRUISE"
+      config.flightMode === "CRUISE-AND-DRIFT" ||
+      config.flightMode === "BURN-AND-CRUISE-AND-DRIFT"
     ) {
       const nextWps = getWaypointsInRadius(
         wp,
@@ -161,7 +172,33 @@ function wpDijkstra(
           distance: distance + w.distance,
           beforeSymbol: wp.symbol,
           flightMode: "CRUISE" as ShipNavFlightMode,
-          cost: cost + w.distance,
+          cost: cost + w.distance + 1,
+        })),
+      );
+      // nextWps.forEach((w) => {
+      //   delete notTraversedWaypoints[w.waypoint.symbol];
+      // });
+    }
+
+    if (
+      config.flightMode === "DRIFT" ||
+      config.flightMode === "BURN-AND-DRIFT" ||
+      config.flightMode === "CRUISE-AND-DRIFT" ||
+      config.flightMode === "BURN-AND-CRUISE-AND-DRIFT"
+    ) {
+      const nextWps = getWaypointsInRadius(
+        wp,
+        0,
+        Object.values(notTraversedWaypoints),
+        false,
+      );
+      toTraverse.push(
+        ...nextWps.map((w) => ({
+          wp: w.waypoint,
+          distance: distance + w.distance,
+          beforeSymbol: wp.symbol,
+          flightMode: "DRIFT" as ShipNavFlightMode,
+          cost: cost + w.distance * 10 + 1,
         })),
       );
       // nextWps.forEach((w) => {
@@ -189,7 +226,7 @@ function getWaypointsInRadius(
     .filter((w) => {
       return (
         (wp.traits.some((t) => t.symbol === "MARKETPLACE") || !onlyMarkets) &&
-        w.distance < radius
+        (w.distance < radius || radius === 0)
       );
     });
 }
