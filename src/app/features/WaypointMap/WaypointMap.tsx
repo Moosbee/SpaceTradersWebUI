@@ -293,7 +293,8 @@ function WaypointMap({ systemID }: { systemID: string }) {
           mode: c.flightMode,
         };
       })
-      .filter((c) => !!c);
+      .filter((c) => !!c)
+      .map((c) => c!);
   }, [selectedWaypoint, ship, waypointsMp]);
 
   const [size, setSize] = useState(16);
