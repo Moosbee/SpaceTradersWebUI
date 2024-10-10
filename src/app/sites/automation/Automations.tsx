@@ -1,20 +1,22 @@
-import { Flex } from "antd";
-import Extractor from "../../features/automation/runner/Extractor";
-import Navigator from "../../features/automation/runner/Navigator";
-import Surveyor from "../../features/automation/runner/Surveyor";
+import { Spin } from "antd";
+import { useParams } from "react-router-dom";
+import ShipAutomation from "../../features/automation/ShipAutomation";
 import PageTitle from "../../features/PageTitle";
+import { useAppSelector } from "../../hooks";
+import { selectShip } from "../../spaceTraderAPI/redux/fleetSlice";
 
 function Automations() {
+  const { shipID } = useParams();
+  // const dispatch = useAppDispatch();
+  const ship = useAppSelector((state) => selectShip(state, shipID));
+
+  if (!ship) return <Spin spinning={true}></Spin>;
+
   return (
     <div style={{ padding: "24px 24px" }}>
       <PageTitle title="Automations" />
       <h1>Automations</h1>
-
-      <Flex wrap style={{ gap: "20px" }}>
-        <Surveyor />
-        <Extractor />
-        <Navigator />
-      </Flex>
+      <ShipAutomation ship={ship} />
     </div>
   );
 }

@@ -108,6 +108,7 @@ function wpShortestPath(
         maxFuel: ship.fuel.capacity,
         maxFuelInCargo: maxFuelInCargo,
         flightMode: flightMode,
+        startFuel: ship.fuel.current,
       },
     ),
   );
@@ -163,6 +164,7 @@ function wpDijkstra(
   waypoints: Waypoint[],
   config: {
     maxFuel: number;
+    startFuel: number;
     maxFuelInCargo: number;
     flightMode: navModes;
   },
@@ -204,6 +206,8 @@ function wpDijkstra(
     ...(config.flightMode.includes("DRIFT") ? ["DRIFT" as avModes] : []),
   ];
 
+  let first = true;
+
   while (!toVisit.isEmpty()) {
     const current = toVisit.peek()!;
     visited.push(current);
@@ -219,7 +223,7 @@ function wpDijkstra(
         waypoint,
         availableModes[mode].radius,
         Object.values(unvisitedWaypoints),
-        !(mode === "DRIFT"),
+        !(mode === "DRIFT" || first),
       );
       toVisit.push(
         ...nextWaypoints.map((w) => ({
@@ -233,6 +237,7 @@ function wpDijkstra(
         })),
       );
     }
+    first = false;
   }
 
   return visited;

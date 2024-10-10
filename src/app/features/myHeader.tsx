@@ -1,6 +1,6 @@
 import type { MenuProps } from "antd";
 import { Avatar, Badge, Button, Dropdown, Flex, Space, theme } from "antd";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import type { AntHeaderHeader } from "../../MyApp";
 import { useAppDispatch, useAppSelector } from "../hooks";
@@ -40,13 +40,6 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const {
     token: { colorBgContainer, colorTextDescription },
   } = theme.useToken();
-
-  useEffect(() => {
-    spaceTraderClient.AgentsClient.getMyAgent().then((response) => {
-      console.log("my response", response);
-      dispatch(setMyAgent(response.data.data));
-    });
-  }, [dispatch]);
 
   const items: MenuProps["items"] = useMemo<MenuProps["items"]>(() => {
     const items: MenuProps["items"] = agents.map((agent) => {

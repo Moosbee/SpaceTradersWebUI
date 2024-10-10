@@ -11,10 +11,9 @@ import {
 } from "antd";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
+import type { Ship } from "../../../spaceTraderAPI/api";
 import { setMyAgent } from "../../../spaceTraderAPI/redux/agentSlice";
 import {
-  selectShip,
-  selectShips,
   setShipFuel,
   setShipNav,
 } from "../../../spaceTraderAPI/redux/fleetSlice";
@@ -26,16 +25,12 @@ import type { EventWorkerChannelData } from "../../../workers/eventWorker";
 
 const { Title } = Typography;
 
-function Navigator() {
-  const ships = useAppSelector(selectShips);
-  const [shipName, setShipName] = useState<string | null>(null);
+function Navigator({ ship }: { ship: Ship }) {
   const [running, setRunning] = useState(false);
 
   const [navWaypoint, setNavWaypoint] = useState<string>();
 
   const [navMode, setNavMode] = useState<navModes>("BURN-AND-CRUISE-AND-DRIFT");
-
-  const ship = useAppSelector((state) => selectShip(state, shipName ?? ""));
 
   const waypoints = useAppSelector((state) =>
     selectSystemWaypoints(state, ship?.nav.systemSymbol ?? ""),
@@ -107,10 +102,11 @@ function Navigator() {
   }, [navMode, navWaypoint, ship, waypoints]);
 
   const action = useCallback(async () => {
-    if (!shipName || !navWaypoint) return;
+    if (!navWaypoint) return;
     if (ship?.nav.waypointSymbol === navWaypoint) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const notifaication = new Notification(
-        `The Ship ${shipName} has arrived at ${navWaypoint}`,
+        `The Ship ${ship.symbol} has arrived at ${navWaypoint}`,
       );
       setRunning(false);
       return;
@@ -118,56 +114,74 @@ function Navigator() {
     const nextDest = route.routes[0];
     console.log("nextWaypoint", nextDest);
 
-    const patch = await spaceTraderClient.FleetClient.patchShipNav(shipName, {
-      flightMode: nextDest.flightMode,
-    });
+    const patch = await spaceTraderClient.FleetClient.patchShipNav(
+      ship.symbol,
+      {
+        flightMode: nextDest.flightMode,
+      },
+    );
 
     dispatch(
       setShipNav({
-        symbol: shipName,
+        symbol: ship.symbol,
         nav: patch.data.data,
       }),
     );
 
-    const dock = await spaceTraderClient.FleetClient.dockShip(shipName);
+    const dock = await spaceTraderClient.FleetClient.dockShip(ship.symbol);
     dispatch(
       setShipNav({
-        symbol: shipName,
+        symbol: ship.symbol,
         nav: dock.data.data.nav,
       }),
     );
-    const refuel = await spaceTraderClient.FleetClient.refuelShip(shipName);
-    dispatch(
-      setShipFuel({
-        symbol: shipName,
-        fuel: refuel.data.data.fuel,
-      }),
-    );
-    dispatch(setMyAgent(refuel.data.data.agent));
-    dispatch(addMarketTransaction(refuel.data.data.transaction));
-    const orbit = await spaceTraderClient.FleetClient.orbitShip(shipName);
+    try {
+      const refuel = await spaceTraderClient.FleetClient.refuelShip(
+        ship.symbol,
+      );
+      dispatch(
+        setShipFuel({
+          symbol: ship.symbol,
+          fuel: refuel.data.data.fuel,
+        }),
+      );
+      dispatch(setMyAgent(refuel.data.data.agent));
+      dispatch(addMarketTransaction(refuel.data.data.transaction));
+    } catch (error) {
+      console.log("error", error);
+    }
+    const orbit = await spaceTraderClient.FleetClient.orbitShip(ship.symbol);
     dispatch(
       setShipNav({
-        symbol: shipName,
+        symbol: ship.symbol,
         nav: orbit.data.data.nav,
       }),
     );
-    const nextNav = await spaceTraderClient.FleetClient.navigateShip(shipName, {
-      waypointSymbol: nextDest.destination,
-    });
+    const nextNav = await spaceTraderClient.FleetClient.navigateShip(
+      ship.symbol,
+      {
+        waypointSymbol: nextDest.destination,
+      },
+    );
     dispatch(
       setShipNav({
-        symbol: shipName,
+        symbol: ship.symbol,
         nav: nextNav.data.data.nav,
       }),
     );
     dispatch(
       setShipFuel({
-        symbol: shipName,
+        symbol: ship.symbol,
         fuel: nextNav.data.data.fuel,
       }),
     );
-  }, [dispatch, navWaypoint, route.routes, ship?.nav.waypointSymbol, shipName]);
+  }, [
+    dispatch,
+    navWaypoint,
+    route.routes,
+    ship?.nav.waypointSymbol,
+    ship.symbol,
+  ]);
 
   useEffect(() => {
     const bcc = new BroadcastChannel("EventWorkerChannel");
@@ -176,7 +190,13 @@ function Navigator() {
       "message",
       (event: MessageEvent<EventWorkerChannelData>) => {
         console.log("event", event);
-        if (!running || event.data.type !== "arrival") return;
+        if (
+          !running ||
+          event.data.type !== "arrival" ||
+          event.data.shipName !== ship.symbol
+        )
+          return;
+
         action();
       },
     );
@@ -184,7 +204,7 @@ function Navigator() {
     return () => {
       bcc.close();
     };
-  }, [action, running]);
+  }, [action, running, ship.symbol]);
 
   return (
     <Card
@@ -210,12 +230,6 @@ function Navigator() {
     >
       <Space>
         <Select
-          style={{ width: 140 }}
-          onChange={(value) => setShipName(value)}
-          value={shipName}
-          options={ships.map((w) => ({ label: w.symbol, value: w.symbol }))}
-        />
-        <Select
           options={Object.values(waypoints).map((w) => {
             return {
               value: w.waypoint.symbol,
@@ -231,22 +245,21 @@ function Navigator() {
           }}
           value={navWaypoint}
         />
+        <Select
+          options={Object.values(navModes).map((w) => {
+            return {
+              value: w,
+              label: <Tooltip title={w}>{w}</Tooltip>,
+            };
+          })}
+          showSearch
+          style={{ width: 200 }}
+          onChange={(value) => {
+            setNavMode(value);
+          }}
+          value={navMode}
+        />
       </Space>
-      <br />
-      <Select
-        options={Object.values(navModes).map((w) => {
-          return {
-            value: w,
-            label: <Tooltip title={w}>{w}</Tooltip>,
-          };
-        })}
-        showSearch
-        style={{ width: 200 }}
-        onChange={(value) => {
-          setNavMode(value);
-        }}
-        value={navMode}
-      />
       <Title level={5}>
         <Flex justify="space-between">
           <span>Route to {navWaypoint}</span>

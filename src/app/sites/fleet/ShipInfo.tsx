@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks";
 import { pruneSurveys } from "../../spaceTraderAPI/redux/surveySlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
+import ShipAutomation from "../../features/automation/ShipAutomation";
 import PageTitle from "../../features/PageTitle";
 import ShipCargoInfo from "../../features/Shipinfo/ShipCargoInfo";
 import ShipControlCenter from "../../features/Shipinfo/ShipControlCenter";
@@ -68,8 +69,11 @@ function ShipInfo() {
               <Button>Repair Ship</Button>
             </Flex>
           </Col>
-          <Col span={24}>
+          <Col span={24} sm={24} md={12}>
             <ShipControlCenter ship={ship} />
+          </Col>
+          <Col span={24} sm={24} md={12}>
+            <ShipAutomation ship={ship} />
           </Col>
           <Col span={12} sm={24} md={12}>
             <ShipNavInfo ship={ship} />

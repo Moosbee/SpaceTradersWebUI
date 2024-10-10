@@ -1,10 +1,7 @@
-import { Badge, Button, Card, Select, Space } from "antd";
+import { Badge, Button, Card, Space } from "antd";
 import { useCallback, useEffect, useState } from "react";
-import { useAppSelector } from "../../../hooks";
-import {
-  selectShips,
-  setShipCooldown,
-} from "../../../spaceTraderAPI/redux/fleetSlice";
+import type { Ship } from "../../../spaceTraderAPI/api";
+import { setShipCooldown } from "../../../spaceTraderAPI/redux/fleetSlice";
 import {
   addSurveys,
   pruneSurveys,
@@ -14,20 +11,17 @@ import { store } from "../../../store";
 import { message } from "../../../utils/antdMessage";
 import type { EventWorkerChannelData } from "../../../workers/eventWorker";
 
-function Surveyor() {
-  const ships = useAppSelector(selectShips);
-  const [shipName, setShipName] = useState<string | null>(null);
+function Surveyor({ ship }: { ship: Ship }) {
   const [running, setRunning] = useState(false);
 
   const action = useCallback(() => {
-    if (!shipName) return;
-    spaceTraderClient.FleetClient.createSurvey(shipName).then((value) => {
+    spaceTraderClient.FleetClient.createSurvey(ship.symbol).then((value) => {
       console.log("value", value);
       store.dispatch(addSurveys(value.data.data.surveys));
       store.dispatch(pruneSurveys(Date.now()));
       store.dispatch(
         setShipCooldown({
-          symbol: shipName,
+          symbol: ship.symbol,
           cooldown: value.data.data.cooldown,
         }),
       );
@@ -42,7 +36,7 @@ function Surveyor() {
           .join("\n")}`,
       );
     });
-  }, [shipName]);
+  }, [ship.symbol]);
   useEffect(() => {
     const bcc = new BroadcastChannel("EventWorkerChannel");
     console.log("bcc", bcc);
@@ -81,14 +75,7 @@ function Surveyor() {
           {running ? "Stop" : "Start"}
         </Button>
       }
-    >
-      <Select
-        style={{ width: 140 }}
-        onChange={(value) => setShipName(value)}
-        value={shipName}
-        options={ships.map((w) => ({ label: w.symbol, value: w.symbol }))}
-      />
-    </Card>
+    ></Card>
   );
 }
 

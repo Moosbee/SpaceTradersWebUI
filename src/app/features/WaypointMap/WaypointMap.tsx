@@ -264,7 +264,12 @@ function WaypointMap({ systemID }: { systemID: string }) {
       {
         flightMode: "BURN-AND-CRUISE-AND-DRIFT",
         maxFuelInCargo: 0,
-        maxFuel: ship?.fuel.capacity ?? 300,
+        maxFuel: ship
+          ? ship.fuel.capacity === 0
+            ? Infinity
+            : ship.fuel.capacity
+          : 300,
+        startFuel: ship ? ship.fuel.current : 300,
       },
     );
 
@@ -289,7 +294,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
         };
       })
       .filter((c) => !!c);
-  }, [selectedWaypoint, ship?.fuel.capacity, waypointsMp]);
+  }, [selectedWaypoint, ship, waypointsMp]);
 
   const [size, setSize] = useState(16);
   const textboxRef = useRef<SVGSVGElement>(null);

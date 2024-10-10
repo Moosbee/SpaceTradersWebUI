@@ -212,6 +212,64 @@ function ShipControlCenter({
         </Space>
         <Space size="large">
           <span>Navigate</span>
+          {ship.nav.status === "DOCKED" && (
+            <Button
+              onClick={() => {
+                spaceTraderClient.FleetClient.orbitShip(ship.symbol).then(
+                  (value) => {
+                    dispatch(
+                      setShipNav({
+                        symbol: ship.symbol,
+                        nav: value.data.data.nav,
+                      }),
+                    );
+                    console.log("nav", value.data.data.nav);
+                  },
+                );
+              }}
+            >
+              Undock Ship
+            </Button>
+          )}
+          {(ship.nav.status === "IN_ORBIT" ||
+            ship.nav.status === "IN_TRANSIT") && (
+            <Button
+              onClick={() => {
+                spaceTraderClient.FleetClient.dockShip(ship.symbol).then(
+                  (value) => {
+                    dispatch(
+                      setShipNav({
+                        symbol: ship.symbol,
+                        nav: value.data.data.nav,
+                      }),
+                    );
+                    console.log("nav", value.data.data.nav);
+                  },
+                );
+              }}
+            >
+              Dock Ship
+            </Button>
+          )}
+          <Select
+            value={ship.nav.flightMode}
+            style={{ width: 120 }}
+            onChange={(value) => {
+              spaceTraderClient.FleetClient.patchShipNav(ship.symbol, {
+                flightMode: value,
+              }).then((value) => {
+                dispatch(
+                  setShipNav({ symbol: ship.symbol, nav: value.data.data }),
+                );
+              });
+            }}
+            options={[
+              { value: "DRIFT" },
+              { value: "STEALTH" },
+              { value: "CRUISE" },
+              { value: "BURN" },
+            ]}
+          />
 
           {ship.nav.status === "IN_ORBIT" && (
             <Space>
@@ -330,63 +388,6 @@ function ShipControlCenter({
               </Button>
             </>
           )}
-          {ship.nav.status === "DOCKED" && (
-            <Button
-              onClick={() => {
-                spaceTraderClient.FleetClient.orbitShip(ship.symbol).then(
-                  (value) => {
-                    dispatch(
-                      setShipNav({
-                        symbol: ship.symbol,
-                        nav: value.data.data.nav,
-                      }),
-                    );
-                    console.log("nav", value.data.data.nav);
-                  },
-                );
-              }}
-            >
-              Undock Ship
-            </Button>
-          )}
-          {ship.nav.status === "IN_ORBIT" && (
-            <Button
-              onClick={() => {
-                spaceTraderClient.FleetClient.dockShip(ship.symbol).then(
-                  (value) => {
-                    dispatch(
-                      setShipNav({
-                        symbol: ship.symbol,
-                        nav: value.data.data.nav,
-                      }),
-                    );
-                    console.log("nav", value.data.data.nav);
-                  },
-                );
-              }}
-            >
-              Dock Ship
-            </Button>
-          )}
-          <Select
-            value={ship.nav.flightMode}
-            style={{ width: 120 }}
-            onChange={(value) => {
-              spaceTraderClient.FleetClient.patchShipNav(ship.symbol, {
-                flightMode: value,
-              }).then((value) => {
-                dispatch(
-                  setShipNav({ symbol: ship.symbol, nav: value.data.data }),
-                );
-              });
-            }}
-            options={[
-              { value: "DRIFT" },
-              { value: "STEALTH" },
-              { value: "CRUISE" },
-              { value: "BURN" },
-            ]}
-          />
         </Space>
         <Space size="large">
           <span>Mining</span>
