@@ -5,8 +5,8 @@ import { CacheController } from "../../spaceTraderAPI/CacheController";
 import {
   clearSystemMarkets,
   putMarkets,
-  selectSystemWaypoints,
-} from "../../spaceTraderAPI/redux/waypointSlice";
+} from "../../spaceTraderAPI/redux/marketSlice";
+import { selectSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { store } from "../../store";
 import CachingCard from "../disp/CachingCardDisp";
@@ -19,9 +19,9 @@ const CachingSystemMarketsCard = ({
   const waypoints = useAppSelector((state) =>
     selectSystemWaypoints(state, systemSymbol),
   );
-  const cachedMarkets = Object.values(waypoints)
-    .map((w) => w.market)
-    .filter((w) => !!w);
+  // const cachedMarkets = useAppSelector((state) =>selectSystemMarkets(state,systemSymbol));
+
+  const [process, setProcess] = useState(0);
 
   const dispatch = useAppDispatch();
 
@@ -75,6 +75,7 @@ const CachingSystemMarketsCard = ({
       },
       (markets) => {
         store.dispatch(putMarkets({ systemSymbol, markets }));
+        setProcess((procces) => procces + 1);
       },
       1,
     );
@@ -87,7 +88,8 @@ const CachingSystemMarketsCard = ({
   const startFetching = useCallback(() => {
     setStartTime(Date.now());
     setLoading(true);
-    dispatch(clearSystemMarkets({ systemSymbol }));
+    // dispatch(clearSystemMarkets({ systemSymbol }));
+    setProcess(0);
     cacheMarketControllerRef.current?.reset();
     setRemainingTime(0);
 
@@ -105,7 +107,7 @@ const CachingSystemMarketsCard = ({
         setLoading(false);
         cacheMarketControllerRef.current?.reset();
       });
-  }, [dispatch, startTime, systemSymbol]);
+  }, [startTime]);
 
   const pauseFetching = useCallback(() => {
     cacheMarketControllerRef.current?.pause();
@@ -136,7 +138,7 @@ const CachingSystemMarketsCard = ({
 
   return (
     <CachingCard
-      progress={cachedMarkets.length}
+      progress={process}
       loading={loading}
       isPaused={isPaused}
       total={total}
@@ -146,7 +148,10 @@ const CachingSystemMarketsCard = ({
       pauseFetching={pauseFetching}
       continueFetching={continueFetching}
       cancelFetching={cancelFetching}
-      clearSystems={() => dispatch(clearSystemMarkets({ systemSymbol }))}
+      clearSystems={() => {
+        dispatch(clearSystemMarkets({ systemSymbol }));
+        setProcess(0);
+      }}
     />
   );
 };

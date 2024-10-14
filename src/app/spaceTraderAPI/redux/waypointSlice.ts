@@ -1,10 +1,9 @@
 import { type PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
-import type { Market, Shipyard, Waypoint } from "../api";
+import type { Shipyard, Waypoint } from "../api";
 
 export interface WaypointState {
   waypoint: Waypoint;
-  market?: Market;
   shipyard?: Shipyard;
 }
 
@@ -92,51 +91,11 @@ export const waypointSlice = createAppSlice({
       },
     ),
 
-    putMarkets: create.reducer(
-      (
-        state,
-        action: PayloadAction<{
-          systemSymbol: string;
-          markets: Market[];
-        }>,
-      ) => {
-        const { systemSymbol, markets } = action.payload;
-        for (const market of markets) {
-          state.systems[systemSymbol][market.symbol] = {
-            ...state.systems[systemSymbol][market.symbol],
-            market,
-          };
-        }
-      },
-    ),
-
-    setMarket: create.reducer(
-      (
-        state,
-        action: PayloadAction<{ systemSymbol: string; market: Market }>,
-      ) => {
-        const { systemSymbol, market } = action.payload;
-        state.systems[systemSymbol][market.symbol] = {
-          ...state.systems[systemSymbol][market.symbol],
-          market,
-        };
-      },
-    ),
-
     clearSystemShipyards: create.reducer(
       (state, action: PayloadAction<{ systemSymbol: string }>) => {
         const { systemSymbol } = action.payload;
         for (const symbol in state.systems[systemSymbol]) {
           delete state.systems[systemSymbol][symbol].shipyard;
-        }
-      },
-    ),
-
-    clearSystemMarkets: create.reducer(
-      (state, action: PayloadAction<{ systemSymbol: string }>) => {
-        const { systemSymbol } = action.payload;
-        for (const symbol in state.systems[systemSymbol]) {
-          delete state.systems[systemSymbol][symbol].market;
         }
       },
     ),
@@ -191,13 +150,10 @@ export const {
   putWaypoints,
   clearSystemWaypoints,
   clearAllWaypoints,
-  setMarket,
   setShipyard,
-  putMarkets,
   putShipyards,
   setWaypoint,
   clearSystemShipyards,
-  clearSystemMarkets,
 } = waypointSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectWpSystems, selectSystemWaypoints } =

@@ -2,6 +2,8 @@ import type { SelectProps } from "antd";
 import { AutoComplete, Card, Select, Space, Typography } from "antd";
 import type {
   MarketTradeGoodTypeEnum,
+  Shipyard,
+  Waypoint,
   WaypointType,
 } from "../../spaceTraderAPI/api";
 import {
@@ -9,7 +11,9 @@ import {
   TradeSymbol,
   WaypointTraitSymbol,
 } from "../../spaceTraderAPI/api";
+import type { MarketState } from "../../spaceTraderAPI/redux/marketSlice";
 import type { WaypointState } from "../../spaceTraderAPI/redux/waypointSlice";
+import type { Prettify } from "../../utils/utils";
 
 const traitsOptions: SelectProps["options"] = Object.values(
   WaypointTraitSymbol,
@@ -46,7 +50,7 @@ function FilterCard({
   shipTypes,
   setShipTypes,
 }: {
-  waypoints: WaypointState[];
+  waypoints: Prettify<WaypointState & { market?: MarketState }>[];
   searchType: WaypointType | undefined;
   setSearchType: (value: WaypointType) => void;
   searchTraits: WaypointTraitSymbol[];
@@ -164,10 +168,25 @@ function filterWps(
   searchAutoComplete: string,
   searchTraits: WaypointTraitSymbol[],
   searchType: WaypointType | undefined,
-  unfilteredWaypoints: WaypointState[],
+  unfilteredWaypoints: {
+    [key: string]: WaypointState;
+  },
+  unFilteredMarkets: { [key: string]: MarketState },
   shipTypes: ShipType[],
 ) {
-  return unfilteredWaypoints
+  const unfiltered: {
+    waypoint: Waypoint;
+    market?: MarketState;
+    shipyard?: Shipyard;
+  }[] = [];
+  for (const key in unfilteredWaypoints) {
+    unfiltered.push({
+      ...unfilteredWaypoints[key],
+      market: unFilteredMarkets[key],
+    });
+  }
+
+  return unfiltered
     .filter((waypoint) => {
       const typeMatch = !searchType || waypoint.waypoint.type === searchType;
       const traitsMatch =
@@ -192,7 +211,7 @@ function filterWps(
       if (
         (marketItemTypes.length === 0 ||
           marketItemTypes.includes("EXCHANGE")) &&
-        waypoint.market.exchange.some((value) =>
+        waypoint.market.static.exchange.some((value) =>
           marketItems.includes(value.symbol),
         )
       ) {
@@ -201,7 +220,7 @@ function filterWps(
 
       if (
         (marketItemTypes.length === 0 || marketItemTypes.includes("EXPORT")) &&
-        waypoint.market.exports.some((value) =>
+        waypoint.market.static.exports.some((value) =>
           marketItems.includes(value.symbol),
         )
       ) {
@@ -210,7 +229,7 @@ function filterWps(
 
       if (
         (marketItemTypes.length === 0 || marketItemTypes.includes("IMPORT")) &&
-        waypoint.market.imports.some((value) =>
+        waypoint.market.static.imports.some((value) =>
           marketItems.includes(value.symbol),
         )
       ) {

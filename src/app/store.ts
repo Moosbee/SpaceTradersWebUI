@@ -14,6 +14,7 @@ import { configSlice } from "./spaceTraderAPI/redux/configSlice";
 import { contractSlice } from "./spaceTraderAPI/redux/contractSlice";
 import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
 import { mapSlice } from "./spaceTraderAPI/redux/mapSlice";
+import { marketSlice } from "./spaceTraderAPI/redux/marketSlice";
 import { surveySlice } from "./spaceTraderAPI/redux/surveySlice";
 import { systemSlice } from "./spaceTraderAPI/redux/systemSlice";
 import { transactionSlice } from "./spaceTraderAPI/redux/tansactionSlice";
@@ -45,6 +46,7 @@ const rootReducer = combineSlices(
   agentSlice,
   mapSlice,
   transactionSlice,
+  marketSlice,
 );
 
 // Wrap the rootReducer with persistReducer

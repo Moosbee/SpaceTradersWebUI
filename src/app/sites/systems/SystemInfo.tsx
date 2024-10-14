@@ -17,6 +17,7 @@ import type {
   WaypointType,
 } from "../../spaceTraderAPI/api";
 import { selectSelectedSystemSymbol } from "../../spaceTraderAPI/redux/mapSlice";
+import { selectSystemMarkets } from "../../spaceTraderAPI/redux/marketSlice";
 import {
   putSystem,
   selectSystem,
@@ -88,6 +89,10 @@ function SystemInfo() {
     selectSystemWaypoints(state, systemID!),
   );
 
+  const unfilteredMarkets = useAppSelector((state) =>
+    selectSystemMarkets(state, systemID!),
+  );
+
   const [searchType, setSearchType] = useState<WaypointType>();
   const [searchTraits, setSearchTraits] = useState<WaypointTraitSymbol[]>([]);
   const [searchAutoComplete, setSearchAutoComplete] = useState<string>("");
@@ -104,7 +109,8 @@ function SystemInfo() {
       searchAutoComplete,
       searchTraits,
       searchType,
-      Object.values(unfilteredWaypoints),
+      unfilteredWaypoints,
+      unfilteredMarkets,
       shipTypes,
     );
   }, [
@@ -114,6 +120,7 @@ function SystemInfo() {
     searchTraits,
     searchType,
     shipTypes,
+    unfilteredMarkets,
     unfilteredWaypoints,
   ]);
 

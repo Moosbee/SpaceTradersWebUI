@@ -1,39 +1,34 @@
-import { Badge, Descriptions, List } from "antd";
-import { useEffect, useState } from "react";
+import { Badge, Button, Descriptions, List } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import MarketDisp from "../../features/disp/MarketDisp";
+import MarketSimple from "../../features/disp/market/MarketSimple";
+import MarketStore from "../../features/disp/market/MarketStore";
 import ShipyardDisp from "../../features/disp/ShipyardDisp";
 import WaypointDisp from "../../features/disp/WaypointDisp";
 import PageTitle from "../../features/PageTitle";
-import { useAppSelector } from "../../hooks";
-import type {
-  Construction,
-  JumpGate,
-  Market,
-  Shipyard,
-  Waypoint,
-} from "../../spaceTraderAPI/api";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import type { Construction, JumpGate } from "../../spaceTraderAPI/api";
+import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
 import { selectSelectedWaypointSymbol } from "../../spaceTraderAPI/redux/mapSlice";
+import {
+  putMarkets,
+  selectSystemMarket,
+} from "../../spaceTraderAPI/redux/marketSlice";
+import {
+  putShipyards,
+  putWaypoints,
+  selectSystemWaypoints,
+} from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function WaypointInfo() {
   const { systemID: urlSystemID } = useParams();
   const { waypointID: urlWaypointID } = useParams();
+  const dispatch = useAppDispatch();
 
   const selectedWaypoint = useAppSelector(selectSelectedWaypointSymbol);
 
-  const [waypoint, setWaypoint] = useState<Waypoint>({
-    isUnderConstruction: false,
-    orbitals: [],
-    symbol: "",
-    systemSymbol: "",
-    traits: [],
-    type: "ORBITAL_STATION",
-    x: 0,
-    y: 0,
-  });
-
-  useEffect(() => {
+  const place = useMemo(() => {
     if (!urlSystemID || !urlWaypointID) return;
 
     let systemID = urlSystemID;
@@ -45,38 +40,26 @@ function WaypointInfo() {
       systemID = selectedWaypoint.systemSymbol;
     }
 
-    spaceTraderClient.SystemsClient.getWaypoint(systemID, waypointID).then(
-      (response) => {
-        setWaypoint(response.data.data);
-      },
-    );
+    return {
+      systemID,
+      waypointID,
+    };
   }, [selectedWaypoint, urlSystemID, urlWaypointID]);
 
-  const [market, setMarket] = useState<Market | undefined>(undefined);
+  const waypointSt = useAppSelector(
+    (state) =>
+      selectSystemWaypoints(state, place?.systemID || "")?.[
+        place?.waypointID || ""
+      ],
+  );
 
-  useEffect(() => {
-    if (waypoint.traits.some((x) => x.symbol === "MARKETPLACE")) {
-      spaceTraderClient.SystemsClient.getMarket(
-        waypoint.systemSymbol,
-        waypoint.symbol,
-      ).then((response) => {
-        setMarket(response.data.data);
-      });
-    }
-  }, [waypoint]);
+  const waypoint = waypointSt.waypoint;
 
-  const [shipyard, setShipyard] = useState<Shipyard | undefined>(undefined);
+  const market = useAppSelector((state) =>
+    selectSystemMarket(state, waypoint.systemSymbol, waypoint.symbol),
+  );
 
-  useEffect(() => {
-    if (waypoint.traits.some((x) => x.symbol === "SHIPYARD")) {
-      spaceTraderClient.SystemsClient.getShipyard(
-        waypoint.systemSymbol,
-        waypoint.symbol,
-      ).then((response) => {
-        setShipyard(response.data.data);
-      });
-    }
-  }, [waypoint]);
+  const shipyard = waypointSt.shipyard;
 
   const [jumpGate, setJumpGate] = useState<JumpGate | undefined>(undefined);
 
@@ -106,18 +89,73 @@ function WaypointInfo() {
     }
   }, [waypoint]);
 
+  const ships = useAppSelector(selectShips).filter(
+    (value) => value.nav.waypointSymbol === waypoint.symbol,
+  );
+
   return (
     <div style={{ padding: "24px 24px" }}>
       <PageTitle title={waypoint.symbol} />
       <h2>
-        Waypoint <b>{waypoint.symbol}</b> in <b>{waypoint.systemSymbol}</b>
+        Waypoint <b>{waypoint.symbol}</b> in <b>{waypoint.systemSymbol}</b>{" "}
+        <Button
+          onClick={() => {
+            spaceTraderClient.SystemsClient.getWaypoint(
+              waypoint.systemSymbol,
+              waypoint.symbol,
+            ).then((response) => {
+              dispatch(
+                putWaypoints({
+                  systemSymbol: waypoint.systemSymbol,
+                  waypoints: [response.data.data],
+                }),
+              );
+            });
+            spaceTraderClient.SystemsClient.getMarket(
+              waypoint.systemSymbol,
+              waypoint.symbol,
+            ).then((response) => {
+              dispatch(
+                putMarkets({
+                  systemSymbol: waypoint.systemSymbol,
+                  markets: [response.data.data],
+                }),
+              );
+            });
+            spaceTraderClient.SystemsClient.getShipyard(
+              waypoint.systemSymbol,
+              waypoint.symbol,
+            ).then((response) => {
+              dispatch(
+                putShipyards({
+                  systemSymbol: waypoint.systemSymbol,
+                  shipyards: [response.data.data],
+                }),
+              );
+            });
+          }}
+        >
+          Reload
+        </Button>
       </h2>
       <WaypointDisp waypoint={waypoint} moreInfo={true}></WaypointDisp>
 
       {market && (
         <>
           <h3>Market</h3>
-          <MarketDisp market={market} />
+          <MarketSimple
+            exchange={market.static.exchange}
+            exports={market.static.exports}
+            imports={market.static.imports}
+          />
+          {market.tradeGoods.length > 0 && ships.length > 0 && (
+            <MarketStore
+              tradeGoods={
+                market.tradeGoods[market.tradeGoods.length - 1].tradeGoods
+              }
+              marketSymbol={waypointSt.waypoint.symbol}
+            />
+          )}
         </>
       )}
 
