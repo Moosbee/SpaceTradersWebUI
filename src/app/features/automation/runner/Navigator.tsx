@@ -17,6 +17,7 @@ import {
   setShipFuel,
   setShipNav,
 } from "../../../spaceTraderAPI/redux/fleetSlice";
+import { setMarket } from "../../../spaceTraderAPI/redux/marketSlice";
 import { addMarketTransaction } from "../../../spaceTraderAPI/redux/tansactionSlice";
 import { selectSystemWaypoints } from "../../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../../spaceTraderAPI/spaceTraderClient";
@@ -147,6 +148,17 @@ function Navigator({ ship }: { ship: Ship }) {
       );
       dispatch(setMyAgent(refuel.data.data.agent));
       dispatch(addMarketTransaction(refuel.data.data.transaction));
+      const market = await spaceTraderClient.SystemsClient.getMarket(
+        ship.nav.systemSymbol,
+        ship.nav.waypointSymbol,
+      );
+      dispatch(
+        setMarket({
+          systemSymbol: ship.nav.systemSymbol,
+          market: market.data.data,
+          timestamp: Date.now(),
+        }),
+      );
     } catch (error) {
       console.log("error", error);
     }
@@ -179,7 +191,8 @@ function Navigator({ ship }: { ship: Ship }) {
     dispatch,
     navWaypoint,
     route.routes,
-    ship?.nav.waypointSymbol,
+    ship.nav.systemSymbol,
+    ship.nav.waypointSymbol,
     ship.symbol,
   ]);
 

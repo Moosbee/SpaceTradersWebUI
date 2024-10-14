@@ -1,7 +1,16 @@
-import { Button, Card, InputNumber, message, Select, Space, Table } from "antd";
+import {
+  Button,
+  Card,
+  Divider,
+  InputNumber,
+  message,
+  Select,
+  Space,
+  Table,
+} from "antd";
 import { useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
-import type { MarketTradeGood } from "../../../spaceTraderAPI/api";
+import type { MarketTradeGood, Ship } from "../../../spaceTraderAPI/api";
 import { setMyAgent } from "../../../spaceTraderAPI/redux/agentSlice";
 import {
   selectShips,
@@ -17,20 +26,32 @@ function MarketStore({
   tradeGoods: Array<MarketTradeGood>;
   marketSymbol: string;
 }) {
+  const ships = useAppSelector(selectShips).filter(
+    (value) => value.nav.waypointSymbol === marketSymbol,
+  );
+  const [shipName, setShipName] = useState<string>("");
+  const ship = useMemo(
+    () => ships.find((w) => w.symbol === shipName),
+    [shipName, ships],
+  );
+
   return (
     <Card title="Traded Goods" size="small" style={{ width: "fit-content" }}>
+      Ship:{" "}
+      <Select
+        style={{ width: 140 }}
+        onChange={(value) => setShipName(value)}
+        value={shipName}
+        options={ships.map((w) => ({ label: w.symbol, value: w.symbol }))}
+      />
+      <Divider />
       <Table
         bordered
         dataSource={tradeGoods
           .filter((tradeGood) => tradeGood.type !== "IMPORT")
           .map((tradeGood) => ({
             ...tradeGood,
-            action: (
-              <TradeActionDisp
-                tradeGood={tradeGood}
-                marketSymbol={marketSymbol}
-              />
-            ),
+            action: <TradeActionDisp tradeGood={tradeGood} ship={ship} />,
           }))}
         columns={[
           {
@@ -74,70 +95,52 @@ function MarketStore({
 
 function TradeActionDisp({
   tradeGood,
-  marketSymbol,
+  ship,
 }: {
   tradeGood: MarketTradeGood;
-  marketSymbol: string;
+  ship?: Ship;
 }) {
-  const ships = useAppSelector(selectShips).filter(
-    (value) => value.nav.waypointSymbol === marketSymbol,
-  );
-  const [shipName, setShipName] = useState<string>("");
-  const ship = useMemo(
-    () => ships.find((w) => w.symbol === shipName),
-    [shipName, ships],
-  );
   const [count, setCount] = useState(1);
   const dispatch = useAppDispatch();
 
   return (
     <Space>
-      {(tradeGood.type === "EXCHANGE" || tradeGood.type === "EXPORT") && (
-        <>
-          <Select
-            style={{ width: 140 }}
-            onChange={(value) => setShipName(value)}
-            value={shipName}
-            options={ships.map((w) => ({ label: w.symbol, value: w.symbol }))}
-          />
-          <InputNumber
-            min={1}
-            max={Math.min(
-              ship ? ship?.cargo.capacity - ship?.cargo.units : 0,
-              tradeGood.tradeVolume,
-            )}
-            defaultValue={0}
-            style={{ width: 60 }}
-            onChange={(value) => setCount(value?.valueOf() ?? 1)}
-            value={count}
-            changeOnWheel
-          />
-          <Button
-            onClick={() => {
-              if (ship) {
-                spaceTraderClient.FleetClient.purchaseCargo(ship.symbol, {
-                  symbol: tradeGood.symbol,
-                  units: count,
-                }).then((data) => {
-                  message.success(
-                    `Purchased ${data.data.data.transaction.units} units of ${data.data.data.transaction.tradeSymbol} for ${data.data.data.transaction.totalPrice} credits`,
-                  );
-                  dispatch(
-                    setShipCargo({
-                      symbol: ship.symbol,
-                      cargo: data.data.data.cargo,
-                    }),
-                  );
-                  dispatch(setMyAgent(data.data.data.agent));
-                  dispatch(addMarketTransaction(data.data.data.transaction));
-                });
-              }
-            }}
-          >
-            Buy for {tradeGood.purchasePrice * count}$
-          </Button>
-        </>
-      )}
+      <InputNumber
+        min={1}
+        max={Math.min(
+          ship ? ship?.cargo.capacity - ship?.cargo.units : 0,
+          tradeGood.tradeVolume,
+        )}
+        defaultValue={0}
+        style={{ width: 60 }}
+        onChange={(value) => setCount(value?.valueOf() ?? 1)}
+        value={count}
+        changeOnWheel
+      />
+      <Button
+        onClick={() => {
+          if (ship) {
+            spaceTraderClient.FleetClient.purchaseCargo(ship.symbol, {
+              symbol: tradeGood.symbol,
+              units: count,
+            }).then((data) => {
+              message.success(
+                `Purchased ${data.data.data.transaction.units} units of ${data.data.data.transaction.tradeSymbol} for ${data.data.data.transaction.totalPrice} credits`,
+              );
+              dispatch(
+                setShipCargo({
+                  symbol: ship.symbol,
+                  cargo: data.data.data.cargo,
+                }),
+              );
+              dispatch(setMyAgent(data.data.data.agent));
+              dispatch(addMarketTransaction(data.data.data.transaction));
+            });
+          }
+        }}
+      >
+        Buy for {tradeGood.purchasePrice * count}$
+      </Button>
     </Space>
   );
 }

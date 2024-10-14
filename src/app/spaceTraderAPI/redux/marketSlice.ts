@@ -47,9 +47,10 @@ export const marketSlice = createAppSlice({
         action: PayloadAction<{
           systemSymbol: string;
           markets: Market[];
+          timestamp: number;
         }>,
       ) => {
-        const { systemSymbol, markets } = action.payload;
+        const { systemSymbol, markets, timestamp } = action.payload;
         for (const market of markets) {
           if (!state.systems[systemSymbol]) {
             state.systems[systemSymbol] = {};
@@ -75,18 +76,22 @@ export const marketSlice = createAppSlice({
 
           if (market.tradeGoods) {
             state.systems[systemSymbol][market.symbol].tradeGoods.push({
-              timestamp: Date.now(),
+              timestamp,
               tradeGoods: market.tradeGoods,
             });
           }
 
           if (market.transactions) {
             state.systems[systemSymbol][market.symbol].transactions = [
-              ...new Set([
-                ...state.systems[systemSymbol][market.symbol].transactions,
-                ...market.transactions,
-              ]),
-            ];
+              ...state.systems[systemSymbol][market.symbol].transactions,
+              ...market.transactions,
+            ].filter(
+              (v, i, a) =>
+                a.findIndex(
+                  (t) =>
+                    t.timestamp + t.shipSymbol === v.timestamp + t.shipSymbol,
+                ) === i,
+            );
           }
         }
       },
@@ -95,9 +100,13 @@ export const marketSlice = createAppSlice({
     setMarket: create.reducer(
       (
         state,
-        action: PayloadAction<{ systemSymbol: string; market: Market }>,
+        action: PayloadAction<{
+          systemSymbol: string;
+          market: Market;
+          timestamp: number;
+        }>,
       ) => {
-        const { systemSymbol, market } = action.payload;
+        const { systemSymbol, market, timestamp } = action.payload;
         if (!state.systems[systemSymbol]) {
           state.systems[systemSymbol] = {};
         }
@@ -122,7 +131,7 @@ export const marketSlice = createAppSlice({
 
         if (market.tradeGoods) {
           state.systems[systemSymbol][market.symbol].tradeGoods.push({
-            timestamp: Date.now(),
+            timestamp,
             tradeGoods: market.tradeGoods,
           });
         }

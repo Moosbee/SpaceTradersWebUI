@@ -1,8 +1,10 @@
-import { Badge, Button, Descriptions, List } from "antd";
+import { Badge, Button, Descriptions, Flex, List } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import MarketDetail from "../../features/disp/market/MarketDetail";
 import MarketSimple from "../../features/disp/market/MarketSimple";
 import MarketStore from "../../features/disp/market/MarketStore";
+import MarketTransactions from "../../features/disp/market/MarketTransactions";
 import ShipyardDisp from "../../features/disp/ShipyardDisp";
 import WaypointDisp from "../../features/disp/WaypointDisp";
 import PageTitle from "../../features/PageTitle";
@@ -119,6 +121,7 @@ function WaypointInfo() {
                 putMarkets({
                   systemSymbol: waypoint.systemSymbol,
                   markets: [response.data.data],
+                  timestamp: Date.now(),
                 }),
               );
             });
@@ -138,7 +141,17 @@ function WaypointInfo() {
           Reload
         </Button>
       </h2>
-      <WaypointDisp waypoint={waypoint} moreInfo={true}></WaypointDisp>
+      <Flex justify="space-between">
+        <WaypointDisp waypoint={waypoint} moreInfo={true}></WaypointDisp>
+        {market && market.tradeGoods.length > 0 && ships.length > 0 && (
+          <MarketStore
+            tradeGoods={
+              market.tradeGoods[market.tradeGoods.length - 1].tradeGoods
+            }
+            marketSymbol={waypointSt.waypoint.symbol}
+          />
+        )}
+      </Flex>
 
       {market && (
         <>
@@ -148,14 +161,16 @@ function WaypointInfo() {
             exports={market.static.exports}
             imports={market.static.imports}
           />
-          {market.tradeGoods.length > 0 && ships.length > 0 && (
-            <MarketStore
-              tradeGoods={
-                market.tradeGoods[market.tradeGoods.length - 1].tradeGoods
-              }
-              marketSymbol={waypointSt.waypoint.symbol}
-            />
-          )}
+          <br />
+          <MarketDetail tradeGoods={market.tradeGoods} />
+          {/* <br />
+          <MarketGraph
+            tradeGoods={market.tradeGoods}
+            transactions={market.transactions}
+            type="sell"
+          /> */}
+          <br />
+          <MarketTransactions transactions={market.transactions} />
         </>
       )}
 

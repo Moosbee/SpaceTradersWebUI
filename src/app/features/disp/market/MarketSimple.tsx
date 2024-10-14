@@ -20,9 +20,9 @@ function MarketSimple({
             dataSource={exchange.map((ext) => (
               <Tooltip
                 key={ext.symbol}
-                title={`${ext.symbol} - ${ext.description}`}
+                title={`${ext.name} - ${ext.description}`}
               >
-                <span>{ext.name}</span>
+                <span>{ext.symbol}</span>
               </Tooltip>
             ))}
             renderItem={(item) => <List.Item>{item}</List.Item>}
@@ -37,9 +37,9 @@ function MarketSimple({
             dataSource={exports.map((expo) => (
               <Tooltip
                 key={expo.symbol}
-                title={`${expo.symbol} - ${expo.description}`}
+                title={`${expo.name} - ${expo.description}`}
               >
-                <span>{expo.name}</span>
+                <span>{expo.symbol}</span>
               </Tooltip>
             ))}
             renderItem={(item) => <List.Item>{item}</List.Item>}
@@ -54,9 +54,9 @@ function MarketSimple({
             dataSource={imports.map((imp) => (
               <Tooltip
                 key={imp.symbol}
-                title={`${imp.symbol} - ${imp.description}`}
+                title={`${imp.name} - ${imp.description}`}
               >
-                <span>{imp.name}</span>
+                <span>{imp.symbol}</span>
               </Tooltip>
             ))}
             renderItem={(item) => <List.Item>{item}</List.Item>}

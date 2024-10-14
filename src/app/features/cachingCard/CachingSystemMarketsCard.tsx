@@ -74,7 +74,9 @@ const CachingSystemMarketsCard = ({
         };
       },
       (markets) => {
-        store.dispatch(putMarkets({ systemSymbol, markets }));
+        store.dispatch(
+          putMarkets({ systemSymbol, markets, timestamp: Date.now() }),
+        );
         setProcess((procces) => procces + 1);
       },
       1,

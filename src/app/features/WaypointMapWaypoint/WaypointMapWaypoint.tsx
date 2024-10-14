@@ -200,10 +200,14 @@ function WaypointMapWaypoint({
           window.open(
             `/system/${system.symbol}/${waypoint.symbol}`,
             "_blank",
-            "popup:true",
+            // "popup:true",
           );
         } else {
-          window.open(`/system/${system.symbol}`, "_blank", "popup:true");
+          window.open(
+            `/system/${system.symbol}`,
+            "_blank",
+            //  "popup:true"
+          );
         }
       }}
     >
