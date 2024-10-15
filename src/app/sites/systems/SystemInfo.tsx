@@ -1,5 +1,5 @@
 import type { DescriptionsProps, PaginationProps } from "antd";
-import { Descriptions, Flex, Pagination, Spin } from "antd";
+import { Descriptions, Divider, Flex, Pagination, Spin } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import CachingSystemMarketsCard from "../../features/cachingCard/CachingSystemMarketsCard";
@@ -8,6 +8,7 @@ import CachingSystemWaypointsCard from "../../features/cachingCard/CachingSystem
 import WaypointDisp from "../../features/disp/WaypointDisp";
 import FilterCard, { filterWps } from "../../features/filterCard/FilterCard";
 import PageTitle from "../../features/PageTitle";
+import TradeRoutes from "../../features/TradeRoutes/TradeRoutes";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type {
   MarketTradeGoodTypeEnum,
@@ -177,6 +178,7 @@ function SystemInfo() {
         <Pagination
           current={waypointsPage}
           onChange={onChange}
+          pageSize={itemsPerPage}
           total={waypoints.length}
           pageSizeOptions={[10, 25, 50, 75, 100]}
           showTotal={(total, range) =>
@@ -195,6 +197,8 @@ function SystemInfo() {
             );
           })}
         </Flex>
+        <Divider />
+        <TradeRoutes waypoints={unfilteredMarkets} />
       </Spin>
     </div>
   );

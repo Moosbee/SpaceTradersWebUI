@@ -8,7 +8,7 @@ import {
 } from "../../spaceTraderAPI/redux/marketSlice";
 import { selectSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import { store } from "../../store";
+// import { store } from "../../store";
 import CachingCard from "../disp/CachingCardDisp";
 
 const CachingSystemMarketsCard = ({
@@ -74,9 +74,7 @@ const CachingSystemMarketsCard = ({
         };
       },
       (markets) => {
-        store.dispatch(
-          putMarkets({ systemSymbol, markets, timestamp: Date.now() }),
-        );
+        dispatch(putMarkets({ systemSymbol, markets, timestamp: Date.now() }));
         setProcess((procces) => procces + 1);
       },
       1,
@@ -85,7 +83,7 @@ const CachingSystemMarketsCard = ({
       console.log("CachingSystemMarketsCard unmounting");
       cacheMarketControllerRef.current?.cancel();
     };
-  }, [marketList, systemSymbol, total]);
+  }, [dispatch, marketList, systemSymbol, total]);
 
   const startFetching = useCallback(() => {
     setStartTime(Date.now());

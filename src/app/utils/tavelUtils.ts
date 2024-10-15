@@ -105,7 +105,7 @@ function wpShortestPath(
       startSymbol,
       Object.values(waypoints).map((w) => w.waypoint),
       {
-        maxFuel: ship.fuel.capacity,
+        maxFuel: ship.fuel.capacity === 0 ? Infinity : ship.fuel.capacity,
         maxFuelInCargo: maxFuelInCargo,
         flightMode: flightMode,
         startFuel: ship.fuel.current,
