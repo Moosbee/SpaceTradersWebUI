@@ -105,6 +105,7 @@ function Main() {
 
             <Divider />
             <Table
+              pagination={false}
               dataSource={status?.leaderboards.mostCredits.map((value) => {
                 return {
                   key: value.agentSymbol,
@@ -154,6 +155,7 @@ function Main() {
             />
           </Col>
         </Row>
+        <br />
         <Menu
           mode="horizontal"
           items={status?.links.map((value) => {

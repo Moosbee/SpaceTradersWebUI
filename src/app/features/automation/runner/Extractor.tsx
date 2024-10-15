@@ -1,4 +1,13 @@
-import { Badge, Button, Card, message, Select, Space, Tooltip } from "antd";
+import {
+  Badge,
+  Button,
+  Card,
+  message,
+  Select,
+  Space,
+  Switch,
+  Tooltip,
+} from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import type { Ship } from "../../../spaceTraderAPI/api";
@@ -19,9 +28,18 @@ function Extractor({ ship }: { ship: Ship }) {
 
   const [type, setType] = useState<"siphon" | "extract">("extract");
 
+  const [notify, setNotify] = useState(false);
+
   const dispatch = useAppDispatch();
 
   const action = useCallback(async () => {
+    if (notify && ship.cargo.capacity === ship.cargo.units) {
+      setRunning(false);
+      new Notification("Extractor", {
+        body: `Ship ${ship.symbol} is full`,
+      });
+      return;
+    }
     if (type === "siphon") {
       const siphon = await spaceTraderClient.FleetClient.siphonResources(
         ship.symbol,
@@ -69,14 +87,21 @@ function Extractor({ ship }: { ship: Ship }) {
         cooldown: extract.data.data.cooldown,
       }),
     );
-  }, [dispatch, ship.symbol, survey, surveys, type]);
+  }, [
+    dispatch,
+    notify,
+    ship.cargo.capacity,
+    ship.cargo.units,
+    ship.symbol,
+    survey,
+    surveys,
+    type,
+  ]);
   useEffect(() => {
     const bcc = new BroadcastChannel("EventWorkerChannel");
-    console.log("bcc", bcc);
     bcc.addEventListener(
       "message",
       (event: MessageEvent<EventWorkerChannelData>) => {
-        console.log("event", event);
         if (!running || event.data.type !== "cooldown") return;
         action();
       },
@@ -150,6 +175,9 @@ function Extractor({ ship }: { ship: Ship }) {
           value={survey}
         />
       )}
+      <br />
+      Notify and Shutdown on Storage Full:{" "}
+      <Switch checked={notify} onChange={setNotify} />
     </Card>
   );
 }

@@ -26,8 +26,6 @@ function ShipInfo() {
   const id = shipID === "selected" ? selectedShip : shipID;
   const ship = useAppSelector((state) => selectShip(state, id));
 
-  console.log("ship", ship, shipID, selectedShip, id);
-
   if (!ship) return <Spin spinning={true}></Spin>;
 
   return (
@@ -69,10 +67,10 @@ function ShipInfo() {
               <Button>Repair Ship</Button>
             </Flex>
           </Col>
-          <Col span={24} sm={24} md={12}>
+          <Col span={24} sm={24} md={10}>
             <ShipControlCenter ship={ship} />
           </Col>
-          <Col span={24} sm={24} md={12}>
+          <Col span={24} sm={24} md={14}>
             <ShipAutomation ship={ship} />
           </Col>
           <Col span={12} sm={24} md={12}>

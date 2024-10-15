@@ -5,6 +5,7 @@ import {
   Flex,
   Select,
   Space,
+  Statistic,
   Table,
   Tooltip,
   Typography,
@@ -25,6 +26,7 @@ import { navModes, wpShortestPath } from "../../../utils/tavelUtils";
 import type { EventWorkerChannelData } from "../../../workers/eventWorker";
 
 const { Title } = Typography;
+const { Countdown } = Statistic;
 
 function Navigator({ ship }: { ship: Ship }) {
   const [running, setRunning] = useState(false);
@@ -198,11 +200,9 @@ function Navigator({ ship }: { ship: Ship }) {
 
   useEffect(() => {
     const bcc = new BroadcastChannel("EventWorkerChannel");
-    console.log("bcc", bcc);
     bcc.addEventListener(
       "message",
       (event: MessageEvent<EventWorkerChannelData>) => {
-        console.log("event", event);
         if (
           !running ||
           event.data.type !== "arrival" ||
@@ -257,6 +257,7 @@ function Navigator({ ship }: { ship: Ship }) {
             setNavWaypoint(value);
           }}
           value={navWaypoint}
+          allowClear
         />
         <Select
           options={Object.values(navModes).map((w) => {
@@ -277,19 +278,51 @@ function Navigator({ ship }: { ship: Ship }) {
         <Flex justify="space-between">
           <span>Route to {navWaypoint}</span>
           <span>
-            {Math.floor((route.totalTravelTime ?? 1) / 60 / 60)
+            {running && (
+              <Countdown
+                value={
+                  Math.max(
+                    new Date(ship.nav.route.arrival).getTime(),
+                    Date.now(),
+                  ) +
+                  route.totalTravelTime * 1000
+                }
+              />
+            )}
+            {!running && (
+              <Statistic
+                value={`${Math.floor((route.totalTravelTime ?? 1) / 60 / 60)
+                  .toString()
+                  .padStart(2, "0")}:${(
+                  Math.floor((route.totalTravelTime ?? 1) / 60) % 60
+                )
+                  .toString()
+                  .padStart(
+                    2,
+                    "0",
+                  )}:${((route.totalTravelTime ?? 1) % 60).toString().padStart(2, "0")}`}
+              />
+            )}
+          </span>
+          <span>
+            {/* {Math.floor((route.totalTravelTime ?? 1) / 60 / 60)
               .toString()
               .padStart(2, "0")}
             :
             {(Math.floor((route.totalTravelTime ?? 1) / 60) % 60)
               .toString()
               .padStart(2, "0")}
-            :{((route.totalTravelTime ?? 1) % 60).toString().padStart(2, "0")}{" "}
+            :{((route.totalTravelTime ?? 1) % 60).toString().padStart(2, "0")} */}{" "}
             and {route.totalFuelCost} fuel
           </span>
         </Flex>
       </Title>
-      <Table dataSource={route.routes} columns={columns} size="small" />
+      <Table
+        dataSource={route.routes}
+        columns={columns}
+        size="small"
+        rowKey={(r) => r.origin}
+      />
     </Card>
   );
 }
