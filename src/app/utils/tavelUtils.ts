@@ -97,7 +97,7 @@ function wpShortestPath(
   endSymbol: string,
   waypoints: Record<string, WaypointState>,
   flightMode: navModes,
-  ship: Ship,
+  ship: Ship | undefined,
   maxFuelInCargo: number,
 ) {
   const routes = routeChanger(
@@ -105,10 +105,14 @@ function wpShortestPath(
       startSymbol,
       Object.values(waypoints).map((w) => w.waypoint),
       {
-        maxFuel: ship.fuel.capacity === 0 ? Infinity : ship.fuel.capacity,
+        maxFuel: ship
+          ? ship.fuel.capacity === 0
+            ? Infinity
+            : ship.fuel.capacity
+          : 300,
         maxFuelInCargo: maxFuelInCargo,
         flightMode: flightMode,
-        startFuel: ship.fuel.current,
+        startFuel: ship?.fuel.current ?? 0,
       },
     ),
   );
@@ -125,7 +129,7 @@ function wpShortestPath(
     }
 
     const { fuelCost, travelTime, distance } = getInterSystemTravelStats(
-      ship.engine.speed,
+      ship?.engine.speed ?? 3,
       route.flightMode,
       {
         x: waypoints[route.origin].waypoint.x,

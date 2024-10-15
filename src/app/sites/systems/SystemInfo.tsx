@@ -198,7 +198,10 @@ function SystemInfo() {
           })}
         </Flex>
         <Divider />
-        <TradeRoutes waypoints={unfilteredMarkets} />
+        <TradeRoutes
+          waypoints={unfilteredWaypoints}
+          waypointsMarkets={unfilteredMarkets}
+        />
       </Spin>
     </div>
   );
