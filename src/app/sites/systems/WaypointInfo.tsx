@@ -1,6 +1,6 @@
 import { Badge, Button, Descriptions, Flex, List } from "antd";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import MarketDetail from "../../features/disp/market/MarketDetail";
 import MarketSimple from "../../features/disp/market/MarketSimple";
 import MarketStore from "../../features/disp/market/MarketStore";
@@ -8,6 +8,7 @@ import MarketTransactions from "../../features/disp/market/MarketTransactions";
 import ShipyardDisp from "../../features/disp/ShipyardDisp";
 import WaypointDisp from "../../features/disp/WaypointDisp";
 import PageTitle from "../../features/PageTitle";
+import WaypointLink from "../../features/WaypointLink";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Construction, JumpGate } from "../../spaceTraderAPI/api";
 import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
@@ -199,13 +200,9 @@ function WaypointInfo() {
                   <List
                     size="small"
                     dataSource={jumpGate.connections.map((connection) => (
-                      <Link
-                        to={`/system/${connection.split("-", 2).join("-")}/${
-                          connection
-                        }`}
-                      >
+                      <WaypointLink waypoint={connection}>
                         {connection}
-                      </Link>
+                      </WaypointLink>
                     ))}
                     renderItem={(item) => <List.Item>{item}</List.Item>}
                   ></List>

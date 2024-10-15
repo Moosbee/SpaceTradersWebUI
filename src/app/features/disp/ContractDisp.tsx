@@ -1,8 +1,8 @@
 import { Button, Card, Descriptions, Table } from "antd";
-import { Link } from "react-router-dom";
 import { useAppSelector } from "../../hooks";
 import type { Contract, ContractDeliverGood } from "../../spaceTraderAPI/api";
 import { selectSystemByWaypoint } from "../../spaceTraderAPI/redux/systemSlice";
+import WaypointLink from "../WaypointLink";
 
 function ContractDisp({
   contract,
@@ -163,7 +163,11 @@ function DestinationSymbolLink({
   const data = useAppSelector((state) =>
     selectSystemByWaypoint(state, record.destinationSymbol),
   );
-  return <Link to={`/system/${data?.symbol}/${symbol}`}>{symbol}</Link>;
+  return (
+    <WaypointLink waypoint={symbol} systemSymbol={data?.symbol}>
+      {symbol}
+    </WaypointLink>
+  );
 }
 
 export default ContractDisp;

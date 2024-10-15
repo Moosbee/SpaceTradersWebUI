@@ -1,7 +1,8 @@
 import type { DescriptionsProps } from "antd";
 import { Card, Descriptions, List, Tooltip } from "antd";
-import type { Waypoint } from "../../spaceTraderAPI/api";
 import { Link } from "react-router-dom";
+import type { Waypoint } from "../../spaceTraderAPI/api";
+import WaypointLink from "../WaypointLink";
 
 function WaypointDisp({
   waypoint,
@@ -16,9 +17,12 @@ function WaypointDisp({
     key: "symbol",
     label: "Symbol",
     children: (
-      <Link to={`/system/${waypoint.systemSymbol}/${waypoint.symbol}`}>
+      <WaypointLink
+        waypoint={waypoint.symbol}
+        systemSymbol={waypoint.systemSymbol}
+      >
         {waypoint.symbol}
-      </Link>
+      </WaypointLink>
     ),
   });
 
@@ -85,9 +89,12 @@ function WaypointDisp({
       key: "orbits",
       label: "Orbits",
       children: (
-        <Link to={`/system/${waypoint.systemSymbol}/${waypoint.orbits}`}>
+        <WaypointLink
+          waypoint={waypoint.orbits}
+          systemSymbol={waypoint.systemSymbol}
+        >
           {waypoint.orbits}
-        </Link>
+        </WaypointLink>
       ),
     });
   }
@@ -100,9 +107,12 @@ function WaypointDisp({
         <List
           size="small"
           dataSource={waypoint.orbitals.map((orbitals) => (
-            <Link to={`/system/${waypoint.systemSymbol}/${orbitals.symbol}`}>
+            <WaypointLink
+              waypoint={orbitals.symbol}
+              systemSymbol={waypoint.systemSymbol}
+            >
               {orbitals.symbol}
-            </Link>
+            </WaypointLink>
           ))}
           renderItem={(item) => <List.Item>{item}</List.Item>}
         ></List>
@@ -161,9 +171,12 @@ function WaypointDisp({
       style={{ width: "fit-content" }}
       title="Waypoint Info"
       extra={
-        <Link to={`/system/${waypoint.systemSymbol}/${waypoint.symbol}`}>
+        <WaypointLink
+          waypoint={waypoint.symbol}
+          systemSymbol={waypoint.systemSymbol}
+        >
           More
-        </Link>
+        </WaypointLink>
       }
     >
       <Descriptions
