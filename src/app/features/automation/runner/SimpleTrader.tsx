@@ -43,6 +43,7 @@ function SimpleTrader({ ship }: { ship: Ship }) {
   const [amount, setAmount] = useState<number>(0);
   const [navMode, setNavMode] = useState<navModes>("BURN-AND-CRUISE-AND-DRIFT");
   const [notify, setNotify] = useState(true);
+  const [minProfit, setMinProfit] = useState(0);
 
   const markets = useAppSelector((state) =>
     selectSystemMarkets(state, ship.nav.systemSymbol ?? ""),
@@ -199,58 +200,49 @@ function SimpleTrader({ ship }: { ship: Ship }) {
       }),
     );
 
-    if (shipWp === sourceWp) {
-      console.log(
-        "arrived at source waypoint, buying specified amount, setting travelTarget to target",
-      );
-      setTravelTarget("target");
-      travelDest = targetWp;
-      if (
-        notify &&
-        route.sellPrice -
-          (market.data.data.tradeGoods?.find((w) => w.symbol === tradeGood)
-            ?.purchasePrice ?? route.purchasePrice) <
-          0
-      ) {
-        message.error("This route is unprofitable, stopping");
-        console.log("route is unprofitable");
-        new Notification("This route is unprofitable, stopping", {
-          body: `${
-            route.sellPrice -
-            (market.data.data.tradeGoods?.find((w) => w.symbol === tradeGood)
-              ?.purchasePrice ?? route.purchasePrice)
-          } ${tradeGood}`,
-        });
-        setRunning(false);
-        setTravelTarget("source");
-        return;
-      }
-      const volume = [
-        ...Array(Math.floor(amount / route.purchaseVolume))
-          .keys()
-          // @ts-ignore
-          .map((w) => route.purchaseVolume),
-        amount % route.purchaseVolume,
-      ].filter((w) => w > 0);
+    let sellPrice = route.sellPrice;
+    let purchasePrice = route.purchasePrice;
 
-      for (const v of volume) {
-        const purchaseCargo = await spaceTraderClient.FleetClient.purchaseCargo(
-          ship.symbol,
-          {
-            symbol: tradeGood,
-            units: v,
-          },
+    if (shipWp === sourceWp) {
+      purchasePrice =
+        market.data.data.tradeGoods?.find((w) => w.symbol === tradeGood)
+          ?.purchasePrice ?? route.purchasePrice;
+
+      if (!(notify && sellPrice - purchasePrice < minProfit)) {
+        console.log(
+          "arrived at source waypoint, buying specified amount, setting travelTarget to target",
         );
-        dispatch(
-          setShipCargo({
-            symbol: ship.symbol,
-            cargo: purchaseCargo.data.data.cargo,
-          }),
-        );
-        dispatch(setMyAgent(purchaseCargo.data.data.agent));
-        dispatch(addMarketTransaction(purchaseCargo.data.data.transaction));
+        setTravelTarget("target");
+        travelDest = targetWp;
+        const volume = [
+          ...Array(Math.floor(amount / route.purchaseVolume))
+            .keys()
+            // @ts-ignore
+            .map((w) => route.purchaseVolume),
+          amount % route.purchaseVolume,
+        ].filter((w) => w > 0);
+
+        for (const v of volume) {
+          const purchaseCargo =
+            await spaceTraderClient.FleetClient.purchaseCargo(ship.symbol, {
+              symbol: tradeGood,
+              units: v,
+            });
+          dispatch(
+            setShipCargo({
+              symbol: ship.symbol,
+              cargo: purchaseCargo.data.data.cargo,
+            }),
+          );
+          dispatch(setMyAgent(purchaseCargo.data.data.agent));
+          dispatch(addMarketTransaction(purchaseCargo.data.data.transaction));
+        }
       }
     } else if (shipWp === targetWp) {
+      sellPrice =
+        market.data.data.tradeGoods?.find((w) => w.symbol === tradeGood)
+          ?.sellPrice ?? route.sellPrice;
+
       console.log(
         "arrived at target waypoint, selling specified amount, setting travelTarget to source",
       );
@@ -308,6 +300,21 @@ function SimpleTrader({ ship }: { ship: Ship }) {
       "updating market, patching nav, undocking, navigating to next waypoint on route to target",
     );
 
+    if (
+      travelTarget === "source" &&
+      notify &&
+      sellPrice - purchasePrice < minProfit
+    ) {
+      message.error("This route is unprofitable, stopping");
+      console.log("route is unprofitable");
+      new Notification("This route is unprofitable, stopping", {
+        body: `${sellPrice - purchasePrice} ${tradeGood}`,
+      });
+      setRunning(false);
+      setTravelTarget("source");
+      return;
+    }
+
     const routes = wpShortestPath(
       shipWp,
       travelDest,
@@ -362,6 +369,7 @@ function SimpleTrader({ ship }: { ship: Ship }) {
   }, [
     amount,
     dispatch,
+    minProfit,
     navMode,
     notify,
     route,
@@ -489,6 +497,13 @@ function SimpleTrader({ ship }: { ship: Ship }) {
             onChange={(value) => {
               setNotify(value);
             }}
+          />
+          <InputNumber
+            value={minProfit}
+            onChange={(value) => {
+              setMinProfit(value ?? 0);
+            }}
+            changeOnWheel
           />
         </Space>
       </Flex>

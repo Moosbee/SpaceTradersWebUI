@@ -18,6 +18,7 @@ import WpConfig from "./app/sites/map/waypoint/wpConfig";
 import WpMap from "./app/sites/map/waypoint/wpMap";
 import NewAgent from "./app/sites/newAgent/NewAgent";
 import Surveys from "./app/sites/surveys/Surveys";
+import Markets from "./app/sites/systems/Markets";
 import SystemInfo from "./app/sites/systems/SystemInfo";
 import Systems from "./app/sites/systems/Systems";
 import WaypointInfo from "./app/sites/systems/WaypointInfo";
@@ -91,6 +92,10 @@ function MyApp() {
                     <Route
                       path="/system/:systemID"
                       element={<SystemInfo></SystemInfo>}
+                    />
+                    <Route
+                      path="/system/markets/:systemID"
+                      element={<Markets></Markets>}
                     />
                     <Route
                       path="/system/map/:systemID"

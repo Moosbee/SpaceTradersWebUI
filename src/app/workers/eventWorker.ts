@@ -40,7 +40,7 @@ store.subscribe(() => {
     const timeDiff =
       new Date(ship.nav.route.arrival).getTime() - new Date().getTime();
 
-    console.log("arrival timeDiff", timeDiff);
+    // console.log("arrival timeDiff", timeDiff);
 
     if (timeOut["Arrival" + ship.symbol])
       clearTimeout(timeOut["Arrival" + ship.symbol]);

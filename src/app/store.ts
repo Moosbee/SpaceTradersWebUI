@@ -60,6 +60,7 @@ export type RootState = ReturnType<typeof rootReducer>;
 export const makeStore = (preloadedState?: Partial<RootState>) => {
   const store = configureStore({
     reducer: persistedReducer,
+    devTools: true,
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
     middleware: (getDefaultMiddleware: any) => {
