@@ -192,6 +192,28 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                         });
                       });
                     }}
+                    onSupply={(count, item) => {
+                      console.log("Supply Construction Site", item, count);
+                      spaceTraderClient.SystemsClient.supplyConstruction(
+                        ship.nav.systemSymbol,
+                        ship.nav.waypointSymbol,
+                        {
+                          tradeSymbol: item,
+                          units: count,
+                          shipSymbol: ship.symbol,
+                        },
+                      ).then((value) => {
+                        message.success(
+                          `${count} ${item} supplied to ${ship.nav.systemSymbol}/${ship.nav.waypointSymbol}`,
+                        );
+                        dispatch(
+                          setShipCargo({
+                            symbol: ship.symbol,
+                            cargo: value.data.data.cargo,
+                          }),
+                        );
+                      });
+                    }}
                   ></CargoActions>
                 );
               },
@@ -222,6 +244,7 @@ function CargoActions({
   onTransfer,
   onFulfill,
   onRefuel,
+  onSupply,
 }: {
   item: ShipCargoItem;
   onJettison: (count: number, item: string) => void;
@@ -229,6 +252,7 @@ function CargoActions({
   onTransfer: (count: number, item: string, shipSymbol: string) => void;
   onFulfill: (count: number, item: string, contractID: string) => void;
   onRefuel: (count: number) => void;
+  onSupply: (count: number, item: string) => void;
 }) {
   const [count, setCount] = useState(1);
   const agentSymbol = useAppSelector(selectAgentSymbol);
@@ -292,6 +316,8 @@ function CargoActions({
       {item.symbol === "FUEL" && (
         <Button onClick={() => onRefuel(count)}>Refuel</Button>
       )}
+
+      <Button onClick={() => onSupply(count, item.symbol)}>Supply Const</Button>
     </Space>
   );
 }

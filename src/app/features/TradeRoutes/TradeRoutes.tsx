@@ -8,7 +8,6 @@ import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
 import type { MarketState } from "../../spaceTraderAPI/redux/marketSlice";
 import type { WaypointState } from "../../spaceTraderAPI/redux/waypointSlice";
 import { wpShortestPath } from "../../utils/tavelUtils";
-import type { Prettify } from "../../utils/utils";
 import WaypointLink from "../WaypointLink";
 
 function TradeRoutes({
@@ -86,63 +85,77 @@ function TradeRoutesCard({
   );
 
   const [data, tradeRoutes] = useMemo(() => {
-    const trades: Prettify<
-      Partial<{
-        [key in TradeSymbol]: {
+    const trades: Partial<
+      Record<
+        TradeSymbol,
+        {
           IMPORT: Array<{ symbol: string; price: number; tradeVolume: number }>;
           EXPORT: Array<{ symbol: string; price: number; tradeVolume: number }>;
-        };
-      }>
+        }
+      >
     > = {};
 
-    for (const [symbol, { tradeGoods }] of Object.entries(waypoints)) {
-      for (const {
-        symbol: tradeSymbol,
-        purchasePrice,
-        sellPrice,
-        type,
-        tradeVolume,
-      } of tradeGoods) {
-        if (!trades[tradeSymbol]) {
-          trades[tradeSymbol] = { IMPORT: [], EXPORT: [] };
-        }
-        if (type === "IMPORT" || type === "EXCHANGE")
-          trades[tradeSymbol]?.IMPORT.push({
-            symbol,
-            price: sellPrice,
-            tradeVolume,
-          });
-        if (type === "EXPORT" || type === "EXCHANGE")
-          trades[tradeSymbol]?.EXPORT.push({
-            symbol,
-            price: purchasePrice,
-            tradeVolume,
-          });
-      }
-    }
+    // Populate trades from waypoints data
+    Object.entries(waypoints).forEach(([symbol, { tradeGoods }]) => {
+      tradeGoods.forEach(
+        ({
+          symbol: tradeSymbol,
+          purchasePrice,
+          sellPrice,
+          type,
+          tradeVolume,
+        }) => {
+          if (!trades[tradeSymbol]) {
+            trades[tradeSymbol] = { IMPORT: [], EXPORT: [] };
+          }
+          if (type === "IMPORT" || type === "EXCHANGE") {
+            trades[tradeSymbol]!.IMPORT.push({
+              symbol,
+              price: sellPrice,
+              tradeVolume,
+            });
+          }
+          if (type === "EXPORT" || type === "EXCHANGE") {
+            trades[tradeSymbol]!.EXPORT.push({
+              symbol,
+              price: purchasePrice,
+              tradeVolume,
+            });
+          }
+        },
+      );
+    });
 
+    // Data array
     const data = Object.entries(trades).map(([key, value]) => ({
       key,
       ...value,
     }));
 
+    // Precompute common values to avoid redundant calculations inside loops
+    const shipCapacity = ship?.cargo.capacity ?? 0;
+
+    // Trade routes generation
     const tradeRoutes: Array<TradeRoute> = Object.entries(trades).flatMap(
-      ([key, value]) =>
-        value.EXPORT.flatMap(
+      ([key, { EXPORT, IMPORT }]) => {
+        if (key === "FUEL") return [];
+
+        return EXPORT.flatMap(
           ({
             symbol: exportSymbol,
             price: exportPrice,
             tradeVolume: exportVolume,
           }) =>
-            value.IMPORT.flatMap(
+            IMPORT.flatMap(
               ({
                 symbol: importSymbol,
                 price: importPrice,
                 tradeVolume: importVolume,
               }) => {
-                if (exportSymbol === importSymbol || key === "FUEL") return [];
+                if (exportSymbol === importSymbol) return [];
+
                 const tripVolume = Math.min(
-                  ship?.cargo.capacity ?? 0,
+                  shipCapacity,
                   Math.min(exportVolume, importVolume) * 2,
                 );
                 const routes = wpShortestPath(
@@ -151,19 +164,24 @@ function TradeRoutesCard({
                   pathWps,
                   "BURN-AND-CRUISE-AND-DRIFT",
                   ship,
-                  Math.max(0, (ship?.cargo.capacity ?? 0) - tripVolume),
+                  Math.max(0, shipCapacity - tripVolume),
                 );
 
-                const totalFuelCost = routes.reduce((acc, route) => {
-                  return acc + (route.fuelCost ?? 0);
-                }, 0);
-                const totalTravelTime = routes.reduce((acc, route) => {
-                  return acc + (route.travelTime ?? 0) + 1;
-                }, 0);
+                // Calculate total fuel cost and travel time only once per route set
+                const { totalFuelCost, totalTravelTime } = routes.reduce(
+                  (acc, route) => {
+                    acc.totalFuelCost += route.fuelCost ?? 0;
+                    acc.totalTravelTime += route.travelTime ?? 0;
+                    return acc;
+                  },
+                  { totalFuelCost: 0, totalTravelTime: 0 },
+                );
+
                 const fuelCost = ((totalFuelCost * 2) / 100) * 80;
                 const totalProfit =
                   importPrice * tripVolume -
                   (exportPrice * tripVolume + fuelCost);
+
                 return {
                   tradeSymbol: key as TradeSymbol,
                   purchasePrice: exportPrice,
@@ -175,17 +193,18 @@ function TradeRoutesCard({
                   tradeMaxVolume: Math.max(exportVolume, importVolume),
                   tripVolume,
                   tripFuelCost: fuelCost,
-                  tripTravelTime: totalTravelTime * 2,
+                  tripTravelTime: totalTravelTime * 2 + 1,
                   tripPurchaseCost: exportPrice * tripVolume,
                   tripTotalCost: exportPrice * tripVolume + fuelCost,
                   tripProfit: totalProfit,
                   tripSellCost: importPrice * tripVolume,
                   tripYieldPerHour:
-                    (totalProfit / (totalTravelTime * 2)) * 60 * 60,
+                    (totalProfit / (totalTravelTime * 2 + 1)) * 3600,
                 };
               },
             ),
-        ),
+        );
+      },
     );
 
     return [data, tradeRoutes];
@@ -200,6 +219,7 @@ function TradeRoutesCard({
         onChange={(value) => setShipName(value)}
         value={shipName}
         options={ships.map((w) => ({ label: w.symbol, value: w.symbol }))}
+        allowClear
       />
       <Table
         columns={[
