@@ -14,7 +14,7 @@ import Factions from "./app/sites/factions/Factions";
 import Fleet from "./app/sites/fleet/Fleet";
 import ShipInfo from "./app/sites/fleet/ShipInfo";
 import Main from "./app/sites/main/Main";
-import WpConfig from "./app/sites/map/waypoint/wpConfig";
+import MapConfig from "./app/sites/map/waypoint/mapConfig";
 import WpMap from "./app/sites/map/waypoint/wpMap";
 import NewAgent from "./app/sites/newAgent/NewAgent";
 import Surveys from "./app/sites/surveys/Surveys";
@@ -103,7 +103,7 @@ function MyApp() {
                     />
                     <Route
                       path="/system/wpConfig"
-                      element={<WpConfig></WpConfig>}
+                      element={<MapConfig></MapConfig>}
                     />
                     <Route path="/systems" element={<Systems></Systems>} />
                     <Route path="/cache" element={<Caching></Caching>} />

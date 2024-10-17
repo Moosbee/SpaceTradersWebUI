@@ -1,19 +1,18 @@
 import type { SelectProps } from "antd";
-import { AutoComplete, Card, Select, Space, Typography } from "antd";
+import { AutoComplete, Card, Select, Space, Switch, Typography } from "antd";
 import type {
   MarketTradeGoodTypeEnum,
   Shipyard,
   Waypoint,
-  WaypointType,
 } from "../../spaceTraderAPI/api";
 import {
   ShipType,
   TradeSymbol,
   WaypointTraitSymbol,
+  WaypointType,
 } from "../../spaceTraderAPI/api";
 import type { MarketState } from "../../spaceTraderAPI/redux/marketSlice";
 import type { WaypointState } from "../../spaceTraderAPI/redux/waypointSlice";
-import type { Prettify } from "../../utils/utils";
 
 const traitsOptions: SelectProps["options"] = Object.values(
   WaypointTraitSymbol,
@@ -49,10 +48,12 @@ function FilterCard({
   setMarketItemTypes,
   shipTypes,
   setShipTypes,
+  onlyInterestingMarket,
+  setOnlyInterestingMarket,
 }: {
-  waypoints: Prettify<WaypointState & { market?: MarketState }>[];
-  searchType: WaypointType | undefined;
-  setSearchType: (value: WaypointType) => void;
+  waypoints: string[];
+  searchType: WaypointType[];
+  setSearchType: (value: WaypointType[]) => void;
   searchTraits: WaypointTraitSymbol[];
   setSearchTraits: (value: WaypointTraitSymbol[]) => void;
   searchAutoComplete: string;
@@ -63,6 +64,8 @@ function FilterCard({
   setMarketItemTypes: (value: MarketTradeGoodTypeEnum[]) => void;
   shipTypes: ShipType[];
   setShipTypes: (value: ShipType[]) => void;
+  onlyInterestingMarket: boolean;
+  setOnlyInterestingMarket: (value: boolean) => void;
 }) {
   return (
     <Card style={{ width: "fit-content" }} title={"Search"}>
@@ -72,15 +75,16 @@ function FilterCard({
           placeholder="Select Waypoint Type"
           style={{ width: 250 }}
           allowClear
+          mode="multiple"
           options={[
-            ...new Set(waypoints.map((value) => value.waypoint.type)),
-          ].map((value) => {
-            return {
-              value: value,
-            };
-          })}
+            ...Object.values(WaypointType).map((value) => {
+              return {
+                value: value,
+              };
+            }),
+          ]}
           onChange={(value) => {
-            setSearchType(value as WaypointType);
+            setSearchType(value as WaypointType[]);
             // setWaypointsPage(1);
           }}
         />
@@ -100,12 +104,16 @@ function FilterCard({
           value={searchAutoComplete}
           onChange={(value) => setSearchAutoComplete(value)}
           placeholder="Search..."
-          options={waypoints.map((value) => {
-            return {
-              label: value.waypoint.symbol,
-              value: value.waypoint.symbol,
-            };
-          })}
+          options={waypoints
+            .filter((w) =>
+              w.toLowerCase().includes(searchAutoComplete.toLowerCase()),
+            )
+            .map((value) => {
+              return {
+                label: value,
+                value: value,
+              };
+            })}
         />
       </Space>
       <Title level={5}>Markets</Title>
@@ -145,6 +153,12 @@ function FilterCard({
           ]}
           style={{ width: 300 }}
         />
+        Filter Fuel:
+        <Switch
+          title="Show Only interesting Markets"
+          onChange={setOnlyInterestingMarket}
+          checked={onlyInterestingMarket}
+        />
       </Space>
       <Title level={5}>Shipyards</Title>
       <Select
@@ -167,13 +181,19 @@ function filterWps(
   marketItems: TradeSymbol[],
   searchAutoComplete: string,
   searchTraits: WaypointTraitSymbol[],
-  searchType: WaypointType | undefined,
+  searchType: WaypointType[],
   unfilteredWaypoints: {
     [key: string]: WaypointState;
   },
   unFilteredMarkets: { [key: string]: MarketState },
   shipTypes: ShipType[],
-) {
+  onlyInterestingMarket: boolean,
+): {
+  filter: boolean;
+  waypoint: Waypoint;
+  market?: MarketState;
+  shipyard?: Shipyard;
+}[] {
   const unfiltered: {
     waypoint: Waypoint;
     market?: MarketState;
@@ -186,65 +206,59 @@ function filterWps(
     });
   }
 
-  return unfiltered
-    .filter((waypoint) => {
-      const typeMatch = !searchType || waypoint.waypoint.type === searchType;
-      const traitsMatch =
-        searchTraits.length === 0 ||
-        searchTraits.every((trait) =>
-          waypoint.waypoint.traits.map((t) => t.symbol).includes(trait),
-        );
-      return typeMatch && traitsMatch;
-    })
-    .filter((waypoint) => {
-      return (
-        searchAutoComplete === "" ||
-        waypoint.waypoint.symbol
-          .toLowerCase()
-          .includes(searchAutoComplete.toLowerCase())
+  return unfiltered.map((waypoint) => {
+    const typeMatch =
+      searchType.length === 0 || searchType.includes(waypoint.waypoint.type);
+    const traitsMatch =
+      searchTraits.length === 0 ||
+      searchTraits.every((trait) =>
+        waypoint.waypoint.traits.map((t) => t.symbol).includes(trait),
       );
-    })
-    .filter((waypoint) => {
-      if (marketItems.length === 0) return true;
-      if (waypoint.market === undefined) return false;
-
-      if (
-        (marketItemTypes.length === 0 ||
-          marketItemTypes.includes("EXCHANGE")) &&
-        waypoint.market.static.exchange.some((value) =>
-          marketItems.includes(value.symbol),
-        )
-      ) {
-        return true;
-      }
-
-      if (
-        (marketItemTypes.length === 0 || marketItemTypes.includes("EXPORT")) &&
-        waypoint.market.static.exports.some((value) =>
-          marketItems.includes(value.symbol),
-        )
-      ) {
-        return true;
-      }
-
-      if (
-        (marketItemTypes.length === 0 || marketItemTypes.includes("IMPORT")) &&
-        waypoint.market.static.imports.some((value) =>
-          marketItems.includes(value.symbol),
-        )
-      ) {
-        return true;
-      }
-
-      return false;
-    })
-    .filter((waypoint) => {
-      if (shipTypes.length === 0) return true;
-      if (waypoint.shipyard === undefined) return false;
-      return waypoint.shipyard.shipTypes.some((value) =>
+    const nameMatch =
+      searchAutoComplete === "" ||
+      waypoint.waypoint.symbol
+        .toLowerCase()
+        .includes(searchAutoComplete.toLowerCase());
+    const interestingMarketMatch =
+      !onlyInterestingMarket ||
+      (waypoint.market?.static.exports.length ?? 0) > 0 ||
+      (waypoint.market?.static.imports.length ?? 0) > 0 ||
+      (waypoint.market?.static.exchange.length ?? 0) > 1;
+    const shipyardMatch =
+      shipTypes.length === 0 ||
+      waypoint.shipyard?.shipTypes.some((value) =>
         shipTypes.includes(value.type),
       );
-    });
+    const marketMatch =
+      marketItems.length === 0 ||
+      (waypoint.market !== undefined &&
+        (((marketItemTypes.length === 0 ||
+          marketItemTypes.includes("EXCHANGE")) &&
+          waypoint.market.static.exchange.some((value) =>
+            marketItems.includes(value.symbol),
+          )) ||
+          ((marketItemTypes.length === 0 ||
+            marketItemTypes.includes("EXPORT")) &&
+            waypoint.market.static.exports.some((value) =>
+              marketItems.includes(value.symbol),
+            )) ||
+          ((marketItemTypes.length === 0 ||
+            marketItemTypes.includes("IMPORT")) &&
+            waypoint.market.static.imports.some((value) =>
+              marketItems.includes(value.symbol),
+            ))));
+    return {
+      ...waypoint,
+      filter:
+        (typeMatch &&
+          traitsMatch &&
+          nameMatch &&
+          interestingMarketMatch &&
+          shipyardMatch &&
+          marketMatch) ??
+        false,
+    };
+  });
 }
 export { filterWps };
 export default FilterCard;

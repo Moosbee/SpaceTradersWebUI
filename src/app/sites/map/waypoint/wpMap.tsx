@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
-import WaypointMap from "../../../features/WaypointMap/WaypointMap";
 import MapHolder from "../../../features/MapHolder/MapHolder";
 import PageTitle from "../../../features/PageTitle";
+import WaypointMap from "../../../features/WaypointMap/WaypointMap";
 
 function WpMap() {
   const { systemID } = useParams();

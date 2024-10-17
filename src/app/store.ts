@@ -68,12 +68,22 @@ export const makeStore = (preloadedState?: Partial<RootState>) => {
         serializableCheck: {
           // Ignore these action types
           ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
-          ignoredPaths: ["systems.systems"],
+          ignoredPaths: [
+            "systems.systems",
+            "transactions",
+            "markets.systems",
+            "waypoints.systems",
+          ],
         },
 
         immutableCheck: {
           // Ignore state paths, e.g. state for 'items':
-          ignoredPaths: ["systems.systems"],
+          ignoredPaths: [
+            "systems.systems",
+            "transactions",
+            "markets.systems",
+            "waypoints.systems",
+          ],
         },
       });
       const data2 = data1.concat(

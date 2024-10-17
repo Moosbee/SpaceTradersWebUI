@@ -93,7 +93,7 @@ function SystemInfo() {
     selectSystemMarkets(state, systemID!),
   );
 
-  const [searchType, setSearchType] = useState<WaypointType>();
+  const [searchType, setSearchType] = useState<WaypointType[]>([]);
   const [searchTraits, setSearchTraits] = useState<WaypointTraitSymbol[]>([]);
   const [searchAutoComplete, setSearchAutoComplete] = useState<string>("");
   const [marketItems, setMarketItems] = useState<TradeSymbol[]>([]);
@@ -101,6 +101,7 @@ function SystemInfo() {
     MarketTradeGoodTypeEnum[]
   >([]);
   const [shipTypes, setShipTypes] = useState<ShipType[]>([]);
+  const [onlyInterestingMarket, setOnlyInterestingMarket] = useState(false);
 
   const waypoints = useMemo(() => {
     return filterWps(
@@ -112,10 +113,12 @@ function SystemInfo() {
       unfilteredWaypoints,
       unfilteredMarkets,
       shipTypes,
-    );
+      onlyInterestingMarket,
+    ).filter((w) => w.filter);
   }, [
     marketItemTypes,
     marketItems,
+    onlyInterestingMarket,
     searchAutoComplete,
     searchTraits,
     searchType,
@@ -170,9 +173,11 @@ function SystemInfo() {
             setSearchAutoComplete={setSearchAutoComplete}
             setSearchTraits={setSearchTraits}
             setSearchType={setSearchType}
-            waypoints={waypoints}
+            waypoints={Object.keys(unfilteredWaypoints).map((key) => key)}
             setShipTypes={setShipTypes}
             shipTypes={shipTypes}
+            onlyInterestingMarket={onlyInterestingMarket}
+            setOnlyInterestingMarket={setOnlyInterestingMarket}
           />
           <CachingSystemWaypointsCard systemSymbol={systemID!} />
           <CachingSystemShipyardsCard systemSymbol={systemID!} />
