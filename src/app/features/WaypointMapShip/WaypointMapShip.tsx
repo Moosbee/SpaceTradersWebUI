@@ -86,7 +86,7 @@ function WaypointMapShip({
       </div>
       <div className={classes.shipInfo}>
         {/* {ship.x}, {ship.y} */}
-        {ship?.symbol}
+        {ship?.symbol.split("-")[0][0] + "-" + ship?.symbol.split("-")[1]}
         {/* <br />
         <div
           className={classes.shipInfoMore}
