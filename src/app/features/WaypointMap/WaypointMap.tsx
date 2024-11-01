@@ -157,6 +157,14 @@ function WaypointMap({ systemID }: { systemID: string }) {
         ship,
         route.travelMode,
       );
+    if (route.show === "routeDijkstra") {
+      return calculateRouteMapPoints(
+        waypointsMp,
+        selectedWaypoint,
+        ship,
+        route.travelMode,
+      );
+    }
     // if (route.show === "routeDijkstra")
     //   return calculateRouteMapPoints(
     //     unfilteredWaypoints,
@@ -341,6 +349,127 @@ function calculateAllRouteMapPoints(
         wpSymbol: c.origin,
         destination: c.destination,
         mode: c.flightMode,
+      };
+    })
+    .filter((c): c is RouteMapPoint => !!c);
+}
+
+function calculateRouteMapPoints(
+  waypointsMp: WaypointMapPoint[],
+  selectedWaypoint:
+    | {
+        systemSymbol: string;
+        waypointSymbol: string;
+      }
+    | undefined,
+  ship: Ship | undefined,
+  flightMode: navModes,
+): RouteMapPoint[] {
+  if (!waypointsMp || waypointsMp.length === 0 || !selectedWaypoint) return [];
+
+  // const connections = wpDijkstra(
+  //   selectedWaypoint.waypointSymbol,
+  //   waypointsMp.map((wp) => wp.waypoint.waypoint),
+  //   {
+  //     flightMode,
+  //     maxFuelInCargo: 0,
+  //     maxFuel: ship
+  //       ? ship.fuel.capacity === 0
+  //         ? Infinity
+  //         : ship.fuel.capacity
+  //       : 300,
+  //     startFuel: ship ? ship.fuel.current : 300,
+  //   },
+  // );
+
+  // prettier-ignore
+  const connections=[
+    { start_symbol: "", end_symbol: "X1-KC3-D42", distance: 0.0, cost: 0.0, flight_mode: "DRIFT" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-D43", distance: 0.0, cost: 1.0, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-H54", distance: 51.478150704935004, cost: 26.739075352467502, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-H51", distance: 51.478150704935004, cost: 26.739075352467502, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-H53", distance: 51.478150704935004, cost: 26.739075352467502, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-H52", distance: 51.478150704935004, cost: 26.739075352467502, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-BC5X", distance: 57.8013840664737, cost: 29.90069203323685, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-A3", distance: 81.39410298049853, cost: 41.697051490249265, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-A2", distance: 81.39410298049853, cost: 41.697051490249265, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-A4", distance: 81.39410298049853, cost: 41.697051490249265, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-A1", distance: 81.39410298049853, cost: 41.697051490249265, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-F46", distance: 124.8118584109699, cost: 63.40592920548495, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-F49", distance: 124.8118584109699, cost: 63.40592920548495, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-F47", distance: 124.8118584109699, cost: 63.40592920548495, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-F48", distance: 124.8118584109699, cost: 63.40592920548495, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-G50", distance: 137.32079230764728, cost: 69.66039615382364, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-E45", distance: 142.8355697996826, cost: 72.4177848998413, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-E44", distance: 142.8355697996826, cost: 72.4177848998413, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-C41", distance: 160.58953888718904, cost: 81.29476944359452, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-B6", distance: 182.36227680087788, cost: 92.18113840043894, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-K81", distance: 185.28356645962967, cost: 93.64178322981483, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-K82", distance: 185.28356645962967, cost: 93.64178322981483, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-C39", distance: 194.06442229321684, cost: 98.03221114660842, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-C40", distance: 194.06442229321684, cost: 98.03221114660842, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-E45", end_symbol: "X1-KC3-I56", distance: 171.96511274092776, cost: 159.40034127030518, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B35", distance: 156.18578680533003, cost: 171.27403180310395, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B38", distance: 157.68956845650888, cost: 172.02592262869337, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B8", distance: 164.1584600317632, cost: 175.26036841632055, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B9", distance: 179.96944185055418, cost: 183.16585932571604, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B7", distance: 180.0, cost: 183.18113840043895, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B37", distance: 182.17573932881405, cost: 184.26900806484596, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B33", distance: 184.94593804677083, cost: 185.65410742382437, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B10", distance: 187.20042734993956, cost: 186.78135207540873, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B36", distance: 190.5465822312224, cost: 188.45442951605014, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-C40", end_symbol: "X1-KC3-B17", distance: 184.09780009549272, cost: 191.08111119435478, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-C40", end_symbol: "X1-KC3-B19", distance: 194.98717906570164, cost: 196.52580067945922, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-I56", end_symbol: "X1-KC3-B28", distance: 106.47065323364932, cost: 213.63566788712984, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-I56", end_symbol: "X1-KC3-B30", distance: 128.4445405612866, cost: 224.62261155094848, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-I56", end_symbol: "X1-KC3-B26", distance: 142.22517358048822, cost: 231.51292806054929, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-I56", end_symbol: "X1-KC3-B27", distance: 146.23952953972466, cost: 233.5201060401675, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-B12", distance: 250.79872407968904, cost: 251.79872407968904, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-I56", end_symbol: "X1-KC3-B25", distance: 186.10212250267324, cost: 253.4514025216418, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-B16", distance: 254.01771591761076, cost: 255.01771591761076, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-B14", distance: 254.12595302329905, cost: 255.12595302329905, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-I56", end_symbol: "X1-KC3-B29", distance: 195.04102132628407, cost: 257.92085193344724, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-B13", distance: 259.67864756271354, cost: 260.67864756271354, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-D42", end_symbol: "X1-KC3-B15", distance: 270.1851217221259, cost: 271.1851217221259, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-B7", end_symbol: "X1-KC3-B11", distance: 177.0706073858674, cost: 272.7164420933726, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-C40", end_symbol: "X1-KC3-B21", distance: 203.2141727340886, cost: 302.246383880697, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B34", distance: 212.13203435596427, cost: 305.3131727564032, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-C40", end_symbol: "X1-KC3-B20", distance: 212.00235847744713, cost: 311.03456962405556, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-B6", end_symbol: "X1-KC3-B32", distance: 218.0022935659164, cost: 311.18343196635533, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-C40", end_symbol: "X1-KC3-B18", distance: 219.3855054464629, cost: 318.4177165930713, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-C40", end_symbol: "X1-KC3-B23", distance: 231.36551169091732, cost: 330.39772283752575, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-C40", end_symbol: "X1-KC3-B24", distance: 248.02016047087784, cost: 347.05237161748624, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-G50", end_symbol: "X1-KC3-B22", distance: 278.0071941515183, cost: 348.66759030534195, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-K81", end_symbol: "X1-KC3-B31", distance: 273.28007611240156, cost: 367.9218593422164, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-I56", end_symbol: "X1-KC3-I55", distance: 221.93016919743022, cost: 382.3305104677354, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-I55", end_symbol: "X1-KC3-J57", distance: 149.5125412799876, cost: 458.08678110772917, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-J57", end_symbol: "X1-KC3-J58", distance: 119.85407794480753, cost: 519.013820080133, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-J57", end_symbol: "X1-KC3-J68", distance: 136.8941196691808, cost: 527.5338409423196, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-J57", end_symbol: "X1-KC3-J67", distance: 181.41664752717708, cost: 549.7951048713177, flight_mode: "BURN" }, 
+  { start_symbol: "X1-KC3-B7", end_symbol: "X1-KC3-J74", distance: 381.16269492173546, cost: 565.3438333221744, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-J57", end_symbol: "X1-KC3-J70", distance: 230.09780529157595, cost: 689.1845863993051, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-J57", end_symbol: "X1-KC3-J72", distance: 334.37852801877096, cost: 793.4653091265002, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-J57", end_symbol: "X1-KC3-J66", distance: 384.94804844290354, cost: 844.0348295506327, flight_mode: "CRUISE" }, 
+  { start_symbol: "X1-KC3-J58", end_symbol: "X1-KC3-J69", distance: 399.0112780360976, cost: 919.0250981162305, flight_mode: "CRUISE" }];
+
+  return connections
+    .map((c) => {
+      const wpStart = waypointsMp.find(
+        (w) => w.waypoint.waypoint.symbol === c.start_symbol,
+      );
+      const wpEnd = waypointsMp.find(
+        (w) => w.waypoint.waypoint.symbol === c.end_symbol,
+      );
+      if (!wpStart || !wpEnd) return undefined;
+      return {
+        x1: wpStart.xOne,
+        y1: wpStart.yOne,
+        x2: wpEnd.xOne,
+        y2: wpEnd.yOne,
+        distance: c.distance,
+        wpSymbol: c.start_symbol,
+        destination: c.end_symbol,
+        mode: c.flight_mode,
       };
     })
     .filter((c): c is RouteMapPoint => !!c);
