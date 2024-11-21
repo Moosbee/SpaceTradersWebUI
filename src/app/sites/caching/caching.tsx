@@ -1,12 +1,12 @@
-import { Button, Space } from "antd";
+import { Button, Popconfirm, Space } from "antd";
 import CachingContractsCard from "../../features/cachingCard/CachingContractsCard";
 import CachingFleetCard from "../../features/cachingCard/CachingFleetCard";
 import CachingSystemsCard from "../../features/cachingCard/CachingSystemsCard";
+import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { clearContracts } from "../../spaceTraderAPI/redux/contractSlice";
 import { clearShips } from "../../spaceTraderAPI/redux/fleetSlice";
-import PageTitle from "../../features/PageTitle";
 
 function Caching() {
   const dispatch = useAppDispatch();
@@ -31,6 +31,25 @@ function Caching() {
         >
           Clear ALL Fleets
         </Button>
+        <Popconfirm
+          title="Do you want to Reset the App?"
+          description={
+            <span>
+              Please make sure all other tabs are closed!
+              <br /> So that this is the only open Tap here.
+              <br /> This will delete all data from IndexedDB and reload the
+              application.
+            </span>
+          }
+          onConfirm={() => {
+            indexedDB.deleteDatabase("myApp");
+            window.location.reload();
+          }}
+          okText="OK"
+          cancelText="No"
+        >
+          <Button danger>Clear Everything</Button>
+        </Popconfirm>
       </Space>
       <h2>{myAgentSymbol}</h2>
       <Space>

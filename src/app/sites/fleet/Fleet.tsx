@@ -1,13 +1,12 @@
 import { Divider, Flex } from "antd";
 import ShipDisp from "../../features/disp/ship/ShipDisp";
 
-import { useAppSelector } from "../../hooks";
-import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
-import CachingFleetCard from "../../features/cachingCard/CachingFleetCard";
-import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import CachingFleetCard from "../../features/cachingCard/CachingFleetCard";
 import PageTitle from "../../features/PageTitle";
+import { useAppSelector } from "../../hooks";
+import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
 
 function Fleet() {
   const agentSymbol = useAppSelector(selectAgentSymbol);
@@ -25,8 +24,6 @@ function Fleet() {
       <PageTitle title="Fleet" />
       <Flex justify="space-around">
         <h2>All Ships</h2>
-        <Link to={"/fleet/selected"}>Current</Link>
-
         <CachingFleetCard />
       </Flex>
       <Divider />

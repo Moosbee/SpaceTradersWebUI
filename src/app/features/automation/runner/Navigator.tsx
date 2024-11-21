@@ -242,6 +242,7 @@ function Navigator({ ship }: { ship: Ship }) {
       }
     >
       <Space>
+        Target:
         <Select
           options={Object.values(waypoints).map((w) => {
             return {

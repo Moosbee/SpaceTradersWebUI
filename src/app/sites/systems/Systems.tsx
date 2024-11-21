@@ -8,14 +8,13 @@ import {
   Pagination,
   Select,
 } from "antd";
-import { selectSystems } from "../../spaceTraderAPI/redux/systemSlice";
-import { useAppSelector } from "../../hooks";
-import CachingSystemsCard from "../../features/cachingCard/CachingSystemsCard";
 import { useMemo, useState } from "react";
+import CachingSystemsCard from "../../features/cachingCard/CachingSystemsCard";
 import SystemDisp from "../../features/disp/SystemDisp";
-import type { System } from "../../spaceTraderAPI/api";
-import { Link } from "react-router-dom";
 import PageTitle from "../../features/PageTitle";
+import { useAppSelector } from "../../hooks";
+import type { System } from "../../spaceTraderAPI/api";
+import { selectSystems } from "../../spaceTraderAPI/redux/systemSlice";
 
 function Systems() {
   const unfilteredSystems: System[] = useAppSelector(selectSystems);
@@ -144,7 +143,6 @@ function Systems() {
     <div style={{ padding: "24px 24px" }}>
       <PageTitle title={"Systems"} />
       <h2>All Systems</h2>
-      <Link to={"/systems/selected"}>Current</Link>
       <Flex justify="space-around" gap={8}>
         <Card style={{ width: "fit-content" }} title={"Search"}>
           <Descriptions

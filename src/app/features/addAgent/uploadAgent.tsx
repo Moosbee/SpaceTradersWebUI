@@ -1,9 +1,9 @@
 import { InboxOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { message, Upload } from "antd";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import { selectAgents, setAgents } from "../../spaceTraderAPI/redux/agentSlice";
 import { useAppDispatch, useAppSelector } from "../../hooks";
+import { selectAgents, setAgents } from "../../spaceTraderAPI/redux/agentSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 interface FileAgent {
   symbol: string;
@@ -60,51 +60,58 @@ function UploadAgent() {
             onProgress({ percent: 5 });
             return parseAgents(text);
           })
-          .then((agents) => {
+          .then(async (agents) => {
             console.log("agents", agents);
             onProgress({ percent: 10 });
             let count = 0;
             let all = agents.length;
-            return Promise.all(
-              agents
-                .concat(
-                  useAgents.map((agent) => ({
-                    symbol: agent.agent.symbol,
-                    token: agent.token,
-                  })),
-                )
-                .reduce((acc, cur) => {
-                  // Remove duplicates
-                  if (!acc.find((item) => item.token === cur.token)) {
-                    acc.push(cur);
-                  } else {
-                    message.warning("Duplicated agent: " + cur.symbol);
-                  }
-                  return acc;
-                }, [] as FileAgent[])
-                .map(async (agent) => {
-                  const response =
-                    await spaceTraderClient.AgentsClient.getMyAgent({
-                      transformRequest: (data_1, headers) => {
-                        headers["Authorization"] = `Bearer ${agent.token}`;
-                        return data_1;
-                      },
-                    });
-                  count++;
-                  onProgress({
-                    percent: 10 + (((count * 100) / all) * 90) / 100,
-                  });
-                  if (response.status === 200) {
-                    return {
-                      agent: response.data.data,
-                      token: agent.token,
-                    };
-                  } else {
-                    message.warning("Failed to revalidate " + agent.symbol);
-                    return undefined;
-                  }
-                }),
-            );
+            let allAgents = agents
+              .concat(
+                useAgents.map((agent) => ({
+                  symbol: agent.agent.symbol,
+                  token: agent.token,
+                })),
+              )
+              .reduce((acc, cur) => {
+                // Remove duplicates
+                if (!acc.find((item) => item.token === cur.token)) {
+                  acc.push(cur);
+                } else {
+                  message.warning("Duplicated agent: " + cur.symbol);
+                }
+                return acc;
+              }, [] as FileAgent[]);
+
+            let verifiedAgents = [];
+
+            for (const agent of allAgents) {
+              const response = await spaceTraderClient.AgentsClient.getMyAgent({
+                transformRequest: (data_1, headers) => {
+                  headers["Authorization"] = `Bearer ${agent.token}`;
+                  return data_1;
+                },
+              });
+              count++;
+              onProgress({
+                percent: 10 + (((count * 100) / all) * 85) / 100,
+              });
+              if (response.status === 200) {
+                verifiedAgents.push({
+                  agent: response.data.data,
+                  token: agent.token,
+                });
+              } else {
+                message.warning("Failed to revalidate " + agent.symbol);
+                verifiedAgents.push(undefined);
+              }
+            }
+
+            return verifiedAgents;
+          })
+          .then(async (agents) => {
+            onProgress({ percent: 100 });
+            await new Promise((resolve) => setTimeout(resolve, 500));
+            return agents;
           })
           .then((data) => {
             dispatch(
@@ -126,7 +133,14 @@ function UploadAgent() {
       }
     },
 
-    showUploadList: false,
+    onChange(info) {
+      if (info.file.status === "done") {
+        info.fileList.splice(0, info.fileList.length);
+      }
+    },
+
+    maxCount: 1,
+    listType: "picture",
   };
   return (
     <div style={{ maxWidth: 600 }}>

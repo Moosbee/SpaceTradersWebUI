@@ -117,10 +117,9 @@ function Extractor({ ship }: { ship: Ship }) {
       title={
         <Space>
           <Badge status={running ? "processing" : "default"} />
-          Extractor
+          Extract/Siphon
         </Space>
       }
-      // title="Surveyor"
       extra={
         <Button
           onClick={() => {
@@ -134,50 +133,60 @@ function Extractor({ ship }: { ship: Ship }) {
         </Button>
       }
     >
-      <Select
-        options={["siphon", "extract"].map((w) => {
-          return {
-            value: w,
-            label: w,
-          };
-        })}
-        showSearch
-        style={{ width: 100 }}
-        onChange={(value) => {
-          setType(value);
-        }}
-        value={type}
-      />
+      <Space>
+        Type:
+        <Select
+          options={["siphon", "extract"].map((w) => {
+            return {
+              value: w,
+              label: w,
+            };
+          })}
+          showSearch
+          style={{ width: 100 }}
+          onChange={(value) => {
+            setType(value);
+          }}
+          value={type}
+        />
+      </Space>
+      <br />
       <br />
       {type === "extract" && (
-        <Select
-          options={surveys
-            .filter((w) => w.symbol === ship?.nav.waypointSymbol)
-            .map((w) => {
-              return {
-                value: w.signature,
-                label: (
-                  <Tooltip
-                    title={`${w.signature} - (${w.deposits
-                      ?.map((w) => w.symbol)
-                      .join(", ")})`}
-                  >
-                    {w.signature}
-                  </Tooltip>
-                ),
-              };
-            })}
-          showSearch
-          style={{ width: 180 }}
-          onChange={(value) => {
-            setSurvey(value);
-          }}
-          value={survey}
-        />
+        <Space>
+          Survey:
+          <Select
+            options={surveys
+              .filter((w) => w.symbol === ship?.nav.waypointSymbol)
+              .map((w) => {
+                return {
+                  value: w.signature,
+                  label: (
+                    <Tooltip
+                      title={`${w.signature} - (${w.deposits
+                        ?.map((w) => w.symbol)
+                        .join(", ")})`}
+                    >
+                      {w.signature}
+                    </Tooltip>
+                  ),
+                };
+              })}
+            showSearch
+            style={{ width: 180 }}
+            onChange={(value) => {
+              setSurvey(value);
+            }}
+            value={survey}
+          />
+        </Space>
       )}
       <br />
-      Notify and Shutdown on Storage Full:{" "}
-      <Switch checked={notify} onChange={setNotify} />
+      <br />
+      <Space>
+        Notify and Shutdown on Full Storage:
+        <Switch checked={notify} onChange={setNotify} />
+      </Space>
     </Card>
   );
 }

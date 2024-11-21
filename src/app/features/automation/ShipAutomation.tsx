@@ -8,10 +8,16 @@ import Surveyor from "./runner/Surveyor";
 function ShipAutomation({ ship }: { ship: Ship }) {
   return (
     <Flex wrap style={{ gap: "20px" }}>
-      <Surveyor ship={ship} />
-      <Extractor ship={ship} />
+      {ship.mounts.some((m) => m.symbol.startsWith("MOUNT_SURVEYOR")) && (
+        <Surveyor ship={ship} />
+      )}
+      {ship.mounts.some(
+        (m) =>
+          m.symbol.startsWith("MOUNT_GAS_SIPHON") ||
+          m.symbol.startsWith("MOUNT_MINING_LASER"),
+      ) && <Extractor ship={ship} />}
       <Navigator ship={ship} />
-      <SimpleTrader ship={ship} />
+      {ship.cargo.capacity > 0 && <SimpleTrader ship={ship} />}
     </Flex>
   );
 }

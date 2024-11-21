@@ -426,6 +426,7 @@ function SimpleTrader({ ship }: { ship: Ship }) {
       <Flex gap="middle" vertical>
         <Space>
           <Select
+            placeholder="Trade Good"
             value={tradeGood}
             onChange={(value) => setTradeGood(value)}
             options={filterTradeGoods.map((w) => ({
@@ -436,6 +437,7 @@ function SimpleTrader({ ship }: { ship: Ship }) {
             showSearch
             allowClear
           />
+          <span>Trade Volume:</span>
           <InputNumber
             min={0}
             max={ship.cargo.capacity ?? 0}
@@ -444,7 +446,7 @@ function SimpleTrader({ ship }: { ship: Ship }) {
             changeOnWheel
           />
         </Space>
-        <Space>
+        <Flex justify="space-between">
           <Select
             options={filterSourceMarkets.map(([key, w]) => {
               return {
@@ -452,15 +454,15 @@ function SimpleTrader({ ship }: { ship: Ship }) {
                 label: key,
               };
             })}
+            placeholder="Source Market"
             showSearch
-            style={{ width: 130 }}
+            style={{ width: 150 }}
             onChange={(value) => {
               setSourceWp(value);
             }}
             value={sourceWp}
             allowClear
           />
-
           <Select
             options={filterTargetMarkets.map(([key, w]) => {
               return {
@@ -469,14 +471,15 @@ function SimpleTrader({ ship }: { ship: Ship }) {
               };
             })}
             showSearch
-            style={{ width: 130 }}
+            placeholder="Target Market"
+            style={{ width: 150 }}
             onChange={(value) => {
               setTargetWp(value);
             }}
             value={targetWp}
             allowClear
           />
-        </Space>
+        </Flex>
         <Space>
           <Select
             options={Object.values(navModes).map((w) => {
@@ -492,19 +495,26 @@ function SimpleTrader({ ship }: { ship: Ship }) {
             }}
             value={navMode}
           />
-          <Switch
-            checked={notify}
-            onChange={(value) => {
-              setNotify(value);
-            }}
-          />
-          <InputNumber
-            value={minProfit}
-            onChange={(value) => {
-              setMinProfit(value ?? 0);
-            }}
-            changeOnWheel
-          />
+          <Tooltip title="Notify when route profit reaches min profit and deactivate Route">
+            <Switch
+              checked={notify}
+              onChange={(value) => {
+                setNotify(value);
+              }}
+            />
+          </Tooltip>
+          {notify && (
+            <>
+              <span>Min Profit:</span>
+              <InputNumber
+                value={minProfit}
+                onChange={(value) => {
+                  setMinProfit(value ?? 0);
+                }}
+                changeOnWheel
+              />
+            </>
+          )}
         </Space>
       </Flex>
       <Divider />

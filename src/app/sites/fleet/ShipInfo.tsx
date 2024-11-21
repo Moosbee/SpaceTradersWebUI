@@ -57,14 +57,14 @@ function ShipInfo() {
           </Col>
           <Col span={24}>
             <Flex wrap gap={8}>
-              <Button>Ship Refine</Button>
-              <Button>Scan Systems</Button>
-              <Button>Scan Waypoints</Button>
-              <Button>Scan Ships</Button>
-              <Button>Install Mount</Button>
-              <Button>Remove Mount</Button>
-              <Button>Scrap Ship</Button>
-              <Button>Repair Ship</Button>
+              <Button disabled>Ship Refine</Button>
+              <Button disabled>Scan Systems</Button>
+              <Button disabled>Scan Waypoints</Button>
+              <Button disabled>Scan Ships</Button>
+              <Button disabled>Install Mount</Button>
+              <Button disabled>Remove Mount</Button>
+              <Button disabled>Scrap Ship</Button>
+              <Button disabled>Repair Ship</Button>
             </Flex>
           </Col>
           <Col span={24} sm={24} md={10}>

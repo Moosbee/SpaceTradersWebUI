@@ -1,3 +1,6 @@
+import { useAppSelector } from "../../hooks";
+import type { ShipNavFlightMode } from "../../spaceTraderAPI/api";
+import { selectDarkMode } from "../../spaceTraderAPI/redux/configSlice";
 import classes from "./WaypointMapShipOrbit.module.css";
 
 function WaypointMapShipOrbit({
@@ -5,6 +8,7 @@ function WaypointMapShipOrbit({
   posOrbitCenter,
   line,
   size,
+  mode,
 }: {
   pos: {
     x: number;
@@ -21,6 +25,7 @@ function WaypointMapShipOrbit({
     y2: number;
   };
   size: number;
+  mode?: ShipNavFlightMode;
 }) {
   return (
     <>
@@ -31,7 +36,9 @@ function WaypointMapShipOrbit({
           size={size}
         />
       )}
-      {line && <WaypointMapShipOrbitLine line={line} size={size} />}
+      {line && mode && (
+        <WaypointMapShipOrbitLine line={line} size={size} mode={mode} />
+      )}
     </>
   );
 }
@@ -39,6 +46,7 @@ function WaypointMapShipOrbit({
 function WaypointMapShipOrbitLine({
   line,
   size,
+  mode,
 }: {
   line: {
     x1: number;
@@ -47,12 +55,22 @@ function WaypointMapShipOrbitLine({
     y2: number;
   };
   size: number;
+  mode: ShipNavFlightMode;
 }) {
+  const theme = useAppSelector(selectDarkMode);
   return (
     <line
       style={
         {
           "--stroke-width": `${Math.min(0.2, 200 / size)}px`,
+          color:
+            mode === "BURN"
+              ? theme
+                ? "yellow"
+                : "#7D00FF"
+              : mode === "DRIFT"
+                ? "red"
+                : "green",
         } as React.CSSProperties
       }
       x1={line.x1}

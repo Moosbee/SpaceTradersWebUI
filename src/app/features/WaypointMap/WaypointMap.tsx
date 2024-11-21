@@ -25,7 +25,7 @@ import { selectSystem } from "../../spaceTraderAPI/redux/systemSlice";
 import type { WaypointState } from "../../spaceTraderAPI/redux/waypointSlice";
 import { selectSystemWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import type { navModes } from "../../utils/tavelUtils";
-import { wpDijkstra } from "../../utils/tavelUtils";
+import { wpDijkstra, wpShortestPath } from "../../utils/tavelUtils";
 import { cyrb53, scaleNum, seedShuffle } from "../../utils/utils";
 import { filterWps } from "../filterCard/FilterCard";
 import WaypointMapRoute from "../WaypointMapRoute/WaypointMapRoute";
@@ -57,6 +57,7 @@ interface ShipMapPoint {
     x2: number;
     y2: number;
   };
+  mode?: ShipNavFlightMode;
 }
 
 interface WaypointMapPoint {
@@ -157,14 +158,21 @@ function WaypointMap({ systemID }: { systemID: string }) {
         ship,
         route.travelMode,
       );
-    // if (route.show === "routeDijkstra")
-    //   return calculateRouteMapPoints(
-    //     unfilteredWaypoints,
-    //     selectedWaypoint?.waypointSymbol ?? "",
-    //     selectedWaypoint?.waypointSymbol ?? "",
-    //     ship,
-    //     route.travelMode,
-    //   );
+    if (route.show === "routeDijkstra") {
+      if (
+        !ship?.nav.waypointSymbol ||
+        !selectedWaypoint?.waypointSymbol ||
+        !ship
+      )
+        return [];
+      return calculateRouteMapPoints(
+        waypointsMp,
+        ship.nav.waypointSymbol,
+        selectedWaypoint.waypointSymbol,
+        ship,
+        route.travelMode,
+      );
+    }
     return [];
   }, [route.show, route.travelMode, waypointsMp, selectedWaypoint, ship]);
 
@@ -346,42 +354,59 @@ function calculateAllRouteMapPoints(
     .filter((c): c is RouteMapPoint => !!c);
 }
 
-// function calculateRouteMapPoints(
-//   waypointsMp: Record<string, WaypointState>,
-//   start: string,
-//   end: string,
-//   ship: Ship | undefined,
-//   flightMode: navModes,
-// ): RouteMapPoint[] {
-//   if (!waypointsMp) return [];
+function calculateRouteMapPoints(
+  // waypointsMp: Record<string, WaypointState>,
+  waypointsMp: WaypointMapPoint[],
+  start: string,
+  end: string,
+  ship: Ship | undefined,
+  flightMode: navModes,
+): RouteMapPoint[] {
+  if (!waypointsMp) return [];
 
-//   const connections = wpShortestPath(
-//     start,
-//     end,
-//     waypointsMp,
-//     flightMode,
-//     ship,
-//     ship ? ship.fuel.current : 300
-//   );
+  let wps = waypointsMp
+    .map((wp) => wp.waypoint)
+    .reduce(
+      (a, b) => {
+        return {
+          ...a,
+          [b.waypoint.symbol]: b,
+        };
+      },
+      {} as Record<string, WaypointState>,
+    );
 
-//   return connections
-//     .map((c) => {
-//       const wpStart = waypointsMp[c.origin];
-//       const wpEnd = waypointsMp[c.destination];
-//       if (!wpStart || !wpEnd) return undefined;
-//       return {
-//         x1: wpStart.xOne,
-//         y1: wpStart.yOne,
-//         x2: wpEnd.xOne,
-//         y2: wpEnd.yOne,
-//         distance: c.distance,
-//         wpSymbol: c.origin,
-//         destination: c.destination,
-//         mode: c.flightMode,
-//       };
-//     })
-//     .filter((c): c is RouteMapPoint => !!c);
-// }
+  const connections = wpShortestPath(
+    start,
+    end,
+    wps,
+    flightMode,
+    ship,
+    ship ? ship.fuel.current : 300,
+  );
+
+  return connections
+    .map((c) => {
+      const wpStart = waypointsMp.find(
+        (w) => w.waypoint.waypoint.symbol === c.origin,
+      );
+      const wpEnd = waypointsMp.find(
+        (w) => w.waypoint.waypoint.symbol === c.destination,
+      );
+      if (!wpStart || !wpEnd) return undefined;
+      return {
+        x1: wpStart.xOne,
+        y1: wpStart.yOne,
+        x2: wpEnd.xOne,
+        y2: wpEnd.yOne,
+        distance: c.distance,
+        wpSymbol: c.origin,
+        destination: c.destination,
+        mode: c.flightMode,
+      };
+    })
+    .filter((c): c is RouteMapPoint => !!c);
+}
 
 function renderWaypointOrbits(waypointsMp: WaypointMapPoint[], size: number) {
   return waypointsMp.map((w) => (
@@ -407,6 +432,7 @@ function renderShipOrbits(shipsMp: ShipMapPoint[], size: number) {
       }}
       posOrbitCenter={s.posOrbitCenter}
       line={s.line}
+      mode={s.mode}
     />
   ));
 }
@@ -600,6 +626,7 @@ function createTransitingShipPoint(
       x2: wpEnd.xOne,
       y2: wpEnd.yOne,
     },
+    mode: ship.nav.flightMode,
   };
 }
 export default WaypointMap;

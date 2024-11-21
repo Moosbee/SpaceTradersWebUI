@@ -48,7 +48,7 @@ function MarketStore({
       <Table
         bordered
         dataSource={tradeGoods
-          .filter((tradeGood) => tradeGood.type !== "IMPORT")
+          // .filter((tradeGood) => tradeGood.type !== "IMPORT")
           .map((tradeGood) => ({
             ...tradeGood,
             action: <TradeActionDisp tradeGood={tradeGood} ship={ship} />,

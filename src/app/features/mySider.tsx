@@ -7,6 +7,7 @@ import {
   GlobalOutlined,
   HomeOutlined,
   PlusOutlined,
+  QuestionCircleOutlined,
   RocketOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
@@ -98,25 +99,11 @@ const items: MenuItem[] = [
       },
     ],
   },
-
   {
-    key: "automation",
-    label: "Automation",
-    icon: <FaIcon type="solid" icon="fa-robot" />,
-    children: [
-      {
-        label: <Link to="/automation/editor">Automation Editor</Link>,
-        key: "automation/editor",
-        icon: <FaIcon type="solid" icon="fa-user-robot" />,
-      },
-      {
-        label: <Link to="/automation">Automations</Link>,
-        key: "automations",
-        icon: <FaIcon type="solid" icon="fa-robot" />,
-      },
-    ],
+    label: <Link to="/help">Help</Link>,
+    key: "help",
+    icon: <QuestionCircleOutlined />,
   },
-
   {
     label: <Link to="/newAgent">New Agent</Link>,
     key: "newAgent",

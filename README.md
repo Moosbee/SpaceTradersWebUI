@@ -1,11 +1,8 @@
-
-
-
 # Spacetradrs
 
-`openapi-generator-cli generate -i 'https://stoplight.io/api/v1/projects/spacetraders/spacetraders/nodes/reference/SpaceTraders.json' -g typescript-axios -o ./src/utils/api`
+The generator command: `openapi-generator-cli generate -i 'https://stoplight.io/api/v1/projects/spacetraders/spacetraders/nodes/reference/SpaceTraders.json' -g typescript-axios -o ./src/utils/api`
 
-## Scripts
+## Scripts for Dev
 
 - `dev`/`start` - start dev server and open browser
 - `build` - build for production
@@ -13,14 +10,3 @@
 - `test` - launch test runner
 
 ## TODO
-
-- [ ] Survey detail list
-- [ ] Ship details
-- [ ] Fleet list
-- [ ] Systems list
-- [ ] System info
-- [ ] Ship quick actions
-- [ ] Map
-- [ ] Ship Map actions
-- [ ] Map filtering
-- [ ] 

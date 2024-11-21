@@ -1,10 +1,10 @@
 import type { PaginationProps } from "antd";
-import { Pagination, Flex, Spin } from "antd";
-import { useState, useEffect } from "react";
-import type { Faction } from "../../spaceTraderAPI/api";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import { Flex, Pagination, Spin } from "antd";
+import { useEffect, useState } from "react";
 import FactionDisp from "../../features/disp/FactionDisp";
 import PageTitle from "../../features/PageTitle";
+import type { Faction } from "../../spaceTraderAPI/api";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function Factions() {
   const [factions, setFactions] = useState<Faction[]>([]);
@@ -15,6 +15,7 @@ function Factions() {
 
   useEffect(() => {
     setLoading(true);
+    console.log("page", factionsPage, "items", itemsPerPage);
     spaceTraderClient.FactionsClient.getFactions(
       factionsPage,
       itemsPerPage,
@@ -30,6 +31,7 @@ function Factions() {
   const onChange: PaginationProps["onChange"] = (page, pageSize) => {
     console.log(page);
     setFactionsPage(page);
+    // setItemsPerPage(20);
     setItemsPerPage(pageSize);
   };
 
@@ -42,8 +44,9 @@ function Factions() {
         onChange={onChange}
         total={factionsAll}
         pageSizeOptions={[5, 10, 15, 20]}
+        defaultPageSize={20}
         showTotal={(total, range) =>
-          `${range[0]}-${range[1]} of ${total} items`
+          `${range[0]}-${range[1]} of ${total} items with ${itemsPerPage} per page`
         }
         style={{ padding: "16px", textAlign: "center" }}
       />

@@ -7,12 +7,12 @@ import { useAppSelector } from "./app/hooks";
 import ErrorPage from "./app/sites/ErrorPage";
 import Agents from "./app/sites/agents/Agents";
 import Automations from "./app/sites/automation/Automations";
-import PageAutomationEditor from "./app/sites/automation/Editor";
 import Caching from "./app/sites/caching/caching";
 import Contracts from "./app/sites/contracts/Contracts";
 import Factions from "./app/sites/factions/Factions";
 import Fleet from "./app/sites/fleet/Fleet";
 import ShipInfo from "./app/sites/fleet/ShipInfo";
+import Help from "./app/sites/help/help";
 import Main from "./app/sites/main/Main";
 import MapConfig from "./app/sites/map/waypoint/mapConfig";
 import WpMap from "./app/sites/map/waypoint/wpMap";
@@ -22,7 +22,7 @@ import Markets from "./app/sites/systems/Markets";
 import SystemInfo from "./app/sites/systems/SystemInfo";
 import Systems from "./app/sites/systems/Systems";
 import WaypointInfo from "./app/sites/systems/WaypointInfo";
-import MarketTransaction from "./app/sites/tramsactions/MarketTransaction";
+import MarketTransaction from "./app/sites/transactions/MarketTransaction";
 import { selectDarkMode } from "./app/spaceTraderAPI/redux/configSlice";
 import Message from "./app/utils/message";
 import WorkerLoader from "./app/workers/WorkerLoader";
@@ -109,14 +109,7 @@ function MyApp() {
                     <Route path="/cache" element={<Caching></Caching>} />
                     <Route path="/surveys" element={<Surveys />} />
                     <Route path="/automation" element={<Automations />} />
-                    <Route
-                      path="/automation/editor"
-                      element={<PageAutomationEditor />}
-                    />
-                    <Route
-                      path="/automation"
-                      element={<PageAutomationEditor />}
-                    />
+                    <Route path="/help" element={<Help />} />
                   </Routes>
                 </Content>
               </Layout>
