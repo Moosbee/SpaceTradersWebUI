@@ -243,7 +243,7 @@ function wpDijkstra(
     }
     first = false;
   }
-
+  console.log("visit", waypoints, visited);
   return visited;
 }
 
