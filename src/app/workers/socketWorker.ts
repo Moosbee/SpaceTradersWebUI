@@ -1,9 +1,10 @@
 import type { Socket } from "socket.io-client";
 import { io } from "socket.io-client";
+import type { ShipNav } from "../spaceTraderAPI/api";
 import { BASE_PATH } from "../spaceTraderAPI/api/base";
 import { selectAgent } from "../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../spaceTraderAPI/redux/configSlice";
-import { selectShips } from "../spaceTraderAPI/redux/fleetSlice";
+import { selectShips, setShipNav } from "../spaceTraderAPI/redux/fleetSlice";
 import { store } from "../store";
 
 const work = () => {
@@ -15,6 +16,8 @@ const work = () => {
   // });
 
   let oldToken = "";
+
+  console.log("Start socket worker");
 
   const onEvent = (eventName: string, args: any[]) => {
     console.log("eveent", eventName, args);
@@ -63,6 +66,19 @@ const work = () => {
       socket.onAny((eventName, ...args) => {
         onEvent(eventName, args);
       });
+
+      socket.on(
+        `systems.${systemSymbol}.departure`,
+        (shipName: string, nav: ShipNav) => {
+          console.log("departurer", shipName, nav);
+          store.dispatch(
+            setShipNav({
+              symbol: shipName,
+              nav,
+            }),
+          );
+        },
+      );
 
       socket.on("connect", () => {
         console.log("connected");

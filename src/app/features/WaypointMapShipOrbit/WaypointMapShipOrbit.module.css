@@ -1,5 +1,6 @@
 .orbitLine {
   stroke-width: var(--stroke-width);
+  stroke: currentColor;
 }
 
 .orbitCircle {

@@ -1,5 +1,5 @@
 import type { DescriptionsProps } from "antd";
-import { Button, Card, Descriptions } from "antd";
+import { Button, Card, Descriptions, Tooltip } from "antd";
 import type { ShipyardShip } from "../../../spaceTraderAPI/api";
 
 function ShipyardShipDisp({
@@ -13,17 +13,14 @@ function ShipyardShipDisp({
     {
       key: "name",
       label: "Name",
-      children: <span>{shipyardShip.name}</span>,
+      children: (
+        <Tooltip title={shipyardShip.description}>{shipyardShip.name}</Tooltip>
+      ),
     },
     {
       key: "type",
       label: "Type",
       children: <span>{shipyardShip.type}</span>,
-    },
-    {
-      key: "description",
-      label: "Description",
-      children: <span>{shipyardShip.description}</span>,
     },
     {
       key: "purchasePrice",
@@ -41,6 +38,11 @@ function ShipyardShipDisp({
       children: <span>{shipyardShip.supply}</span>,
     },
     {
+      key: "fuelCapacity",
+      label: "Fuel Capacity",
+      children: <span>{shipyardShip.frame.fuelCapacity}</span>,
+    },
+    {
       key: "crew",
       label: "Crew",
       children: (
@@ -54,9 +56,9 @@ function ShipyardShipDisp({
       key: "engine",
       label: "Engine",
       children: (
-        <span>
-          {shipyardShip.engine.name} ({shipyardShip.engine.symbol})
-        </span>
+        <Tooltip title={shipyardShip.engine.symbol}>
+          {shipyardShip.engine.name} ({shipyardShip.engine.speed} speed)
+        </Tooltip>
       ),
     },
     {

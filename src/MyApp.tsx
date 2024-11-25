@@ -6,7 +6,6 @@ import MySider from "./app/features/mySider";
 import { useAppSelector } from "./app/hooks";
 import ErrorPage from "./app/sites/ErrorPage";
 import Agents from "./app/sites/agents/Agents";
-import Automations from "./app/sites/automation/Automations";
 import Caching from "./app/sites/caching/caching";
 import Contracts from "./app/sites/contracts/Contracts";
 import Factions from "./app/sites/factions/Factions";
@@ -108,7 +107,6 @@ function MyApp() {
                     <Route path="/systems" element={<Systems></Systems>} />
                     <Route path="/cache" element={<Caching></Caching>} />
                     <Route path="/surveys" element={<Surveys />} />
-                    <Route path="/automation" element={<Automations />} />
                     <Route path="/help" element={<Help />} />
                   </Routes>
                 </Content>

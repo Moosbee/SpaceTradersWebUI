@@ -1,5 +1,5 @@
 import type { DescriptionsProps } from "antd";
-import { Card, Descriptions } from "antd";
+import { Card, Descriptions, Space, Statistic } from "antd";
 import { Link } from "react-router-dom";
 import type { Ship } from "../../../spaceTraderAPI/api";
 
@@ -20,14 +20,29 @@ function ShipDisp({ ship }: { ship: Ship }) {
       label: "Cooldown",
       children: (
         <span>
-          {ship.cooldown.remainingSeconds} / {ship.cooldown.totalSeconds}
+          {ship.cooldown.totalSeconds !== ship.cooldown.remainingSeconds &&
+            ship.cooldown.expiration && (
+              <Statistic.Countdown
+                title="Cooldown"
+                value={new Date(ship.cooldown.expiration).getTime()}
+              />
+            )}
         </span>
       ),
     },
     {
       key: "navStatus",
       label: "Nav Status",
-      children: <span>{ship.nav.status}</span>,
+      children: (
+        <Space>
+          {ship.nav.status}
+          {ship.nav.status === "IN_TRANSIT" && ship.nav.route.arrival && (
+            <Statistic.Countdown
+              value={new Date(ship.nav.route.arrival).getTime()}
+            />
+          )}
+        </Space>
+      ),
     },
     {
       key: "navSystem",
