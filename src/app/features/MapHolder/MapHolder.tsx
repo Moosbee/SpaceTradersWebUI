@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
-import { useState, useRef } from "react";
-import classes from "./MapHolder.module.css";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { scaleNum } from "../../utils/utils";
+import classes from "./MapHolder.module.css";
 
 function MapHolder({
   children,
@@ -18,66 +18,83 @@ function MapHolder({
   const frameRef = useRef<HTMLDivElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  const onWheel = (e: React.WheelEvent) => {
-    if (!frameRef.current || !rootRef.current) return;
-    e.preventDefault();
+  const onWheel = useCallback(
+    (e: WheelEvent) => {
+      if (!frameRef.current || !rootRef.current) return;
+      e.preventDefault();
 
-    // let newZoom;
-    // if (e.deltaY > 0) {
-    //   newZoom = Math.max(zoom - 5, zoomMin);
-    // } else {
-    //   newZoom = Math.min(zoom + 5, zoomMax);
-    // }
+      // let newZoom;
+      // if (e.deltaY > 0) {
+      //   newZoom = Math.max(zoom - 5, zoomMin);
+      // } else {
+      //   newZoom = Math.min(zoom + 5, zoomMax);
+      // }
 
-    const zoomFactor = 0.1;
-    const newZoom = Math.min(
-      Math.max(
-        zoom + (e.deltaY > 0 ? -zoom * zoomFactor : zoom * zoomFactor),
-        zoomMin,
-      ),
-      zoomMax,
-    );
-    // const zoomDiff = newZoom - zoom;
+      const zoomFactor = 0.1;
+      const newZoom = Math.min(
+        Math.max(
+          zoom + (e.deltaY > 0 ? -zoom * zoomFactor : zoom * zoomFactor),
+          zoomMin,
+        ),
+        zoomMax,
+      );
+      // const zoomDiff = newZoom - zoom;
 
-    setZoom(newZoom);
+      setZoom(newZoom);
 
-    const zoomDiff = newZoom - zoom;
+      const zoomDiff = newZoom - zoom;
 
-    // newZoom=(Math.min(Math.max(zoom - e.deltaY / 100, zoomMin), zoomMax));
+      // newZoom=(Math.min(Math.max(zoom - e.deltaY / 100, zoomMin), zoomMax));
 
-    const bounding = frameRef.current.getBoundingClientRect();
-    // this is the position of the mouse relative to the frame 0 top of the frame 1 bottom of the frame
-    const mausPercentPosY =
-      (e.clientY - bounding.y) / frameRef.current.offsetHeight;
-    // this is the position of the mouse relative to the frame 0 left of the frame 1 right of the frame
-    const mausPercentPosX =
-      (e.clientX - bounding.x) / frameRef.current.offsetWidth;
+      const bounding = frameRef.current.getBoundingClientRect();
+      // this is the position of the mouse relative to the frame 0 top of the frame 1 bottom of the frame
+      const mausPercentPosY =
+        (e.clientY - bounding.y) / frameRef.current.offsetHeight;
+      // this is the position of the mouse relative to the frame 0 left of the frame 1 right of the frame
+      const mausPercentPosX =
+        (e.clientX - bounding.x) / frameRef.current.offsetWidth;
 
-    // const mausPercentPosY = 0.5;
-    // const mausPercentPosX = 0.5;
+      // const mausPercentPosY = 0.5;
+      // const mausPercentPosX = 0.5;
 
-    const WdH = rootRef.current.clientWidth / rootRef.current.clientHeight;
-    const HdW = rootRef.current.clientHeight / rootRef.current.clientWidth;
+      const WdH = rootRef.current.clientWidth / rootRef.current.clientHeight;
+      const HdW = rootRef.current.clientHeight / rootRef.current.clientWidth;
 
-    console.log(
-      rootRef.current.clientWidth,
-      rootRef.current.clientHeight,
-      WdH,
-      HdW,
-    );
+      console.log(
+        rootRef.current.clientWidth,
+        rootRef.current.clientHeight,
+        WdH,
+        HdW,
+      );
 
-    // this is the ammount to move the frame up or down to compensate the change in zoom
-    const topDiff = zoomDiff * mausPercentPosY * Math.max(WdH, 1);
-    // this is the ammount to move the frame left or right to compensate the change in zoom
-    const leftDiff = zoomDiff * mausPercentPosX * Math.max(HdW, 1);
+      // this is the ammount to move the frame up or down to compensate the change in zoom
+      const topDiff = zoomDiff * mausPercentPosY * Math.max(WdH, 1);
+      // this is the ammount to move the frame left or right to compensate the change in zoom
+      const leftDiff = zoomDiff * mausPercentPosX * Math.max(HdW, 1);
 
-    const newTop = top - topDiff;
-    const newLeft = left - leftDiff;
+      const newTop = top - topDiff;
+      const newLeft = left - leftDiff;
 
-    setZoom(newZoom);
-    setTop(Number.isFinite(newTop) ? newTop : 0);
-    setLeft(Number.isFinite(newLeft) ? newLeft : 0);
-  };
+      setZoom(newZoom);
+      setTop(Number.isFinite(newTop) ? newTop : 0);
+      setLeft(Number.isFinite(newLeft) ? newLeft : 0);
+    },
+    [left, top, zoom, zoomMax, zoomMin],
+  );
+
+  useEffect(() => {
+    if (rootRef && rootRef.current) {
+      let rref = rootRef.current;
+      rref.addEventListener("wheel", onWheel, false);
+      return function cleanup() {
+        if (rootRef && rootRef.current) {
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          rootRef.current.removeEventListener("wheel", onWheel, false);
+        }
+        rref.removeEventListener("wheel", onWheel, false);
+      };
+    }
+  }, [onWheel]);
 
   const [lastPosX, setLastPosX] = useState(0);
   const [lastPosY, setLastPosY] = useState(0);
@@ -104,12 +121,6 @@ function MapHolder({
     <div
       className={classes.root}
       ref={rootRef}
-      onWheel={onWheel}
-      onMouseMove={onMouseMove}
-      onMouseDown={(e) => {
-        setLastPosX(e.clientX);
-        setLastPosY(e.clientY);
-      }}
       onKeyDown={(e) => {
         if (e.key === "ArrowLeft") {
           setLeft((prev) => prev + 10);
@@ -130,6 +141,13 @@ function MapHolder({
           setTop(0);
           setLeft(0);
         }
+      }}
+      onPointerDown={(e) => {
+        setLastPosX(e.clientX);
+        setLastPosY(e.clientY);
+      }}
+      onPointerMove={(e) => {
+        onMouseMove(e);
       }}
       // for focus
       tabIndex={0}
