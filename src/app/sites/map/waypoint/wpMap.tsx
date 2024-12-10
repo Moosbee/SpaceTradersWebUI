@@ -11,7 +11,6 @@ function WpMap() {
       <PageTitle title={`${systemID} Map`} />
       {systemID && (
         <MapHolder>
-          <PageTitle title={`${systemID} Map`} />
           <WaypointMap systemID={systemID} />
         </MapHolder>
       )}
