@@ -11,7 +11,12 @@ import {
 } from "antd";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { Ship, ShipCargoItem } from "../../spaceTraderAPI/api";
+import {
+  ShipModuleSymbolEnum,
+  ShipMountSymbolEnum,
+  type Ship,
+  type ShipCargoItem,
+} from "../../spaceTraderAPI/api";
 import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import {
@@ -22,8 +27,13 @@ import {
   selectShips,
   setShipCargo,
   setShipFuel,
+  setShipModules,
+  setShipMounts,
 } from "../../spaceTraderAPI/redux/fleetSlice";
-import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
+import {
+  addMarketTransaction,
+  addShipModificationTransaction,
+} from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function ShipCargoInfo({ ship }: { ship: Ship }) {
@@ -214,6 +224,68 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                         );
                       });
                     }}
+                    onInstallModule={(item) => {
+                      console.log("Install Module", item);
+                      spaceTraderClient.FleetClient.installShipModule(
+                        ship.symbol,
+                        {
+                          symbol: item,
+                        },
+                      ).then((resp) => {
+                        message.success(
+                          `${item} installed on ${ship.symbol} cost ${resp.data.data.transaction.totalPrice}`,
+                        );
+                        dispatch(
+                          setShipCargo({
+                            symbol: ship.symbol,
+                            cargo: resp.data.data.cargo,
+                          }),
+                        );
+
+                        dispatch(
+                          setShipModules({
+                            symbol: ship.symbol,
+                            modules: resp.data.data.modules,
+                          }),
+                        );
+                        dispatch(
+                          addShipModificationTransaction(
+                            resp.data.data.transaction,
+                          ),
+                        );
+                        dispatch(setMyAgent(resp.data.data.agent));
+                      });
+                    }}
+                    onInstallMount={(item) => {
+                      console.log("Install Mount", item);
+                      spaceTraderClient.FleetClient.installMount(ship.symbol, {
+                        symbol: item,
+                      }).then((resp) => {
+                        message.success(
+                          `${item} installed on ${ship.symbol} cost ${resp.data.data.transaction.totalPrice}`,
+                        );
+
+                        dispatch(
+                          setShipCargo({
+                            symbol: ship.symbol,
+                            cargo: resp.data.data.cargo,
+                          }),
+                        );
+
+                        dispatch(
+                          setShipMounts({
+                            symbol: ship.symbol,
+                            mounts: resp.data.data.mounts,
+                          }),
+                        );
+                        dispatch(
+                          addShipModificationTransaction(
+                            resp.data.data.transaction,
+                          ),
+                        );
+                        dispatch(setMyAgent(resp.data.data.agent));
+                      });
+                    }}
                   ></CargoActions>
                 );
               },
@@ -245,6 +317,8 @@ function CargoActions({
   onFulfill,
   onRefuel,
   onSupply,
+  onInstallModule,
+  onInstallMount,
 }: {
   item: ShipCargoItem;
   onJettison: (count: number, item: string) => void;
@@ -253,6 +327,8 @@ function CargoActions({
   onFulfill: (count: number, item: string, contractID: string) => void;
   onRefuel: (count: number) => void;
   onSupply: (count: number, item: string) => void;
+  onInstallMount: (item: string) => void;
+  onInstallModule: (item: string) => void;
 }) {
   const [count, setCount] = useState(1);
   const agentSymbol = useAppSelector(selectAgentSymbol);
@@ -318,6 +394,16 @@ function CargoActions({
       )}
 
       <Button onClick={() => onSupply(count, item.symbol)}>Supply Const</Button>
+      {Object.values(ShipMountSymbolEnum).find((w) => w === item.symbol) && (
+        <Button onClick={() => onInstallMount(item.symbol)}>
+          Install Mount
+        </Button>
+      )}
+      {Object.values(ShipModuleSymbolEnum).find((w) => w === item.symbol) && (
+        <Button onClick={() => onInstallModule(item.symbol)}>
+          Install Module
+        </Button>
+      )}
     </Space>
   );
 }

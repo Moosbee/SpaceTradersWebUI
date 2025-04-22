@@ -6,10 +6,13 @@ import type {
   ShipModule,
   ShipRefineRequestProduceEnum,
 } from "../../spaceTraderAPI/api";
+import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import {
   setShipCargo,
   setShipCooldown,
+  setShipModules,
 } from "../../spaceTraderAPI/redux/fleetSlice";
+import { addShipModificationTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { message } from "../../utils/antdMessage";
 
@@ -93,6 +96,43 @@ function ShipModuleInfo({ value, ship }: { value: ShipModule; ship: Ship }) {
               ) : (
                 ""
               )}
+              <span>
+                <Button
+                  onClick={() => {
+                    spaceTraderClient.FleetClient.removeShipModule(
+                      ship.symbol,
+                      {
+                        symbol: value.symbol,
+                      },
+                    ).then((resp) => {
+                      message.success(
+                        `Removed ${value.symbol} ${resp.data.data.transaction.shipSymbol} cost ${resp.data.data.transaction.totalPrice}`,
+                      );
+                      dispatch(
+                        setShipCargo({
+                          symbol: ship.symbol,
+                          cargo: resp.data.data.cargo,
+                        }),
+                      );
+
+                      dispatch(
+                        setShipModules({
+                          symbol: ship.symbol,
+                          modules: resp.data.data.modules,
+                        }),
+                      );
+                      dispatch(
+                        addShipModificationTransaction(
+                          resp.data.data.transaction,
+                        ),
+                      );
+                      dispatch(setMyAgent(resp.data.data.agent));
+                    });
+                  }}
+                >
+                  Remove Module
+                </Button>
+              </span>
             </Flex>
           ),
           span: 3,

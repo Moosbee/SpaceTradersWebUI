@@ -16,6 +16,7 @@ import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
 import {
+  deleteShip,
   setShip,
   setShipCargo,
   setShipCooldown,
@@ -27,7 +28,10 @@ import {
   pruneSurveys,
 } from "../../spaceTraderAPI/redux/surveySlice";
 import { selectSystem } from "../../spaceTraderAPI/redux/systemSlice";
-import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
+import {
+  addMarketTransaction,
+  addScrapTransaction,
+} from "../../spaceTraderAPI/redux/tansactionSlice";
 import {
   putWaypoints,
   selectSystemWaypoints,
@@ -98,6 +102,8 @@ function ShipControlCenter({
     selectSystem(state, ship.nav.systemSymbol),
   );
 
+  const [shiftKey, setShiftKey] = useState(false);
+
   const wayPoint = system?.waypoints.find(
     (x) => x.symbol === ship?.nav.waypointSymbol,
   );
@@ -124,6 +130,7 @@ function ShipControlCenter({
               value={new Date(ship.nav.route.arrival).getTime()}
             />
           )}
+
           <Button
             onClick={() => {
               spaceTraderClient.FleetClient.getMyShip(ship.symbol).then(
@@ -548,6 +555,141 @@ function ShipControlCenter({
                 }}
               ></ExtractSurvey>
             </>
+          )}
+        </Space>
+        <Space size="large">
+          <span>Shipyard</span>
+
+          <Button
+            onMouseOver={(e) => {
+              setShiftKey(e.shiftKey);
+            }}
+            onMouseMove={(e) => {
+              setShiftKey(e.shiftKey);
+            }}
+            onMouseLeave={(e) => {
+              setShiftKey(false);
+            }}
+            type={shiftKey ? "primary" : "default"}
+            danger={shiftKey}
+            onClick={(e) => {
+              if (e.shiftKey) {
+                spaceTraderClient.FleetClient.scrapShip(ship.symbol).then(
+                  (response) => {
+                    message.success(
+                      `Ship Scraped: ${response.data.data.transaction.totalPrice} at waypoint ${response.data.data.transaction.waypointSymbol}`,
+                    );
+                    dispatch(
+                      addScrapTransaction(response.data.data.transaction),
+                    );
+                    dispatch(setMyAgent(response.data.data.agent));
+                    dispatch(
+                      deleteShip(response.data.data.transaction.shipSymbol),
+                    );
+                  },
+                );
+              } else {
+                spaceTraderClient.FleetClient.getScrapShip(ship.symbol).then(
+                  (response) => {
+                    message.success(
+                      `Scrap Value: ${response.data.data.transaction.totalPrice} at waypoint ${response.data.data.transaction.waypointSymbol}`,
+                    );
+                  },
+                );
+              }
+            }}
+          >
+            {shiftKey ? "Scrap" : "Scrap Value"}
+          </Button>
+          <Button>Repair Ship</Button>
+        </Space>
+        <Space size="large">
+          <span>Scan</span>
+          {ship.mounts.some(
+            (value) =>
+              value.symbol === "MOUNT_SENSOR_ARRAY_I" ||
+              value.symbol === "MOUNT_SENSOR_ARRAY_II" ||
+              value.symbol === "MOUNT_SENSOR_ARRAY_III",
+          ) && (
+            <Button
+              onClick={(e) => {
+                spaceTraderClient.FleetClient.createShipSystemScan(
+                  ship.symbol,
+                ).then((response) => {
+                  message.success(
+                    `Scanned ${response.data.data.systems.length} systems`,
+                  );
+
+                  dispatch(
+                    setShipCooldown({
+                      symbol: ship.symbol,
+                      cooldown: response.data.data.cooldown,
+                    }),
+                  );
+                  console.log("systems", response.data.data.systems);
+                });
+              }}
+            >
+              Scan Systems
+            </Button>
+          )}
+          {ship.mounts.some(
+            (value) =>
+              value.symbol === "MOUNT_SENSOR_ARRAY_I" ||
+              value.symbol === "MOUNT_SENSOR_ARRAY_II" ||
+              value.symbol === "MOUNT_SENSOR_ARRAY_III",
+          ) && (
+            <Button
+              onClick={(e) => {
+                spaceTraderClient.FleetClient.createShipWaypointScan(
+                  ship.symbol,
+                ).then((response) => {
+                  message.success(
+                    `Scanned ${response.data.data.waypoints.length} waypoints`,
+                  );
+                  dispatch(
+                    setShipCooldown({
+                      symbol: ship.symbol,
+                      cooldown: response.data.data.cooldown,
+                    }),
+                  );
+                  // response.data.data.waypoints.forEach((waypoint) => {
+                  //   waypoint.
+                  // })
+                  console.log("waypoints", response.data.data.waypoints);
+                });
+              }}
+            >
+              Scan Waypoints
+            </Button>
+          )}
+          {ship.mounts.some(
+            (value) =>
+              value.symbol === "MOUNT_SENSOR_ARRAY_I" ||
+              value.symbol === "MOUNT_SENSOR_ARRAY_II" ||
+              value.symbol === "MOUNT_SENSOR_ARRAY_III",
+          ) && (
+            <Button
+              onClick={(e) => {
+                spaceTraderClient.FleetClient.createShipShipScan(
+                  ship.symbol,
+                ).then((response) => {
+                  message.success(
+                    `Scanned ${response.data.data.ships.length} ships`,
+                  );
+                  dispatch(
+                    setShipCooldown({
+                      symbol: ship.symbol,
+                      cooldown: response.data.data.cooldown,
+                    }),
+                  );
+
+                  console.log("ships", response.data.data.ships);
+                });
+              }}
+            >
+              Scan Ships
+            </Button>
           )}
         </Space>
       </Flex>

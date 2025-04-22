@@ -1,6 +1,14 @@
 import { createSelector, type PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
-import type { Cooldown, Ship, ShipCargo, ShipFuel, ShipNav } from "../api";
+import type {
+  Cooldown,
+  Ship,
+  ShipCargo,
+  ShipFuel,
+  ShipModule,
+  ShipMount,
+  ShipNav,
+} from "../api";
 
 export interface FleetSliceState {
   ships: { [key: string]: Ship };
@@ -31,6 +39,9 @@ export const fleetSlice = createAppSlice({
     }),
     clearShips: create.reducer((state) => {
       state.ships = {};
+    }),
+    deleteShip: create.reducer((state, action: PayloadAction<string>) => {
+      delete state.ships[action.payload];
     }),
     clearAgentShips: create.reducer((state, action: PayloadAction<string>) => {
       Object.keys(state.ships).forEach((key) => {
@@ -75,6 +86,24 @@ export const fleetSlice = createAppSlice({
         state.ships[symbol].cooldown = cooldown;
       },
     ),
+    setShipMounts: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ symbol: string; mounts: ShipMount[] }>,
+      ) => {
+        const { symbol, mounts } = action.payload;
+        state.ships[symbol].mounts = mounts;
+      },
+    ),
+    setShipModules: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ symbol: string; modules: ShipModule[] }>,
+      ) => {
+        const { symbol, modules } = action.payload;
+        state.ships[symbol].modules = modules;
+      },
+    ),
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
@@ -99,6 +128,9 @@ export const {
   setShipCargo,
   setShipCooldown,
   clearAgentShips,
+  setShipMounts,
+  setShipModules,
+  deleteShip,
 } = fleetSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectShips, selectShip } = fleetSlice.selectors;

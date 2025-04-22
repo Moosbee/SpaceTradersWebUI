@@ -78,6 +78,11 @@ const items: MenuItem[] = [
     icon: <FaIcon type="solid" icon="fa-map" />,
     children: [
       {
+        label: <Link to="/system/map">System Map</Link>,
+        key: "systemMap",
+        icon: <GlobalOutlined />,
+      },
+      {
         label: <Link to="/system/wpConfig">Wp Map Config</Link>,
         key: "map",
         icon: <FaIcon type="solid" icon="fa-location-dot" />,

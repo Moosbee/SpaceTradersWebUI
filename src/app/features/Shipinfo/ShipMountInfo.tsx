@@ -10,15 +10,18 @@ import {
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Ship, ShipMount, Survey } from "../../spaceTraderAPI/api";
+import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import {
   setShipCargo,
   setShipCooldown,
+  setShipMounts,
 } from "../../spaceTraderAPI/redux/fleetSlice";
 import {
   addSurveys,
   pruneSurveys,
   selectSurveys,
 } from "../../spaceTraderAPI/redux/surveySlice";
+import { addShipModificationTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
@@ -54,54 +57,85 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
           label: "Actions",
           children: (
             <>
-              {ship.nav.status === "IN_ORBIT" && (
-                <Flex vertical gap={4}>
-                  <Space>
-                    {(value.symbol === "MOUNT_SURVEYOR_I" ||
-                      value.symbol === "MOUNT_SURVEYOR_II" ||
-                      value.symbol === "MOUNT_SURVEYOR_III") && (
-                      <Button
-                        onClick={() => {
-                          spaceTraderClient.FleetClient.createSurvey(
-                            ship.symbol,
-                          ).then((value) => {
-                            console.log("value", value);
-                            dispatch(addSurveys(value.data.data.surveys));
-                            dispatch(pruneSurveys(Date.now()));
-                            dispatch(
-                              setShipCooldown({
-                                symbol: ship.symbol,
-                                cooldown: value.data.data.cooldown,
-                              }),
-                            );
+              <Flex vertical gap={4}>
+                <Space>
+                  {ship.nav.status === "IN_ORBIT" && (
+                    <>
+                      {(value.symbol === "MOUNT_SURVEYOR_I" ||
+                        value.symbol === "MOUNT_SURVEYOR_II" ||
+                        value.symbol === "MOUNT_SURVEYOR_III") && (
+                        <Button
+                          onClick={() => {
+                            spaceTraderClient.FleetClient.createSurvey(
+                              ship.symbol,
+                            ).then((value) => {
+                              console.log("value", value);
+                              dispatch(addSurveys(value.data.data.surveys));
+                              dispatch(pruneSurveys(Date.now()));
+                              dispatch(
+                                setShipCooldown({
+                                  symbol: ship.symbol,
+                                  cooldown: value.data.data.cooldown,
+                                }),
+                              );
 
-                            message.success(
-                              `Surveys Created\n ${value.data.data.surveys
-                                .map(
-                                  (w) =>
-                                    `${w.signature}(${
-                                      w.size
-                                    }) - (${w.deposits.map((w) => w.symbol)})`,
-                                )
-                                .join("\n")}`,
-                            );
-                          });
-                        }}
-                      >
-                        Create Survey
-                      </Button>
-                    )}
-                    {(value.symbol === "MOUNT_MINING_LASER_I" ||
-                      value.symbol === "MOUNT_MINING_LASER_II" ||
-                      value.symbol === "MOUNT_MINING_LASER_III") && (
-                      <>
-                        <ExtractSurvey
-                          waypoint={ship.nav.waypointSymbol}
-                          onExtraction={(survey) => {
-                            return new Promise((resolve) => {
-                              spaceTraderClient.FleetClient.extractResourcesWithSurvey(
+                              message.success(
+                                `Surveys Created\n ${value.data.data.surveys
+                                  .map(
+                                    (w) =>
+                                      `${w.signature}(${
+                                        w.size
+                                      }) - (${w.deposits.map((w) => w.symbol)})`,
+                                  )
+                                  .join("\n")}`,
+                              );
+                            });
+                          }}
+                        >
+                          Create Survey
+                        </Button>
+                      )}
+                      {(value.symbol === "MOUNT_MINING_LASER_I" ||
+                        value.symbol === "MOUNT_MINING_LASER_II" ||
+                        value.symbol === "MOUNT_MINING_LASER_III") && (
+                        <>
+                          <ExtractSurvey
+                            waypoint={ship.nav.waypointSymbol}
+                            onExtraction={(survey) => {
+                              return new Promise((resolve) => {
+                                spaceTraderClient.FleetClient.extractResourcesWithSurvey(
+                                  ship.symbol,
+                                  survey,
+                                ).then((value) => {
+                                  console.log("value", value);
+                                  setTimeout(() => {
+                                    message.success(
+                                      `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                                    );
+                                    dispatch(
+                                      setShipCargo({
+                                        symbol: ship.symbol,
+                                        cargo: value.data.data.cargo,
+                                      }),
+                                    );
+                                    dispatch(
+                                      setShipCooldown({
+                                        symbol: ship.symbol,
+                                        cooldown: value.data.data.cooldown,
+                                      }),
+                                    );
+                                    resolve(
+                                      value.data.data.cooldown.remainingSeconds,
+                                    );
+                                  });
+                                });
+                              });
+                            }}
+                          ></ExtractSurvey>
+                          <Button
+                            onClick={() => {
+                              spaceTraderClient.FleetClient.extractResources(
                                 ship.symbol,
-                                survey,
                               ).then((value) => {
                                 console.log("value", value);
                                 setTimeout(() => {
@@ -120,23 +154,26 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                                       cooldown: value.data.data.cooldown,
                                     }),
                                   );
-                                  resolve(
-                                    value.data.data.cooldown.remainingSeconds,
-                                  );
                                 });
                               });
-                            });
-                          }}
-                        ></ExtractSurvey>
+                            }}
+                          >
+                            Extract Resources
+                          </Button>
+                        </>
+                      )}
+                      {(value.symbol === "MOUNT_GAS_SIPHON_I" ||
+                        value.symbol === "MOUNT_GAS_SIPHON_II" ||
+                        value.symbol === "MOUNT_GAS_SIPHON_III") && (
                         <Button
                           onClick={() => {
-                            spaceTraderClient.FleetClient.extractResources(
+                            spaceTraderClient.FleetClient.siphonResources(
                               ship.symbol,
                             ).then((value) => {
                               console.log("value", value);
                               setTimeout(() => {
                                 message.success(
-                                  `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                                  `Siphoned ${value.data.data.siphon.yield.units} ${value.data.data.siphon.yield.symbol}`,
                                 );
                                 dispatch(
                                   setShipCargo({
@@ -154,45 +191,48 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                             });
                           }}
                         >
-                          Extract Resources
+                          Siphon Resources
                         </Button>
-                      </>
-                    )}
-                    {(value.symbol === "MOUNT_GAS_SIPHON_I" ||
-                      value.symbol === "MOUNT_GAS_SIPHON_II" ||
-                      value.symbol === "MOUNT_GAS_SIPHON_III") && (
-                      <Button
-                        onClick={() => {
-                          spaceTraderClient.FleetClient.siphonResources(
-                            ship.symbol,
-                          ).then((value) => {
-                            console.log("value", value);
-                            setTimeout(() => {
-                              message.success(
-                                `Siphoned ${value.data.data.siphon.yield.units} ${value.data.data.siphon.yield.symbol}`,
-                              );
-                              dispatch(
-                                setShipCargo({
-                                  symbol: ship.symbol,
-                                  cargo: value.data.data.cargo,
-                                }),
-                              );
-                              dispatch(
-                                setShipCooldown({
-                                  symbol: ship.symbol,
-                                  cooldown: value.data.data.cooldown,
-                                }),
-                              );
-                            });
-                          });
-                        }}
-                      >
-                        Siphon Resources
-                      </Button>
-                    )}
-                  </Space>
-                </Flex>
-              )}
+                      )}
+                    </>
+                  )}
+                  <Button
+                    onClick={() => {
+                      spaceTraderClient.FleetClient.removeMount(ship.symbol, {
+                        symbol: value.symbol,
+                      }).then((resp) => {
+                        console.log("value", resp);
+                        setTimeout(() => {
+                          message.success(
+                            `Removed ${value.symbol} ${resp.data.data.transaction.shipSymbol} cost ${resp.data.data.transaction.totalPrice}`,
+                          );
+                          dispatch(
+                            setShipCargo({
+                              symbol: ship.symbol,
+                              cargo: resp.data.data.cargo,
+                            }),
+                          );
+
+                          dispatch(
+                            setShipMounts({
+                              symbol: ship.symbol,
+                              mounts: resp.data.data.mounts,
+                            }),
+                          );
+                          dispatch(
+                            addShipModificationTransaction(
+                              resp.data.data.transaction,
+                            ),
+                          );
+                          dispatch(setMyAgent(resp.data.data.agent));
+                        });
+                      });
+                    }}
+                  >
+                    Remove Mount
+                  </Button>
+                </Space>
+              </Flex>
             </>
           ),
           span: 3,

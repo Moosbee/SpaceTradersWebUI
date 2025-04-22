@@ -13,6 +13,7 @@ import Fleet from "./app/sites/fleet/Fleet";
 import ShipInfo from "./app/sites/fleet/ShipInfo";
 import Help from "./app/sites/help/help";
 import Main from "./app/sites/main/Main";
+import { SystemMap } from "./app/sites/map/SystemMap";
 import MapConfig from "./app/sites/map/waypoint/mapConfig";
 import WpMap from "./app/sites/map/waypoint/wpMap";
 import NewAgent from "./app/sites/newAgent/NewAgent";
@@ -99,6 +100,10 @@ function MyApp() {
                     <Route
                       path="/system/map/:systemID"
                       element={<WpMap></WpMap>}
+                    />
+                    <Route
+                      path="/system/map"
+                      element={<SystemMap></SystemMap>}
                     />
                     <Route
                       path="/system/wpConfig"
