@@ -168,7 +168,16 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
                   flightMode: value,
                 }).then((value) => {
                   dispatch(
-                    setShipNav({ symbol: ship.symbol, nav: value.data.data }),
+                    setShipNav({
+                      symbol: ship.symbol,
+                      nav: value.data.data.nav,
+                    }),
+                  );
+                  dispatch(
+                    setShipFuel({
+                      symbol: ship.symbol,
+                      fuel: value.data.data.fuel,
+                    }),
                   );
                   setLoadingShipNav(false);
                 });

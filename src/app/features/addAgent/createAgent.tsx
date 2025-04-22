@@ -1,36 +1,35 @@
 import type { FormProps } from "antd";
 import {
-  Form,
-  Input,
-  Select,
-  Space,
   Button,
-  Result,
   Card,
   Divider,
   Flex,
+  Form,
+  Input,
+  Result,
+  Select,
+  Space,
   Typography,
 } from "antd";
+import { useState } from "react";
+import { useAppDispatch } from "../../hooks";
+import type { Register201ResponseData } from "../../spaceTraderAPI/api";
+import { FactionSymbol } from "../../spaceTraderAPI/api";
+import { addAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
+import { setAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
+import { setShips } from "../../spaceTraderAPI/redux/fleetSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import AgentDisp from "../disp/AgentDisp";
 import ContractDisp from "../disp/ContractDisp";
 import FactionDisp from "../disp/FactionDisp";
 import ShipDisp from "../disp/ship/ShipDisp";
-import { addAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
-import { putContract } from "../../spaceTraderAPI/redux/contractSlice";
-import { setShip } from "../../spaceTraderAPI/redux/fleetSlice";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import { useState } from "react";
-import type {
-  FactionSymbol,
-  Register201ResponseData,
-} from "../../spaceTraderAPI/api";
-import { useAppDispatch } from "../../hooks";
-import { setAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 
 type createAgentType = {
   callsign: string;
   email?: string;
   faction: FactionSymbol;
+  accountToken: string;
 };
 
 const tailLayout = {
@@ -55,7 +54,7 @@ function CreateAgent() {
   const onCreate: FormProps<createAgentType>["onFinish"] = (values) => {
     console.log("Success:", values);
 
-    spaceTraderClient.DefaultClient.register(
+    spaceTraderClient.GlobalClient.register(
       {
         symbol: values.callsign,
         faction: values.faction,
@@ -63,7 +62,7 @@ function CreateAgent() {
       },
       {
         transformRequest: (data, headers) => {
-          delete headers["Authorization"];
+          headers["Authorization"] = `Bearer ${values.accountToken}`;
           return data;
         },
       },
@@ -84,7 +83,7 @@ function CreateAgent() {
           agentSymbol: answer.data.data.agent.symbol,
         }),
       );
-      dispatch(setShip(answer.data.data.ship));
+      dispatch(setShips(answer.data.data.ships || []));
     });
   };
 
@@ -98,6 +97,13 @@ function CreateAgent() {
         name="createAgent"
         style={{ maxWidth: 600 }}
       >
+        <Form.Item
+          name="accountToken"
+          label="AccountToken"
+          rules={[{ required: true }]}
+        >
+          <Input placeholder="Enter a AccountToken" />
+        </Form.Item>
         <Form.Item
           name="callsign"
           label="Callsign"
@@ -121,27 +127,12 @@ function CreateAgent() {
           <Select
             placeholder="Select a faction"
             allowClear
-            options={[
-              { value: "COSMIC", label: "COSMIC" },
-              { value: "VOID", label: "VOID" },
-              { value: "GALACTIC", label: "GALACTIC" },
-              { value: "QUANTUM", label: "QUANTUM" },
-              { value: "DOMINION", label: "DOMINION" },
-              { value: "ASTRO", label: "ASTRO" },
-              { value: "CORSAIRS", label: "CORSAIRS" },
-              { value: "OBSIDIAN", label: "OBSIDIAN" },
-              { value: "AEGIS", label: "AEGIS" },
-              { value: "UNITED", label: "UNITED" },
-              { value: "SOLITARY", label: "SOLITARY" },
-              { value: "COBALT", label: "COBALT" },
-              { value: "OMEGA", label: "OMEGA" },
-              { value: "ECHO", label: "ECHO" },
-              { value: "LORDS", label: "LORDS" },
-              { value: "CULT", label: "CULT" },
-              { value: "ANCIENTS", label: "ANCIENTS" },
-              { value: "SHADOW", label: "SHADOW" },
-              { value: "ETHEREAL", label: "ETHEREAL" },
-            ]}
+            options={Object.values(FactionSymbol).map((value) => {
+              return {
+                label: value,
+                value: value,
+              };
+            })}
           ></Select>
         </Form.Item>
         <Form.Item {...tailLayout}>
@@ -172,7 +163,9 @@ function CreateAgent() {
               <Flex wrap gap="middle" align="center" justify="space-evenly">
                 <AgentDisp agent={newAgent.agent}></AgentDisp>
                 <FactionDisp faction={newAgent.faction}></FactionDisp>
-                <ShipDisp ship={newAgent.ship}></ShipDisp>
+                {(newAgent.ships || []).map((ship) => (
+                  <ShipDisp ship={ship}></ShipDisp>
+                ))}
                 <ContractDisp contract={newAgent.contract}></ContractDisp>
               </Flex>
             </Card>,

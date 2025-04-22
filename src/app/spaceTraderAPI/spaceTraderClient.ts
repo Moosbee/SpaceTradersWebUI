@@ -1,17 +1,18 @@
 import {
-  FleetApi,
   AgentsApi,
-  SystemsApi,
-  FactionsApi,
   ContractsApi,
-  DefaultApi,
+  DataApi,
+  FactionsApi,
+  FleetApi,
+  GlobalApi,
+  SystemsApi,
 } from "./api/api";
 import { Configuration } from "./api/configuration";
 
 import axios from "axios";
 import { store } from "../store";
-import { selectAgentSymbol } from "./redux/configSlice";
 import { selectAgent } from "./redux/agentSlice";
+import { selectAgentSymbol } from "./redux/configSlice";
 
 // Create an Axios instance
 const axiosInstance = axios.create();
@@ -67,7 +68,9 @@ const ContractsClient = new ContractsApi(
   undefined,
   axiosInstance,
 );
-const DefaultClient = new DefaultApi(openapiConfig, undefined, axiosInstance);
+
+const DataClient = new DataApi(openapiConfig, undefined, axiosInstance);
+const GlobalClient = new GlobalApi(openapiConfig, undefined, axiosInstance);
 
 const spaceTraderClient = {
   FleetClient: FleetClient,
@@ -75,7 +78,8 @@ const spaceTraderClient = {
   SystemsClient: SystemsClient,
   FactionsClient: FactionsClient,
   ContractsClient: ContractsClient,
-  DefaultClient: DefaultClient,
+  GlobalClient: GlobalClient,
+  DataClient: DataClient,
 };
 
 export default spaceTraderClient;

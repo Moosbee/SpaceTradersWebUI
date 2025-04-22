@@ -18,7 +18,7 @@ import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 function Main() {
   const [status, setStatus] = useState<GetStatus200Response | null>(null);
   useEffect(() => {
-    spaceTraderClient.DefaultClient.getStatus().then((response) => {
+    spaceTraderClient.GlobalClient.getStatus().then((response) => {
       console.log("response", response);
       setStatus(response.data);
     });

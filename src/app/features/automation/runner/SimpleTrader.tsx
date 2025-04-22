@@ -344,7 +344,13 @@ function SimpleTrader({ ship }: { ship: Ship }) {
       dispatch(
         setShipNav({
           symbol: ship.symbol,
-          nav: patch.data.data,
+          nav: patch.data.data.nav,
+        }),
+      );
+      dispatch(
+        setShipFuel({
+          symbol: ship.symbol,
+          fuel: patch.data.data.fuel,
         }),
       );
     }
