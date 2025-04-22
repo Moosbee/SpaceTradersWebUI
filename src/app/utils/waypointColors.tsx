@@ -1,7 +1,7 @@
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import FaIcon from "../features/FontAwsome/FaIcon";
 import NounIcon from "../features/FontAwsome/NounIcon";
-import { SystemType, WaypointType } from "../models/api";
+import type { SystemType, WaypointType } from "../spaceTraderAPI/api";
 //TODO change color to antd color and dark/light mode
 
 export const systemIcons: Record<
