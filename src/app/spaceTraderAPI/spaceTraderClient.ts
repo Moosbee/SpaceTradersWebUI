@@ -1,4 +1,5 @@
 import {
+  AccountsApi,
   AgentsApi,
   ContractsApi,
   DataApi,
@@ -72,6 +73,8 @@ const ContractsClient = new ContractsApi(
 const DataClient = new DataApi(openapiConfig, undefined, axiosInstance);
 const GlobalClient = new GlobalApi(openapiConfig, undefined, axiosInstance);
 
+const AccountsClient = new AccountsApi(openapiConfig, undefined, axiosInstance);
+
 const spaceTraderClient = {
   FleetClient: FleetClient,
   AgentsClient: AgentsClient,
@@ -80,6 +83,7 @@ const spaceTraderClient = {
   ContractsClient: ContractsClient,
   GlobalClient: GlobalClient,
   DataClient: DataClient,
+  AccountsClient: AccountsClient,
 };
 
 export default spaceTraderClient;

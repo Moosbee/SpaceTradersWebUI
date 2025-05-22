@@ -27,7 +27,6 @@ import ShipDisp from "../disp/ship/ShipDisp";
 
 type createAgentType = {
   callsign: string;
-  email?: string;
   faction: FactionSymbol;
   accountToken: string;
 };
@@ -54,11 +53,10 @@ function CreateAgent() {
   const onCreate: FormProps<createAgentType>["onFinish"] = (values) => {
     console.log("Success:", values);
 
-    spaceTraderClient.GlobalClient.register(
+    spaceTraderClient.AccountsClient.register(
       {
         symbol: values.callsign,
         faction: values.faction,
-        email: values.email,
       },
       {
         transformRequest: (data, headers) => {
@@ -110,18 +108,6 @@ function CreateAgent() {
           rules={[{ required: true }]}
         >
           <Input placeholder="Enter a Callsign" />
-        </Form.Item>
-        <Form.Item
-          name="email"
-          label="E-Mail"
-          rules={[
-            {
-              type: "email",
-              message: "The input is not valid E-mail!",
-            },
-          ]}
-        >
-          <Input placeholder="Enter a E-Mail" />
         </Form.Item>
         <Form.Item name="faction" label="Faction" rules={[{ required: true }]}>
           <Select

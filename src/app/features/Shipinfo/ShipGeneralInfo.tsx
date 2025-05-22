@@ -3,7 +3,10 @@ import { Button, Descriptions, message, Space, Statistic } from "antd";
 import { useAppDispatch } from "../../hooks";
 import type { Ship } from "../../spaceTraderAPI/api";
 import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
-import { setShipFuel } from "../../spaceTraderAPI/redux/fleetSlice";
+import {
+  setShipCargo,
+  setShipFuel,
+} from "../../spaceTraderAPI/redux/fleetSlice";
 import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
@@ -64,6 +67,15 @@ function ShipGeneralInfo({ ship }: { ship: Ship }) {
                   dispatch(
                     addMarketTransaction(response.data.data.transaction),
                   );
+
+                  if (response.data.data.cargo) {
+                    dispatch(
+                      setShipCargo({
+                        symbol: ship.symbol,
+                        cargo: response.data.data.cargo,
+                      }),
+                    );
+                  }
 
                   message.success(
                     `Refueled ${response.data.data.transaction.totalPrice} credits`,

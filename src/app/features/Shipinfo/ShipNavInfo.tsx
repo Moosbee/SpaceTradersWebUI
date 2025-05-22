@@ -26,7 +26,10 @@ import {
   selectSystem,
   selectSystems,
 } from "../../spaceTraderAPI/redux/systemSlice";
-import { addMarketTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
+import {
+  addChartTransaction,
+  addMarketTransaction,
+} from "../../spaceTraderAPI/redux/tansactionSlice";
 import { putWaypoints } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { message } from "../../utils/antdMessage";
@@ -246,6 +249,8 @@ function ShipNavInfo({ ship }: { ship: Ship }) {
                         waypoints: [value.data.data.waypoint],
                       }),
                     );
+                    dispatch(addChartTransaction(value.data.data.transaction));
+                    dispatch(setMyAgent(value.data.data.agent));
                   },
                 );
               }}

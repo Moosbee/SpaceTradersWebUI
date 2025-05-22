@@ -188,6 +188,15 @@ function SimpleTrader({ ship }: { ship: Ship }) {
     dispatch(setMyAgent(refuel.data.data.agent));
     dispatch(addMarketTransaction(refuel.data.data.transaction));
 
+    if (refuel.data.data.cargo) {
+      dispatch(
+        setShipCargo({
+          symbol: ship.symbol,
+          cargo: refuel.data.data.cargo,
+        }),
+      );
+    }
+
     const market = await spaceTraderClient.SystemsClient.getMarket(
       ship.nav.systemSymbol,
       ship.nav.waypointSymbol,

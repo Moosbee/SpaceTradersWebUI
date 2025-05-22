@@ -29,12 +29,14 @@ import {
 } from "../../spaceTraderAPI/redux/surveySlice";
 import { selectSystem } from "../../spaceTraderAPI/redux/systemSlice";
 import {
+  addChartTransaction,
   addMarketTransaction,
   addScrapTransaction,
 } from "../../spaceTraderAPI/redux/tansactionSlice";
 import {
   putWaypoints,
   selectSystemWaypoints,
+  setWaypointModifiers,
 } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { getInterSystemTravelStats } from "../../utils/tavelUtils";
@@ -183,6 +185,8 @@ function ShipControlCenter({
                       waypoints: [value.data.data.waypoint],
                     }),
                   );
+                  dispatch(addChartTransaction(value.data.data.transaction));
+                  dispatch(setMyAgent(value.data.data.agent));
                 },
               );
             }}
@@ -206,6 +210,15 @@ function ShipControlCenter({
                   dispatch(
                     addMarketTransaction(response.data.data.transaction),
                   );
+
+                  if (response.data.data.cargo) {
+                    dispatch(
+                      setShipCargo({
+                        symbol: ship.symbol,
+                        cargo: response.data.data.cargo,
+                      }),
+                    );
+                  }
 
                   message.success(
                     `Refueled ${response.data.data.transaction.totalPrice} credits`,
@@ -454,23 +467,37 @@ function ShipControlCenter({
                   ship.symbol,
                 ).then((value) => {
                   console.log("value", value);
-                  setTimeout(() => {
-                    message.success(
-                      `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                  message.success(
+                    `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}\n${value.data.data.events.map((e) => e.symbol).join("\n")}`,
+                  );
+                  if (
+                    (value.data.data.modifiers || []).some(
+                      (m) => m.symbol === "UNSTABLE",
+                    )
+                  ) {
+                    message.error(
+                      `Waypoint ${ship.nav.waypointSymbol} is unstable`,
                     );
-                    dispatch(
-                      setShipCargo({
-                        symbol: ship.symbol,
-                        cargo: value.data.data.cargo,
-                      }),
-                    );
-                    dispatch(
-                      setShipCooldown({
-                        symbol: ship.symbol,
-                        cooldown: value.data.data.cooldown,
-                      }),
-                    );
-                  });
+                  }
+                  dispatch(
+                    setShipCargo({
+                      symbol: ship.symbol,
+                      cargo: value.data.data.cargo,
+                    }),
+                  );
+                  dispatch(
+                    setShipCooldown({
+                      symbol: ship.symbol,
+                      cooldown: value.data.data.cooldown,
+                    }),
+                  );
+                  dispatch(
+                    setWaypointModifiers({
+                      systemSymbol: ship.nav.systemSymbol,
+                      waypointSymbol: ship.nav.waypointSymbol,
+                      waypointModifiers: value.data.data.modifiers,
+                    }),
+                  );
                 });
               }}
             >
@@ -534,8 +561,17 @@ function ShipControlCenter({
                       console.log("value", value);
                       setTimeout(() => {
                         message.success(
-                          `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                          `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}\n${value.data.data.events.map((e) => e.symbol).join("\n")}`,
                         );
+                        if (
+                          (value.data.data.modifiers || []).some(
+                            (m) => m.symbol === "UNSTABLE",
+                          )
+                        ) {
+                          message.error(
+                            `Waypoint ${ship.nav.waypointSymbol} is unstable`,
+                          );
+                        }
                         dispatch(
                           setShipCargo({
                             symbol: ship.symbol,
@@ -546,6 +582,13 @@ function ShipControlCenter({
                           setShipCooldown({
                             symbol: ship.symbol,
                             cooldown: value.data.data.cooldown,
+                          }),
+                        );
+                        dispatch(
+                          setWaypointModifiers({
+                            systemSymbol: ship.nav.systemSymbol,
+                            waypointSymbol: ship.nav.waypointSymbol,
+                            waypointModifiers: value.data.data.modifiers,
                           }),
                         );
                         resolve(value.data.data.cooldown.remainingSeconds);

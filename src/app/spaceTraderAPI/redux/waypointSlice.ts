@@ -1,6 +1,6 @@
 import { type PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
-import type { Shipyard, Waypoint } from "../api";
+import type { Shipyard, Waypoint, WaypointModifier } from "../api";
 
 export interface WaypointState {
   waypoint: Waypoint;
@@ -56,6 +56,22 @@ export const waypointSlice = createAppSlice({
           ...state.systems[systemSymbol][waypoint.symbol],
           waypoint,
         };
+      },
+    ),
+
+    setWaypointModifiers: create.reducer(
+      (
+        state,
+        action: PayloadAction<{
+          systemSymbol: string;
+          waypointSymbol: string;
+          waypointModifiers: WaypointModifier[] | undefined;
+        }>,
+      ) => {
+        const { systemSymbol, waypointSymbol, waypointModifiers } =
+          action.payload;
+        state.systems[systemSymbol][waypointSymbol].waypoint.modifiers =
+          waypointModifiers;
       },
     ),
 
@@ -154,6 +170,7 @@ export const {
   putShipyards,
   setWaypoint,
   clearSystemShipyards,
+  setWaypointModifiers,
 } = waypointSlice.actions;
 // Selectors returned by `slice.selectors` take the root state as their first argument.
 export const { selectWpSystems, selectSystemWaypoints } =

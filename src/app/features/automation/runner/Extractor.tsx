@@ -16,6 +16,7 @@ import {
   setShipCooldown,
 } from "../../../spaceTraderAPI/redux/fleetSlice";
 import { selectSurveys } from "../../../spaceTraderAPI/redux/surveySlice";
+import { setWaypointModifiers } from "../../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../../spaceTraderAPI/spaceTraderClient";
 import type { EventWorkerChannelData } from "../../../workers/eventWorker";
 
@@ -29,6 +30,8 @@ function Extractor({ ship }: { ship: Ship }) {
   const [type, setType] = useState<"siphon" | "extract">("extract");
 
   const [notify, setNotify] = useState(false);
+
+  const [stopAtUnstable, setStopAtUnstable] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -73,8 +76,16 @@ function Extractor({ ship }: { ship: Ship }) {
     console.log("value", extract);
     await new Promise((resolve) => setTimeout(resolve, 0));
     message.success(
-      `Extracted ${extract.data.data.extraction.yield.units} ${extract.data.data.extraction.yield.symbol}`,
+      `Extracted ${extract.data.data.extraction.yield.units} ${extract.data.data.extraction.yield.symbol}\n${extract.data.data.events.map((e) => e.symbol).join("\n")}`,
     );
+    if (
+      (extract.data.data.modifiers || []).some((m) => m.symbol === "UNSTABLE")
+    ) {
+      message.error(`Waypoint ${ship.nav.waypointSymbol} is unstable`);
+      if (stopAtUnstable) {
+        setRunning(false);
+      }
+    }
     dispatch(
       setShipCargo({
         symbol: ship.symbol,
@@ -87,12 +98,23 @@ function Extractor({ ship }: { ship: Ship }) {
         cooldown: extract.data.data.cooldown,
       }),
     );
+    // extract.data.data.modifiers
+    dispatch(
+      setWaypointModifiers({
+        systemSymbol: ship.nav.systemSymbol,
+        waypointSymbol: ship.nav.waypointSymbol,
+        waypointModifiers: extract.data.data.modifiers,
+      }),
+    );
   }, [
     dispatch,
     notify,
     ship.cargo.capacity,
     ship.cargo.units,
+    ship.nav.systemSymbol,
+    ship.nav.waypointSymbol,
     ship.symbol,
+    stopAtUnstable,
     survey,
     surveys,
     type,
@@ -150,6 +172,7 @@ function Extractor({ ship }: { ship: Ship }) {
           value={type}
         />
       </Space>
+
       <br />
       <br />
       {type === "extract" && (
@@ -186,6 +209,12 @@ function Extractor({ ship }: { ship: Ship }) {
       <Space>
         Notify and Shutdown on Full Storage:
         <Switch checked={notify} onChange={setNotify} />
+      </Space>
+      <br />
+      <br />
+      <Space>
+        Stop at Unstable:
+        <Switch checked={stopAtUnstable} onChange={setStopAtUnstable} />
       </Space>
     </Card>
   );

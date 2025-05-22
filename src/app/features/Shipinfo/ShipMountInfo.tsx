@@ -22,6 +22,7 @@ import {
   selectSurveys,
 } from "../../spaceTraderAPI/redux/surveySlice";
 import { addShipModificationTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
+import { setWaypointModifiers } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
@@ -110,8 +111,17 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                                   console.log("value", value);
                                   setTimeout(() => {
                                     message.success(
-                                      `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                                      `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}\n${value.data.data.events.map((e) => e.symbol).join("\n")}`,
                                     );
+                                    if (
+                                      (value.data.data.modifiers || []).some(
+                                        (m) => m.symbol === "UNSTABLE",
+                                      )
+                                    ) {
+                                      message.error(
+                                        `Waypoint ${ship.nav.waypointSymbol} is unstable`,
+                                      );
+                                    }
                                     dispatch(
                                       setShipCargo({
                                         symbol: ship.symbol,
@@ -122,6 +132,14 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                                       setShipCooldown({
                                         symbol: ship.symbol,
                                         cooldown: value.data.data.cooldown,
+                                      }),
+                                    );
+                                    dispatch(
+                                      setWaypointModifiers({
+                                        systemSymbol: ship.nav.systemSymbol,
+                                        waypointSymbol: ship.nav.waypointSymbol,
+                                        waypointModifiers:
+                                          value.data.data.modifiers,
                                       }),
                                     );
                                     resolve(
@@ -140,8 +158,17 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                                 console.log("value", value);
                                 setTimeout(() => {
                                   message.success(
-                                    `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}`,
+                                    `Extracted ${value.data.data.extraction.yield.units} ${value.data.data.extraction.yield.symbol}\n${value.data.data.events.map((e) => e.symbol).join("\n")}`,
                                   );
+                                  if (
+                                    (value.data.data.modifiers || []).some(
+                                      (m) => m.symbol === "UNSTABLE",
+                                    )
+                                  ) {
+                                    message.error(
+                                      `Waypoint ${ship.nav.waypointSymbol} is unstable`,
+                                    );
+                                  }
                                   dispatch(
                                     setShipCargo({
                                       symbol: ship.symbol,
@@ -152,6 +179,14 @@ function ShipMountInfo({ value, ship }: { value: ShipMount; ship: Ship }) {
                                     setShipCooldown({
                                       symbol: ship.symbol,
                                       cooldown: value.data.data.cooldown,
+                                    }),
+                                  );
+                                  dispatch(
+                                    setWaypointModifiers({
+                                      systemSymbol: ship.nav.systemSymbol,
+                                      waypointSymbol: ship.nav.waypointSymbol,
+                                      waypointModifiers:
+                                        value.data.data.modifiers,
                                     }),
                                   );
                                 });

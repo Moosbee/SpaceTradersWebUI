@@ -1,8 +1,9 @@
 import type { DescriptionsProps } from "antd";
 import { Card, Descriptions } from "antd";
-import type { Agent } from "../../spaceTraderAPI/api";
+import type { Agent, PublicAgent } from "../../spaceTraderAPI/api";
+import MoneyDisplay from "../MonyDisplay";
 
-function AgentDisp({ agent }: { agent: Agent }) {
+function AgentDisp({ agent }: { agent: Agent | PublicAgent }) {
   const items: DescriptionsProps["items"] = [
     {
       key: "1",
@@ -11,7 +12,7 @@ function AgentDisp({ agent }: { agent: Agent }) {
     },
   ];
 
-  if (agent.accountId) {
+  if ("accountId" in agent) {
     items.push({
       key: "2",
       label: "Account Id",
@@ -23,7 +24,11 @@ function AgentDisp({ agent }: { agent: Agent }) {
       {
         key: "3",
         label: "Credits",
-        children: <p>{agent.credits}</p>,
+        children: (
+          <p>
+            <MoneyDisplay amount={agent.credits} />
+          </p>
+        ),
       },
       {
         key: "4",

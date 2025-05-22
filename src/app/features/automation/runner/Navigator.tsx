@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "../../../hooks";
 import type { Ship } from "../../../spaceTraderAPI/api";
 import { setMyAgent } from "../../../spaceTraderAPI/redux/agentSlice";
 import {
+  setShipCargo,
   setShipFuel,
   setShipNav,
 } from "../../../spaceTraderAPI/redux/fleetSlice";
@@ -157,6 +158,14 @@ function Navigator({ ship }: { ship: Ship }) {
       );
       dispatch(setMyAgent(refuel.data.data.agent));
       dispatch(addMarketTransaction(refuel.data.data.transaction));
+      if (refuel.data.data.cargo) {
+        dispatch(
+          setShipCargo({
+            symbol: ship.symbol,
+            cargo: refuel.data.data.cargo,
+          }),
+        );
+      }
       const market = await spaceTraderClient.SystemsClient.getMarket(
         ship.nav.systemSymbol,
         ship.nav.waypointSymbol,

@@ -11,6 +11,7 @@ import {
 } from "antd";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks";
+import type { TradeSymbol } from "../../spaceTraderAPI/api";
 import {
   ShipModuleSymbolEnum,
   ShipMountSymbolEnum,
@@ -146,6 +147,12 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                               cargo: value.data.data.cargo,
                             }),
                           );
+                          dispatch(
+                            setShipCargo({
+                              symbol: shipSymbol,
+                              cargo: value.data.data.targetCargo,
+                            }),
+                          );
                         });
                       });
                     }}
@@ -199,6 +206,14 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                           dispatch(
                             addMarketTransaction(value.data.data.transaction),
                           );
+                          if (value.data.data.cargo) {
+                            dispatch(
+                              setShipCargo({
+                                symbol: ship.symbol,
+                                cargo: value.data.data.cargo,
+                              }),
+                            );
+                          }
                         });
                       });
                     }}
@@ -326,7 +341,7 @@ function CargoActions({
   onTransfer: (count: number, item: string, shipSymbol: string) => void;
   onFulfill: (count: number, item: string, contractID: string) => void;
   onRefuel: (count: number) => void;
-  onSupply: (count: number, item: string) => void;
+  onSupply: (count: number, item: TradeSymbol) => void;
   onInstallMount: (item: string) => void;
   onInstallModule: (item: string) => void;
 }) {

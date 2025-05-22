@@ -1,6 +1,7 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createAppSlice } from "../../createAppSlice";
 import type {
+  ChartTransaction,
   MarketTransaction,
   RepairTransaction,
   ScrapTransaction,
@@ -14,6 +15,7 @@ export interface TransactionSliceState {
   repairTransactions: RepairTransaction[];
   shipyardTransactions: ShipyardTransaction[];
   shipModificationTransactions: ShipModificationTransaction[];
+  chartTransactions: ChartTransaction[];
 }
 
 const initialState: TransactionSliceState = {
@@ -22,6 +24,7 @@ const initialState: TransactionSliceState = {
   repairTransactions: [],
   shipyardTransactions: [],
   shipModificationTransactions: [],
+  chartTransactions: [],
 };
 
 // If you are not using async thunks you can use the standalone `createSlice`.
@@ -112,12 +115,28 @@ export const transactionSlice = createAppSlice({
         state.shipModificationTransactions = action.payload;
       },
     ),
+    addChartTransaction: create.reducer(
+      (state, action: PayloadAction<ChartTransaction>) => {
+        state.chartTransactions.push(action.payload);
+      },
+    ),
+    addChartTransactions: create.reducer(
+      (state, action: PayloadAction<ChartTransaction[]>) => {
+        state.chartTransactions.push(...action.payload);
+      },
+    ),
+    setChartTransactions: create.reducer(
+      (state, action: PayloadAction<ChartTransaction[]>) => {
+        state.chartTransactions = action.payload;
+      },
+    ),
     clearTransactions: create.reducer((state) => {
       state.marketTransactions = [];
       state.scrapTransactions = [];
       state.repairTransactions = [];
       state.shipyardTransactions = [];
       state.shipModificationTransactions = [];
+      state.chartTransactions = [];
     }),
   }),
   // You can define your selectors here. These selectors receive the slice
@@ -130,6 +149,7 @@ export const transactionSlice = createAppSlice({
       transactions.shipyardTransactions,
     selectShipModificationTransactions: (transactions) =>
       transactions.shipModificationTransactions,
+    selectChartTransactions: (transactions) => transactions.chartTransactions,
     selectTransactions: (transactions) => transactions,
   },
 });
@@ -152,6 +172,9 @@ export const {
   addShipModificationTransactions,
   setShipModificationTransactions,
   clearTransactions,
+  addChartTransaction,
+  addChartTransactions,
+  setChartTransactions,
 } = transactionSlice.actions;
 
 // Selectors returned by `slice.selectors` take the root state as their first argument.
@@ -162,4 +185,5 @@ export const {
   selectShipModificationTransactions,
   selectRepairTransactions,
   selectShipyardTransactions,
+  selectChartTransactions,
 } = transactionSlice.selectors;

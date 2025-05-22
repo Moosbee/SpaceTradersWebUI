@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
-import type { Agent } from "../../spaceTraderAPI/api";
 import type { PaginationProps } from "antd";
 import { Divider, Flex, Pagination, Spin } from "antd";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import { useEffect, useState } from "react";
 import AgentDisp from "../../features/disp/AgentDisp";
+import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
+import type { PublicAgent } from "../../spaceTraderAPI/api";
 import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
-import PageTitle from "../../features/PageTitle";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
 function Agents() {
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [agents, setAgents] = useState<PublicAgent[]>([]);
   const [agentsPage, setAgentsPage] = useState(1);
   const [agentsAll, setAgentsAll] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
