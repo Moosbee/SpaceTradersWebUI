@@ -52,6 +52,9 @@ export const waypointSlice = createAppSlice({
         }>,
       ) => {
         const { systemSymbol, waypoint } = action.payload;
+        if (!state.systems[systemSymbol]) {
+          state.systems[systemSymbol] = {};
+        }
         state.systems[systemSymbol][waypoint.symbol] = {
           ...state.systems[systemSymbol][waypoint.symbol],
           waypoint,

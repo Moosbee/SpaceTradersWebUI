@@ -24,8 +24,8 @@ import {
 import type { WaypointState } from "../../spaceTraderAPI/redux/waypointSlice";
 import {
   putShipyards,
-  putWaypoints,
   selectSystemWaypoints,
+  setWaypoint,
 } from "../../spaceTraderAPI/redux/waypointSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 
@@ -65,10 +65,10 @@ function WaypointInfo() {
     () =>
       waypointSt?.waypoint ||
       ({
-        symbol: "",
+        symbol: place?.waypointID || "",
         isUnderConstruction: false,
         orbitals: [],
-        systemSymbol: "",
+        systemSymbol: place?.systemID || "",
         traits: [],
         type: "ARTIFICIAL_GRAVITY_WELL",
         x: 0,
@@ -78,7 +78,7 @@ function WaypointInfo() {
         modifiers: undefined,
         orbits: undefined,
       } as Waypoint),
-    [waypointSt],
+    [place?.systemID, place?.waypointID, waypointSt?.waypoint],
   );
 
   const market = useAppSelector((state) =>
@@ -131,9 +131,9 @@ function WaypointInfo() {
               waypoint.symbol,
             ).then((response) => {
               dispatch(
-                putWaypoints({
+                setWaypoint({
                   systemSymbol: waypoint.systemSymbol,
-                  waypoints: [response.data.data],
+                  waypoint: response.data.data,
                 }),
               );
             });
