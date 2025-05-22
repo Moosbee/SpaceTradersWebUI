@@ -8,6 +8,7 @@ import type {
 } from "../api";
 
 export interface MarketState {
+  marketSymbol: string;
   static: {
     exports: Array<TradeGood>;
     imports: Array<TradeGood>;
@@ -58,6 +59,7 @@ export const marketSlice = createAppSlice({
 
           if (!state.systems[systemSymbol][market.symbol]) {
             state.systems[systemSymbol][market.symbol] = {
+              marketSymbol: market.symbol,
               static: {
                 imports: [],
                 exports: [],
@@ -113,6 +115,7 @@ export const marketSlice = createAppSlice({
 
         if (!state.systems[systemSymbol][market.symbol]) {
           state.systems[systemSymbol][market.symbol] = {
+            marketSymbol: market.symbol,
             static: {
               imports: [],
               exports: [],

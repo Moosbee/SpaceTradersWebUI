@@ -8,6 +8,7 @@ import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
 import type { MarketState } from "../../spaceTraderAPI/redux/marketSlice";
 import type { WaypointState } from "../../spaceTraderAPI/redux/waypointSlice";
 import { wpShortestPath } from "../../utils/tavelUtils";
+import MoneyDisplay from "../MonyDisplay";
 import WaypointLink from "../WaypointLink";
 
 function TradeRoutes({
@@ -242,7 +243,7 @@ function TradeRoutesCard({
             key: "purchasePrice",
             sorter: (a, b) => a.purchasePrice - b.purchasePrice,
 
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
 
           {
@@ -258,7 +259,7 @@ function TradeRoutesCard({
             dataIndex: "sellPrice",
             key: "sellPrice",
             sorter: (a, b) => a.sellPrice - b.sellPrice,
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
 
           {
@@ -273,7 +274,7 @@ function TradeRoutesCard({
             dataIndex: "profit",
             key: "profit",
             sorter: (a, b) => a.profit - b.profit,
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
           {
             title: "Profit Per Hour",
@@ -281,7 +282,7 @@ function TradeRoutesCard({
             key: "tripYieldPerHour",
             sorter: (a, b) => a.tripYieldPerHour - b.tripYieldPerHour,
             // render: (value) => `${value.toFixed(2)}`,
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
           {
             title: "Trip Volume",
@@ -310,14 +311,14 @@ function TradeRoutesCard({
             dataIndex: "tripPurchaseCost",
             key: "tripPurchaseCost",
             sorter: (a, b) => a.tripPurchaseCost - b.tripPurchaseCost,
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
           {
             title: "Trip Total Cost",
             dataIndex: "tripTotalCost",
             key: "tripTotalCost",
             sorter: (a, b) => a.tripTotalCost - b.tripTotalCost,
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
           {
             title: "Trip Profit",
@@ -325,14 +326,14 @@ function TradeRoutesCard({
             key: "tripProfit",
             sorter: (a, b) => a.tripProfit - b.tripProfit,
             // render: (value) => `${value.toFixed(2)}`,
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
           {
             title: "Trip Sell Cost",
             dataIndex: "tripSellCost",
             key: "tripSellCost",
             sorter: (a, b) => a.tripSellCost - b.tripSellCost,
-            render: (value) => `${Math.round(value).toLocaleString()}`,
+            render: (value) => <MoneyDisplay amount={value} />,
           },
 
           {
@@ -362,7 +363,7 @@ function TradeRoutesCard({
                 <ul>
                   {record.EXPORT.map(({ symbol, price }) => (
                     <li key={symbol}>
-                      {symbol} - {price}
+                      {symbol} - <MoneyDisplay amount={price} />
                     </li>
                   ))}
                 </ul>
@@ -378,7 +379,7 @@ function TradeRoutesCard({
                 <ul>
                   {record.IMPORT.map(({ symbol, price }) => (
                     <li key={symbol}>
-                      {symbol} - {price}
+                      {symbol} - <MoneyDisplay amount={price} />
                     </li>
                   ))}
                 </ul>

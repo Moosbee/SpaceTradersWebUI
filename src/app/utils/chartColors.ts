@@ -1,0 +1,45 @@
+import { TradeSymbol } from "../spaceTraderAPI/api";
+
+// https://github.com/FloWi/rust-flwi-spacetraders-leaderboard/blob/main/flwi-spacetraders-leaderboard/src/utils/chartColors.ts
+export const chartColors = [
+  // d3 category 20 scheme
+  "#1f77b4",
+  "#ffbb78",
+  "#2ca02c",
+  "#d62728",
+  "#aec7e8",
+  "#ff7f0e",
+  "#98df8a",
+  "#9467bd",
+  "#ff9896",
+  "#9edae5",
+  "#c5b0d5",
+  "#8c564b",
+  "#f7b6d2",
+  "#c7c7c7",
+  "#bcbd22",
+  "#dbdb8d",
+  "#e377c2",
+  "#17becf",
+  // d3 accent scheme
+  "#7fc97f",
+  "#beaed4",
+  "#fdc086",
+  "#386cb0",
+  "#f0027f",
+  "#bf5b17",
+  "#ffff99",
+  // d3 dark scheme
+  "#1b9e77",
+  "#d95f02",
+  "#7570b3",
+  "#e6ab02",
+  "#e7298a",
+  "#66a61e",
+  "#a6761d",
+];
+
+export const chartColor = (index: number) =>
+  chartColors[index % chartColors.length];
+export const chartColorTradeSymbol = (symbol: TradeSymbol) =>
+  chartColors[Object.values(TradeSymbol).indexOf(symbol) % chartColors.length];

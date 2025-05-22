@@ -26,6 +26,7 @@ import {
 import spaceTraderClient from "../spaceTraderAPI/spaceTraderClient";
 import { message } from "../utils/antdMessage";
 import FaIcon from "./FontAwsome/FaIcon";
+import MoneyDisplay from "./MonyDisplay";
 
 function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
   const dispatch = useAppDispatch();
@@ -181,6 +182,21 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
       label: "Pop Up",
       icon: <FaIcon type="solid" icon="fa-window-restore" />,
     },
+    {
+      key: "CORSRequest",
+      onClick: (e) => {
+        spaceTraderClient.GlobalClient.getStatus({
+          transformRequest: (data, headers) => {
+            delete headers["Authorization"];
+            return data;
+          },
+        }).then((response) => {
+          message.info(response.data.status);
+        });
+      },
+      label: "CORSRequest",
+      icon: <FaIcon type="solid" icon="fa-rotate" />,
+    },
   ];
 
   return (
@@ -200,7 +216,9 @@ function MyHeader({ Header }: { Header: typeof AntHeaderHeader }) {
             <Space style={{ cursor: "pointer" }}>
               <Avatar>{myAgent.agent.symbol.slice(0, 1)}</Avatar>
               {myAgent.agent.symbol}
-              <span>{myAgent.agent.credits.toLocaleString()}$</span>
+              <span>
+                <MoneyDisplay amount={myAgent.agent.credits} />
+              </span>
             </Space>
           ) : (
             <Space style={{ cursor: "pointer" }}>Choose Agent</Space>

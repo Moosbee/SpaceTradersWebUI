@@ -12,6 +12,7 @@ import {
 import { agentSlice } from "./spaceTraderAPI/redux/agentSlice";
 import { configSlice } from "./spaceTraderAPI/redux/configSlice";
 import { contractSlice } from "./spaceTraderAPI/redux/contractSlice";
+import { dataSlice } from "./spaceTraderAPI/redux/dataSlice";
 import { fleetSlice } from "./spaceTraderAPI/redux/fleetSlice";
 import { mapSlice } from "./spaceTraderAPI/redux/mapSlice";
 import { marketSlice } from "./spaceTraderAPI/redux/marketSlice";
@@ -47,6 +48,7 @@ const rootReducer = combineSlices(
   mapSlice,
   transactionSlice,
   marketSlice,
+  dataSlice,
 );
 
 // Wrap the rootReducer with persistReducer
@@ -116,3 +118,52 @@ export type AppThunk<ThunkReturnType = void> = ThunkAction<
   unknown,
   Action
 >;
+
+// Slice Boilerplate
+
+// import type { PayloadAction } from "@reduxjs/toolkit";
+// import { createAppSlice } from "../../createAppSlice";
+
+// export interface SliceState {
+//   // Define your state properties here
+//   property1: boolean;
+//   property2: string | undefined;
+// }
+
+// const initialState: SliceState = {
+//   // Set initial values
+//   property1: false,
+//   property2: undefined,
+// };
+
+// export const sliceName = createAppSlice({
+//   name: "sliceName",
+//   initialState,
+//   reducers: (create) => ({
+//     // Define your reducers here
+//     setProperty1: create.reducer((state, action: PayloadAction<boolean>) => {
+//       state.property1 = action.payload;
+//     }),
+//     setProperty2: create.reducer((state, action: PayloadAction<string>) => {
+//       state.property2 = action.payload;
+//     }),
+//     resetProperty: create.reducer((state) => {
+//       state.property2 = undefined;
+//     }),
+//   }),
+//   // Define your selectors here
+//   selectors: {
+//     selectProperty1: (state) => state.property1,
+//     selectProperty2: (state) => state.property2,
+//   },
+// });
+
+// // Export actions
+// export const {
+//   setProperty1,
+//   setProperty2,
+//   resetProperty,
+// } = sliceName.actions;
+
+// // Export selectors
+// export const { selectProperty1, selectProperty2 } = sliceName.selectors;

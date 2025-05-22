@@ -9,6 +9,7 @@ import {
   Table,
 } from "antd";
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import type { MarketTradeGood, Ship } from "../../../spaceTraderAPI/api";
 import { setMyAgent } from "../../../spaceTraderAPI/redux/agentSlice";
@@ -18,6 +19,7 @@ import {
 } from "../../../spaceTraderAPI/redux/fleetSlice";
 import { addMarketTransaction } from "../../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../../spaceTraderAPI/spaceTraderClient";
+import MoneyDisplay from "../../MonyDisplay";
 
 function MarketStore({
   tradeGoods,
@@ -58,6 +60,9 @@ function MarketStore({
             title: "Symbol",
             dataIndex: "symbol",
             key: "symbol",
+            render: (symbol: string) => (
+              <Link to={`/supplyChain/${symbol}`}>{symbol}</Link>
+            ),
           },
 
           {
@@ -80,6 +85,7 @@ function MarketStore({
             title: "Purchase Price",
             dataIndex: "purchasePrice",
             key: "purchasePrice",
+            render: (purchasePrice) => <MoneyDisplay amount={purchasePrice} />,
           },
           {
             title: "Action",
@@ -139,7 +145,7 @@ function TradeActionDisp({
           }
         }}
       >
-        Buy for {tradeGood.purchasePrice * count}$
+        Buy for <MoneyDisplay amount={tradeGood.purchasePrice * count} />
       </Button>
     </Space>
   );

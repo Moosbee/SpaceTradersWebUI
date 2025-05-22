@@ -4,10 +4,10 @@ import { useParams } from "react-router-dom";
 import MarketDetail from "../../features/disp/market/MarketDetail";
 import MarketSimple from "../../features/disp/market/MarketSimple";
 import MarketStore from "../../features/disp/market/MarketStore";
-import MarketTransactions from "../../features/disp/market/MarketTransactions";
 import ShipyardDisp from "../../features/disp/ShipyardDisp";
 import WaypointDisp from "../../features/disp/WaypointDisp";
 import PageTitle from "../../features/PageTitle";
+import MarketTransactionTable from "../../features/tansactionTable/MarketTransactionTable";
 import WaypointLink from "../../features/WaypointLink";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { Construction, JumpGate } from "../../spaceTraderAPI/api";
@@ -171,7 +171,7 @@ function WaypointInfo() {
             type="sell"
           /> */}
           <br />
-          <MarketTransactions transactions={market.transactions} />
+          <MarketTransactionTable transactions={market.transactions} />
         </>
       )}
 

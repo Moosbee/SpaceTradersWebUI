@@ -2,6 +2,7 @@ import { Button, Card, Descriptions, Table } from "antd";
 import { useAppSelector } from "../../hooks";
 import type { Contract, ContractDeliverGood } from "../../spaceTraderAPI/api";
 import { selectSystemByWaypoint } from "../../spaceTraderAPI/redux/systemSlice";
+import MoneyDisplay from "../MonyDisplay";
 import WaypointLink from "../WaypointLink";
 
 function ContractDisp({
@@ -84,12 +85,16 @@ function ContractDisp({
           {
             label: "Payment on Accepted",
             key: "terms.payment.onAccepted",
-            children: contract.terms.payment.onAccepted,
+            children: (
+              <MoneyDisplay amount={contract.terms.payment.onAccepted} />
+            ),
           },
           {
             label: "Payment on Fulfilled",
             key: "terms.payment.onFulfilled",
-            children: contract.terms.payment.onFulfilled,
+            children: (
+              <MoneyDisplay amount={contract.terms.payment.onFulfilled} />
+            ),
           },
           ...(contract.terms.deliver === undefined ||
           contract.terms.deliver.length === 0

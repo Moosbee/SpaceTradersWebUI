@@ -1,4 +1,5 @@
 import { Card, Col, List, Row, Tooltip } from "antd";
+import { Link } from "react-router-dom";
 import type { TradeGood } from "../../../spaceTraderAPI/api";
 
 function MarketSimple({
@@ -22,7 +23,7 @@ function MarketSimple({
                 key={ext.symbol}
                 title={`${ext.name} - ${ext.description}`}
               >
-                <span>{ext.symbol}</span>
+                <Link to={`/supplyChain/${ext.symbol}`}>{ext.symbol}</Link>
               </Tooltip>
             ))}
             renderItem={(item) => <List.Item>{item}</List.Item>}
@@ -39,7 +40,7 @@ function MarketSimple({
                 key={expo.symbol}
                 title={`${expo.name} - ${expo.description}`}
               >
-                <span>{expo.symbol}</span>
+                <Link to={`/supplyChain/${expo.symbol}`}>{expo.symbol}</Link>
               </Tooltip>
             ))}
             renderItem={(item) => <List.Item>{item}</List.Item>}
@@ -56,7 +57,7 @@ function MarketSimple({
                 key={imp.symbol}
                 title={`${imp.name} - ${imp.description}`}
               >
-                <span>{imp.symbol}</span>
+                <Link to={`/supplyChain/${imp.symbol}`}>{imp.symbol}</Link>
               </Tooltip>
             ))}
             renderItem={(item) => <List.Item>{item}</List.Item>}

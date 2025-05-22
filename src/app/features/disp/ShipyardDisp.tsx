@@ -14,6 +14,7 @@ import { setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { setShip } from "../../spaceTraderAPI/redux/fleetSlice";
 import { addShipyardTransaction } from "../../spaceTraderAPI/redux/tansactionSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import MoneyDisplay from "../MonyDisplay";
 import ShipyardShipDisp from "./ship/ShipyardShip";
 
 function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
@@ -104,6 +105,7 @@ function ShipyardDisp({ shipyard }: { shipyard: Shipyard }) {
                     title: "Price",
                     dataIndex: "price",
                     key: "price",
+                    render: (price) => <MoneyDisplay amount={price} />,
                   },
                   {
                     title: "Agent Symbol",

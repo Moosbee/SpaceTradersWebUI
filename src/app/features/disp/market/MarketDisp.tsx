@@ -1,4 +1,5 @@
 import { Card, Col, Empty, Row, Table } from "antd";
+import { Link } from "react-router-dom";
 import type { Market } from "../../../spaceTraderAPI/api";
 
 function MarketDisp({ market }: { market: Market }) {
@@ -18,6 +19,9 @@ function MarketDisp({ market }: { market: Market }) {
                       title: "Symbol",
                       dataIndex: "symbol",
                       key: "symbol",
+                      render: (symbol: string) => (
+                        <Link to={`/supplyChain/${symbol}`}>{symbol}</Link>
+                      ),
                     },
                     {
                       title: "Type",
@@ -75,6 +79,9 @@ function MarketDisp({ market }: { market: Market }) {
                       title: "Trade Symbol",
                       dataIndex: "tradeSymbol",
                       key: "tradeSymbol",
+                      render: (symbol: string) => (
+                        <Link to={`/supplyChain/${symbol}`}>{symbol}</Link>
+                      ),
                     },
                     {
                       title: "Transaction Type",

@@ -70,6 +70,17 @@ const items: MenuItem[] = [
         key: "transactions/market",
         icon: <DeliveredProcedureOutlined />,
       },
+      {
+        key: "SupplyChain",
+        label: <Link to="/SupplyChain">Supply Chain</Link>,
+        icon: <AuditOutlined />,
+      },
+
+      {
+        key: "errorsList",
+        label: <Link to="/errors">Error List</Link>,
+        icon: <QuestionCircleOutlined />,
+      },
     ],
   },
   {

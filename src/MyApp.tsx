@@ -5,6 +5,7 @@ import MyHeader from "./app/features/myHeader";
 import MySider from "./app/features/mySider";
 import { useAppSelector } from "./app/hooks";
 import ErrorPage from "./app/sites/ErrorPage";
+import ErrorList from "./app/sites/Errors/ErrorList";
 import Agents from "./app/sites/agents/Agents";
 import Caching from "./app/sites/caching/caching";
 import Contracts from "./app/sites/contracts/Contracts";
@@ -17,6 +18,8 @@ import { SystemMap } from "./app/sites/map/SystemMap";
 import MapConfig from "./app/sites/map/waypoint/mapConfig";
 import WpMap from "./app/sites/map/waypoint/wpMap";
 import NewAgent from "./app/sites/newAgent/NewAgent";
+import SupplyChain from "./app/sites/supplyChain/SupplyChain";
+import TradeSymbolInfo from "./app/sites/supplyChain/tradeSymbol";
 import Surveys from "./app/sites/surveys/Surveys";
 import Markets from "./app/sites/systems/Markets";
 import SystemInfo from "./app/sites/systems/SystemInfo";
@@ -113,6 +116,12 @@ function MyApp() {
                     <Route path="/cache" element={<Caching></Caching>} />
                     <Route path="/surveys" element={<Surveys />} />
                     <Route path="/help" element={<Help />} />
+                    <Route path="/errors" element={<ErrorList />} />
+                    <Route
+                      path="/supplyChain/:tradeSymbol"
+                      element={<TradeSymbolInfo />}
+                    />
+                    <Route path="/supplyChain" element={<SupplyChain />} />
                   </Routes>
                 </Content>
               </Layout>

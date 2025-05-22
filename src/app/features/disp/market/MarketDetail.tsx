@@ -1,6 +1,8 @@
 import { Card, Pagination, Table } from "antd";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import type { MarketTradeGood } from "../../../spaceTraderAPI/api";
+import MoneyDisplay from "../../MonyDisplay";
 
 function MarketDetail({
   tradeGoods,
@@ -39,6 +41,9 @@ function MarketDetail({
             title: "Symbol",
             dataIndex: "symbol",
             key: "symbol",
+            render: (symbol: string) => (
+              <Link to={`/supplyChain/${symbol}`}>{symbol}</Link>
+            ),
           },
           {
             title: "Type",
@@ -65,15 +70,27 @@ function MarketDetail({
             title: "Purchase Price",
             dataIndex: "purchasePrice",
             key: "purchasePrice",
-            render: (purchasePrice, data) =>
-              data.type === "IMPORT" ? purchasePrice : <b>{purchasePrice}</b>,
+            render: (purchasePrice: number, data) =>
+              data.type === "IMPORT" ? (
+                <MoneyDisplay amount={purchasePrice} />
+              ) : (
+                <b>
+                  <MoneyDisplay amount={purchasePrice} />
+                </b>
+              ),
           },
           {
             title: "Sell Price",
             dataIndex: "sellPrice",
             key: "sellPrice",
-            render: (sellPrice, data) =>
-              data.type === "EXPORT" ? sellPrice : <b>{sellPrice}</b>,
+            render: (sellPrice: number, data) =>
+              data.type === "EXPORT" ? (
+                <MoneyDisplay amount={sellPrice} />
+              ) : (
+                <b>
+                  <MoneyDisplay amount={sellPrice} />
+                </b>
+              ),
           },
         ]}
         rowKey="symbol"
