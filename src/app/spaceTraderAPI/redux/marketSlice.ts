@@ -199,7 +199,7 @@ export const marketSlice = createAppSlice({
       symbol: string,
       marketSymbol: string,
     ): MarketState | undefined =>
-      systems.systems[symbol][marketSymbol] || undefined,
+      (systems.systems[symbol] || empty)[marketSymbol],
   },
 });
 

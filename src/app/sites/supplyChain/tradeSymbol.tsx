@@ -4,15 +4,19 @@ import { Link, useParams } from "react-router-dom";
 import PageTitle from "../../features/PageTitle";
 import MarketTransactionTable from "../../features/tansactionTable/MarketTransactionTable";
 import WaypointLink from "../../features/WaypointLink";
-import { useAppSelector } from "../../hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
   ActivityLevel,
   SupplyLevel,
   TradeSymbol,
 } from "../../spaceTraderAPI/api";
-import { selectSupplyChain } from "../../spaceTraderAPI/redux/dataSlice";
+import {
+  selectSupplyChain,
+  setSupplyChain,
+} from "../../spaceTraderAPI/redux/dataSlice";
 import { selectMarketSystems } from "../../spaceTraderAPI/redux/marketSlice";
 import { selectMarketTransactions } from "../../spaceTraderAPI/redux/tansactionSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
 import { chartColorTradeSymbol } from "../../utils/chartColors";
 import classes from "./tradeSymbol.module.css";
 
@@ -22,6 +26,7 @@ export default function TradeSymbolInfo() {
   const tradeSymbol = tradeSymbolString as TradeSymbol;
   const supplyChain = useAppSelector(selectSupplyChain);
   const unfilteredMarkets = useAppSelector(selectMarketSystems);
+  const dispatch = useAppDispatch();
   const filteredMarkets = useMemo(() => {
     const allMarkets = Object.keys(unfilteredMarkets).flatMap((key) => {
       const systemMarkets = unfilteredMarkets[key];
@@ -44,9 +49,9 @@ export default function TradeSymbolInfo() {
     });
     return allMarkets;
   }, [tradeSymbol, unfilteredMarkets]);
-  const needs = supplyChain[tradeSymbol];
+  const needs = supplyChain[tradeSymbol] || [];
   const needetBy = Object.keys(supplyChain).filter((key) =>
-    supplyChain[key].includes(tradeSymbol),
+    (supplyChain[key] || []).includes(tradeSymbol),
   );
   const totalSupply: Needs = useMemo(() => {
     const totalSupply = {
@@ -70,7 +75,16 @@ export default function TradeSymbolInfo() {
       <PageTitle title={`TradeSymbol ${tradeSymbol}`} />
       <Space>
         <h1>TradeSymbol: {tradeSymbol}</h1>
-        <Button>Reload</Button>
+        <Button
+          onClick={() => {
+            spaceTraderClient.DataClient.getSupplyChain().then((response) => {
+              // setSupplyChain(response.data.data.exportToImportMap);
+              dispatch(setSupplyChain(response.data.data.exportToImportMap));
+            });
+          }}
+        >
+          Reload
+        </Button>
       </Space>
       <Row gutter={16}>
         <Col span={8}>

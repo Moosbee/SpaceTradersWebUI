@@ -10,13 +10,18 @@ import PageTitle from "../../features/PageTitle";
 import MarketTransactionTable from "../../features/tansactionTable/MarketTransactionTable";
 import WaypointLink from "../../features/WaypointLink";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { Construction, JumpGate } from "../../spaceTraderAPI/api";
+import type {
+  Construction,
+  JumpGate,
+  Waypoint,
+} from "../../spaceTraderAPI/api";
 import { selectShips } from "../../spaceTraderAPI/redux/fleetSlice";
 import { selectSelectedWaypointSymbol } from "../../spaceTraderAPI/redux/mapSlice";
 import {
   putMarkets,
   selectSystemMarket,
 } from "../../spaceTraderAPI/redux/marketSlice";
+import type { WaypointState } from "../../spaceTraderAPI/redux/waypointSlice";
 import {
   putShipyards,
   putWaypoints,
@@ -54,15 +59,33 @@ function WaypointInfo() {
       selectSystemWaypoints(state, place?.systemID || "")?.[
         place?.waypointID || ""
       ],
-  );
+  ) as WaypointState | undefined;
 
-  const waypoint = waypointSt.waypoint;
+  const waypoint = useMemo(
+    () =>
+      waypointSt?.waypoint ||
+      ({
+        symbol: "",
+        isUnderConstruction: false,
+        orbitals: [],
+        systemSymbol: "",
+        traits: [],
+        type: "ARTIFICIAL_GRAVITY_WELL",
+        x: 0,
+        y: 0,
+        chart: undefined,
+        faction: undefined,
+        modifiers: undefined,
+        orbits: undefined,
+      } as Waypoint),
+    [waypointSt],
+  );
 
   const market = useAppSelector((state) =>
     selectSystemMarket(state, waypoint.systemSymbol, waypoint.symbol),
   );
 
-  const shipyard = waypointSt.shipyard;
+  const shipyard = useMemo(() => waypointSt?.shipyard, [waypointSt]);
 
   const [jumpGate, setJumpGate] = useState<JumpGate | undefined>(undefined);
 
@@ -149,7 +172,7 @@ function WaypointInfo() {
             tradeGoods={
               market.tradeGoods[market.tradeGoods.length - 1].tradeGoods
             }
-            marketSymbol={waypointSt.waypoint.symbol}
+            marketSymbol={waypointSt?.waypoint?.symbol || ""}
           />
         )}
       </Flex>

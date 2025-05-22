@@ -46,6 +46,12 @@ function Help() {
               The Autopilot and Automation reqire a presice clock, if you find
               any issues please refresh the clock on your device
             </li>
+            <li>
+              Currently there is an Error, that sometimes Requests that need
+              CORS (eg Authentication) may get stuck "somewhere", sending an non
+              CORS Requests will fix them. Use in Settings the CORSRequest
+              button to unstuck them
+            </li>
           </ul>
         </Paragraph>
       </Content>
