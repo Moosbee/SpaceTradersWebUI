@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "antd";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import type { TradeSymbol } from "../../spaceTraderAPI/api";
 import {
@@ -72,7 +73,7 @@ function ShipCargoInfo({ ship }: { ship: Ship }) {
                     key={record.symbol}
                     title={`${record.symbol} - ${record.description}`}
                   >
-                    <span>{value}</span>
+                    <Link to={`/supplyChain/${record.symbol}`}>{value}</Link>
                   </Tooltip>
                 );
               },

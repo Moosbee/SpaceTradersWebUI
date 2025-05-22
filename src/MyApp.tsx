@@ -6,6 +6,7 @@ import MySider from "./app/features/mySider";
 import { useAppSelector } from "./app/hooks";
 import ErrorPage from "./app/sites/ErrorPage";
 import ErrorList from "./app/sites/Errors/ErrorList";
+import Account from "./app/sites/accounts/account";
 import Agents from "./app/sites/agents/Agents";
 import Caching from "./app/sites/caching/caching";
 import Contracts from "./app/sites/contracts/Contracts";
@@ -72,6 +73,7 @@ function MyApp() {
                       errorElement={<ErrorPage />}
                     />
                     <Route path="/agents" element={<Agents></Agents>} />
+                    <Route path="/account" element={<Account></Account>} />
                     <Route
                       path="/fleet/:shipID"
                       element={<ShipInfo></ShipInfo>}

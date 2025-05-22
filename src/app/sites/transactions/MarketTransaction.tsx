@@ -1,6 +1,5 @@
-import { Flex } from "antd";
-import MarketTransactionDisp from "../../features/disp/transactions/MarketTransactionDisp";
 import PageTitle from "../../features/PageTitle";
+import MarketTransactionTable from "../../features/tansactionTable/MarketTransactionTable";
 import { useAppSelector } from "../../hooks";
 import { selectMarketTransactions } from "../../spaceTraderAPI/redux/tansactionSlice";
 
@@ -11,14 +10,7 @@ function MarketTransaction() {
     <div style={{ padding: "24px 24px" }}>
       <PageTitle title="Market Transaction" />
       <h1>MarketTransaction {transaction.length}</h1>
-      <Flex wrap gap="middle" align="center" justify="space-evenly">
-        {transaction.toReversed().map((transaction) => (
-          <MarketTransactionDisp
-            key={transaction.timestamp}
-            transaction={transaction}
-          />
-        ))}
-      </Flex>
+      <MarketTransactionTable transactions={transaction} />
     </div>
   );
 }

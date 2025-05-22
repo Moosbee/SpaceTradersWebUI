@@ -12,6 +12,7 @@ import { Configuration } from "./api/configuration";
 
 import axios from "axios";
 import { store } from "../store";
+import { message } from "../utils/antdMessage";
 import { selectAgent } from "./redux/agentSlice";
 import { selectAgentSymbol } from "./redux/configSlice";
 
@@ -45,6 +46,7 @@ axiosInstance.interceptors.response.use(
   },
   (error) => {
     console.log("axiosresponseError", error);
+    message.error("Response Error\n" + error.response.data.error.message);
     return error;
   },
 );

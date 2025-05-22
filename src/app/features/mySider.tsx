@@ -36,6 +36,11 @@ const items: MenuItem[] = [
     icon: <AppstoreOutlined />,
     children: [
       {
+        label: <Link to="/account">Account</Link>,
+        key: "account",
+        icon: <TeamOutlined />,
+      },
+      {
         label: <Link to="/agents">Agents</Link>,
         key: "agents",
         icon: <ContactsOutlined />,

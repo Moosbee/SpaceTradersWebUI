@@ -1,12 +1,12 @@
 import type { FormProps } from "antd";
-import { Form, Typography, Input, Space, Button, Result, Card } from "antd";
-import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
-import AgentDisp from "../disp/AgentDisp";
+import { Button, Card, Form, Input, Result, Space, Typography } from "antd";
 import { useState } from "react";
 import { useAppDispatch } from "../../hooks";
 import type { Agent } from "../../spaceTraderAPI/api";
 import { addAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { setAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
+import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+import AgentDisp from "../disp/AgentDisp";
 
 type addAgentType = {
   token: string;
@@ -82,7 +82,7 @@ function AddAgent() {
             },
           ]}
         >
-          <Input placeholder="Enter the agent token" />
+          <Input.Password placeholder="Enter the agent token" />
         </Form.Item>
         <Form.Item {...tailLayout}>
           <Space>

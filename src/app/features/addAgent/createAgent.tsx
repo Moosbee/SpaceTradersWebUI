@@ -100,7 +100,7 @@ function CreateAgent() {
           label="AccountToken"
           rules={[{ required: true }]}
         >
-          <Input placeholder="Enter a AccountToken" />
+          <Input.Password placeholder="Enter a AccountToken" />
         </Form.Item>
         <Form.Item
           name="callsign"

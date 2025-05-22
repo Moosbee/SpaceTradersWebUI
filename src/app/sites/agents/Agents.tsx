@@ -1,13 +1,46 @@
 import type { PaginationProps } from "antd";
-import { Divider, Flex, Pagination, Spin } from "antd";
+import { Divider, Flex, Pagination, Spin, Table } from "antd";
 import { useEffect, useState } from "react";
 import AgentDisp from "../../features/disp/AgentDisp";
 import PageTitle from "../../features/PageTitle";
 import { useAppDispatch, useAppSelector } from "../../hooks";
-import type { PublicAgent } from "../../spaceTraderAPI/api";
+import type { AgentEvent, PublicAgent } from "../../spaceTraderAPI/api";
 import { selectAgent, setMyAgent } from "../../spaceTraderAPI/redux/agentSlice";
 import { selectAgentSymbol } from "../../spaceTraderAPI/redux/configSlice";
 import spaceTraderClient from "../../spaceTraderAPI/spaceTraderClient";
+
+// export interface AgentEvent {
+//     /**
+//      *
+//      * @type {string}
+//      * @memberof AgentEvent
+//      */
+//     'id': string;
+//     /**
+//      *
+//      * @type {string}
+//      * @memberof AgentEvent
+//      */
+//     'type': string;
+//     /**
+//      *
+//      * @type {string}
+//      * @memberof AgentEvent
+//      */
+//     'message': string;
+//     /**
+//      *
+//      * @type {any}
+//      * @memberof AgentEvent
+//      */
+//     'data'?: any;
+//     /**
+//      *
+//      * @type {string}
+//      * @memberof AgentEvent
+//      */
+//     'createdAt': string;
+// }
 
 function Agents() {
   const [agents, setAgents] = useState<PublicAgent[]>([]);
@@ -18,6 +51,8 @@ function Agents() {
 
   const dispatch = useAppDispatch();
 
+  const [agentEvents, setAgentEvents] = useState<AgentEvent[]>([]);
+
   const agentSymbol = useAppSelector(selectAgentSymbol);
   const myAgent = useAppSelector((state) => selectAgent(state, agentSymbol));
 
@@ -25,6 +60,10 @@ function Agents() {
     spaceTraderClient.AgentsClient.getMyAgent().then((response) => {
       console.log("my response", response);
       dispatch(setMyAgent(response.data.data));
+    });
+    spaceTraderClient.AgentsClient.getMyAgentEvents().then((response) => {
+      console.log("my response", response);
+      setAgentEvents(response.data.data);
     });
     return () => {};
   }, [dispatch]);
@@ -54,6 +93,38 @@ function Agents() {
       <Spin spinning={!myAgent}>
         {myAgent && <AgentDisp agent={myAgent.agent}></AgentDisp>}
       </Spin>
+      <Divider>Events</Divider>
+      <Table
+        dataSource={agentEvents}
+        columns={[
+          {
+            title: "ID",
+            dataIndex: "id",
+            key: "id",
+          },
+          {
+            title: "Type",
+            dataIndex: "type",
+            key: "type",
+          },
+          {
+            title: "Message",
+            dataIndex: "message",
+            key: "message",
+          },
+          {
+            title: "Data",
+            dataIndex: "data",
+            key: "data",
+            render: (value) => JSON.stringify(value),
+          },
+          {
+            title: "Created At",
+            dataIndex: "createdAt",
+            key: "createdAt",
+          },
+        ]}
+      ></Table>
       <Divider />
       <h2>All Agents</h2>
       <Pagination
