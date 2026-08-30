@@ -173,6 +173,7 @@ function WaypointMap({ systemID }: { systemID: string }) {
         route.travelMode,
       );
     }
+    // return calculateLongestShortPath(waypointsMp);
     return [];
   }, [route.show, route.travelMode, waypointsMp, selectedWaypoint, ship]);
 
@@ -630,3 +631,47 @@ function createTransitingShipPoint(
   };
 }
 export default WaypointMap;
+function calculateLongestShortPath(
+  waypointsMp: WaypointMapPoint[],
+): RouteMapPoint[] {
+  const markets = waypointsMp.filter((w) =>
+    w.waypoint.waypoint.traits.some((t) => t.symbol === "MARKETPLACE"),
+  );
+
+  let connections = markets.map((m) => {
+    return markets.map((m2) => {
+      return {
+        x1: m.xOne,
+        y1: m.yOne,
+        x2: m2.xOne,
+        y2: m2.yOne,
+        distance: Math.sqrt(
+          Math.pow(m.waypoint.waypoint.x - m2.waypoint.waypoint.x, 2) +
+            Math.pow(m.waypoint.waypoint.y - m2.waypoint.waypoint.y, 2),
+        ),
+        market1: m.waypoint.waypoint.symbol,
+        market2: m2.waypoint.waypoint.symbol,
+      };
+    });
+  });
+
+  return connections
+    .map(
+      (c) =>
+        c
+          .filter((c) => c.distance > 0)
+          .sort((a, b) => a.distance - b.distance)[0],
+    )
+    .map((c) => {
+      return {
+        x1: c.x1,
+        y1: c.y1,
+        x2: c.x2,
+        y2: c.y2,
+        distance: c.distance,
+        destination: c.market2,
+        wpSymbol: c.market1,
+        mode: "DRIFT",
+      };
+    });
+}
